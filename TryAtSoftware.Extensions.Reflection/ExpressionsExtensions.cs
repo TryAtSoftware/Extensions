@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 
-public static class ExpressionsHelper
+public static class ExpressionsExtensions
 {
     [NotNull]
     public static MemberInfo GetMemberInfo<T, TValue>([NotNull] this Expression<Func<T, TValue>> propertyLambda)

@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using TryAtSoftware.Extensions.Reflection.Tests.Types;
 using Xunit;
 
-public class ExpressionsHelperTests
+public class ExpressionsExtensionsTests
 {
     [Fact]
     public void ExceptionShouldBeThrownIfNullExpressionIsSentToTheGetMemberInfoMethod() => Assert.Throws<ArgumentNullException>(() => ((Expression<Func<Person, string>>)null).GetMemberInfo());

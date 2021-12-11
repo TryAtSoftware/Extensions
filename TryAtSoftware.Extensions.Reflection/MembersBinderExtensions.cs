@@ -7,7 +7,6 @@ using TryAtSoftware.Extensions.Reflection.Interfaces;
 public static class MembersBinderExtensions
 {
     public static MemberInfo GetRequiredMemberInfo<T>(this IMembersBinder<T> membersBinder, string name)
-        where T : class
     {
         if (membersBinder is null)
             throw new ArgumentNullException(nameof(membersBinder));

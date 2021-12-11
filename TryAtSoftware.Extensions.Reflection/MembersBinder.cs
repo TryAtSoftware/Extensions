@@ -9,7 +9,6 @@ using TryAtSoftware.Extensions.Collections;
 using TryAtSoftware.Extensions.Reflection.Interfaces;
 
 public class MembersBinder<TEntity> : IMembersBinder<TEntity>
-    where TEntity : class
 {
     private readonly Func<MemberInfo, bool> _isValid;
     private readonly BindingFlags _bindingFlags;

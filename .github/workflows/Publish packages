@@ -1,0 +1,35 @@
+name: Publish packages
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  publish:
+    name: Publish NuGet packages
+    runs-on: ubuntu-latest
+    env:
+      NUGET_KEY: ${{ secrets.NUGET_KEY }}
+      CONFIGURATION: Release
+      PACKAGES_DIRECTORY: ./packages
+      NUGET_SOURCE: https://api.nuget.org/v3/index.json
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore --configuration "${{ env.CONFIGURATION }}"
+
+      - name: Pack 'Collection extensions'
+        run: dotnet pack --no-build --configuration "${{ env.CONFIGURATION }}" ./TryAtSoftware.Extensions.Collections/TryAtSoftware.Extensions.Collections.csproj -o "${{ env.PACKAGES_DIRECTORY }}"
+
+      - name: Pack 'Reflection extensions'
+        run: dotnet pack --no-build --configuration "${{ env.CONFIGURATION }}" ./TryAtSoftware.Extensions.Reflection/TryAtSoftware.Extensions.Reflection.csproj -o "${{ env.PACKAGES_DIRECTORY }}"
+
+      - name: Publish all packages
+        run: dotnet nuget push "${{ env.PACKAGES_DIRECTORY }}/*.nupkg" --source "${{ env.NUGET_SOURCE }}" --api-key "${{ env.NUGET_KEY }}" --skip-duplicate

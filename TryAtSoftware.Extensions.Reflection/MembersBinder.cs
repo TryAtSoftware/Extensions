@@ -10,24 +10,18 @@ using TryAtSoftware.Extensions.Reflection.Interfaces;
 
 public class MembersBinder<TEntity> : IMembersBinder<TEntity>
 {
-    private readonly Func<MemberInfo, bool> _isValid;
-    private readonly BindingFlags _bindingFlags;
-
-    public MembersBinder(Func<MemberInfo, bool> isValid, BindingFlags bindingFlags)
+    public MembersBinder([CanBeNull] Func<MemberInfo, bool> isValid, BindingFlags bindingFlags)
     {
-        this._isValid = isValid;
-        this._bindingFlags = bindingFlags;
-
-        var members = this.GetMembers(typeof(TEntity));
+        var members = GetMembers(typeof(TEntity), isValid, bindingFlags);
         this.MemberInfos = new ReadOnlyDictionary<string, MemberInfo>(members);
     }
 
     public IReadOnlyDictionary<string, MemberInfo> MemberInfos { get; }
 
-    private Dictionary<string, MemberInfo> GetMembers([NotNull] IReflect type)
+    private static Dictionary<string, MemberInfo> GetMembers([NotNull] IReflect type, [CanBeNull] Func<MemberInfo, bool> isValid, BindingFlags bindingFlags)
     {
         var membersDict = new Dictionary<string, MemberInfo>();
-        var members = type.GetMembers(this._bindingFlags).SafeWhere(this._isValid);
+        var members = type.GetMembers(bindingFlags).SafeWhere(isValid);
 
         foreach (var member in members)
             membersDict[member.Name] = member;

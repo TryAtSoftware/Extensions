@@ -5,7 +5,7 @@
         <LangVersion>latest</LangVersion>
 
         <PackageId>TryAtSoftware.Extensions.Reflection</PackageId>
-        <Version>1.0.0-alpha.6</Version>
+        <Version>1.0.0-alpha.7</Version>
         <Authors>Tony Troeff</Authors>
         <RepositoryUrl>https://github.com/TryAtSoftware/Extensions</RepositoryUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>

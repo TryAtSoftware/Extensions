@@ -1,7 +1,7 @@
 ﻿namespace TryAtSoftware.Extensions.Reflection;
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 public static class TypeNames
 {
     private const char GenericTypeNameSeparator = '`';
-    private static readonly Dictionary<Type, string> _memo = new();
+    private static readonly ConcurrentDictionary<Type, string> _memo = new();
 
     public static string Get(Type type)
     {

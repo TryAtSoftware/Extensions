@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TryAtSoftware.Extensions.Reflection.Tests.Types;
 using Xunit;
@@ -31,6 +32,23 @@ public static class TypeNamesTests
 
         var actualValue = property.GetValue(obj: null);
         Assert.Equal(expected, actualValue);
+    }
+
+    [Fact]
+    public static Task TypeNamesInParallelShouldBeRetrievedSuccessfully()
+    {
+        return Parallel.ForEachAsync(GetTestData().Concat(GetOpenGenericsTestData()),
+            (data, _) =>
+        {
+            var iteratedData = data.ToArray();
+            var type = (Type) iteratedData[0];
+            var expected = (string) iteratedData[1];
+
+            Assert.NotNull(type);
+            Assert.False(string.IsNullOrWhiteSpace(expected));
+            Assert.Equal(expected, TypeNames.Get(type));
+            return ValueTask.CompletedTask;
+        });
     }
 
     public static IEnumerable<object[]> GetTestData()

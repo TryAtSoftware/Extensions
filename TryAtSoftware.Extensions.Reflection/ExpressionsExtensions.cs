@@ -25,4 +25,16 @@ public static class ExpressionsExtensions
 
         return memberInfo;
     }
+
+    public static Expression<Func<T, TValue>> ConstructPropertyAccessor<T, TValue>([NotNull] this PropertyInfo propertyInfo, bool conversionIsRequired = false)
+    {
+        if (propertyInfo is null) throw new ArgumentNullException(nameof(propertyInfo));
+
+        var parameter = Expression.Parameter(typeof(T));
+        
+        Expression accessPropertyValue = Expression.Property(parameter, propertyInfo);
+        if (conversionIsRequired) accessPropertyValue = Expression.Convert(accessPropertyValue, typeof(TValue));
+        
+        return Expression.Lambda<Func<T, TValue>>(accessPropertyValue, parameter);
+    }
 }

@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using TryAtSoftware.Extensions.Collections;
@@ -51,7 +50,7 @@ public class MembersBinder : IMembersBinder
     }
 }
 
-public class MembersBinder<TEntity> : MembersBinder, IMembersBinder<TEntity>
+public class MembersBinder<TEntity> : MembersBinder
 {
     public MembersBinder([CanBeNull] Func<MemberInfo, bool> isValid, BindingFlags bindingFlags)
         : this(isValid, keySelector: null, bindingFlags)

@@ -10,7 +10,3 @@ public interface IMembersBinder
     [NotNull] Type Type { get; }
     [NotNull] IReadOnlyDictionary<string, MemberInfo> MemberInfos { get; }
 }
-
-public interface IMembersBinder<[UsedImplicitly] TEntity> : IMembersBinder
-{
-}

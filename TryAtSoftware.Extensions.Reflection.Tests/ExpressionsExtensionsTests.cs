@@ -51,6 +51,15 @@ public class ExpressionsExtensionsTests
         var firstName = firstNameAccessor(person);
         Assert.Equal(person.FirstName, firstName);
     }
+
+    [Fact]
+    public void PropertyAccessorShouldNotBeConstructedIfTheReflectedTypeDoesNotCorrespondToTheProvidedGenericTypeParameter()
+    {
+        var firstNameProperty = typeof(Student).GetProperty(nameof(Student.FirstName));
+        Assert.NotNull(firstNameProperty);
+
+        Assert.Throws<InvalidOperationException>(() => firstNameProperty.ConstructPropertyAccessor<Person, string>());
+    }
     
     private static void AssertMemberInfoRetrieval<T, TValue>(Expression<Func<T, TValue>> selector, Type declaringType, string memberName)
     {

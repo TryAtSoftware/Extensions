@@ -26,6 +26,13 @@ public static class ExpressionsExtensions
         return memberInfo;
     }
 
+    /// <summary>
+    /// Use this method in order to construct an <see cref="Expression"/> pointing to a given property.
+    /// </summary>
+    /// <param name="propertyInfo">The <see cref="PropertyInfo"/> describing the property that should be referenced.</param>
+    /// <typeparam name="T">The type containing the provided <paramref name="propertyInfo"/> (should be equal to its reflected type).</typeparam>
+    /// <typeparam name="TValue">The type of value that should be retrieved from the requested property (if this value does not match the property type, a conversion will be applied).</typeparam>
+    /// <returns>Returns a subsequently built expression pointing to the requested property.</returns>
     public static Expression<Func<T, TValue>> ConstructPropertyAccessor<T, TValue>([NotNull] this PropertyInfo propertyInfo)
     {
         if (propertyInfo is null) throw new ArgumentNullException(nameof(propertyInfo));

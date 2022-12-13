@@ -1,5 +1,6 @@
 ﻿namespace TryAtSoftware.Extensions.Reflection.Tests;
 
+using System;
 using System.Reflection;
 using TryAtSoftware.Extensions.Reflection.Tests.Types;
 using Xunit;
@@ -7,7 +8,10 @@ using Xunit;
 public class MembersBinderTests
 {
     private const BindingFlags DefaultBindingFlags = BindingFlags.Public | BindingFlags.Instance;
-    
+
+    [Fact]
+    public void TheNonGenericMembersBinderShouldRequireProvidedType() => Assert.Throws<ArgumentNullException>(() => new MembersBinder(null!, MemberIsValid, DefaultBindingFlags));
+
     [Fact]
     public void MemberBinderShouldBeInitializedCorrectlyWithDifferentKeySelector()
     {

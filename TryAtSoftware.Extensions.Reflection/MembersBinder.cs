@@ -8,19 +8,24 @@ using JetBrains.Annotations;
 using TryAtSoftware.Extensions.Collections;
 using TryAtSoftware.Extensions.Reflection.Interfaces;
 
-public class MembersBinder<TEntity> : IMembersBinder<TEntity>
+public class MembersBinder : IMembersBinder
 {
-    public MembersBinder([CanBeNull] Func<MemberInfo, bool> isValid, BindingFlags bindingFlags)
-        : this(isValid, keySelector: null, bindingFlags)
+    public MembersBinder([NotNull] Type type, [CanBeNull] Func<MemberInfo, bool> isValid, BindingFlags bindingFlags)
+        : this(type, isValid, keySelector: null, bindingFlags)
     {
     }
     
-    public MembersBinder([CanBeNull] Func<MemberInfo, bool> isValid, [CanBeNull] Func<MemberInfo, string> keySelector, BindingFlags bindingFlags)
+    public MembersBinder([NotNull] Type type, [CanBeNull] Func<MemberInfo, bool> isValid, [CanBeNull] Func<MemberInfo, string> keySelector, BindingFlags bindingFlags)
     {
-        var members = GetMembers(typeof(TEntity), isValid, bindingFlags, keySelector);
+        this.Type = type ?? throw new ArgumentNullException(nameof(type));
+        var members = GetMembers(type, isValid, bindingFlags, keySelector);
         this.MemberInfos = new ReadOnlyDictionary<string, MemberInfo>(members);
     }
 
+    /// <inheritdoc />
+    public Type Type { get; }
+
+    /// <inheritdoc />
     public IReadOnlyDictionary<string, MemberInfo> MemberInfos { get; }
 
     private static Dictionary<string, MemberInfo> GetMembers([NotNull] IReflect type, [CanBeNull] Func<MemberInfo, bool> isValid, BindingFlags bindingFlags, [CanBeNull] Func<MemberInfo, string> keySelector)
@@ -42,5 +47,18 @@ public class MembersBinder<TEntity> : IMembersBinder<TEntity>
         }
 
         return membersDict;
+    }
+}
+
+public class MembersBinder<TEntity> : MembersBinder
+{
+    public MembersBinder([CanBeNull] Func<MemberInfo, bool> isValid, BindingFlags bindingFlags)
+        : this(isValid, keySelector: null, bindingFlags)
+    {
+    }
+    
+    public MembersBinder([CanBeNull] Func<MemberInfo, bool> isValid, [CanBeNull] Func<MemberInfo, string> keySelector, BindingFlags bindingFlags)
+        : base(typeof(TEntity), isValid, keySelector, bindingFlags)
+    {
     }
 }

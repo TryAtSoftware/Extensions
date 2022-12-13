@@ -26,7 +26,7 @@ public static class ExpressionsExtensions
         return memberInfo;
     }
 
-    public static Expression<Func<T, TValue>> ConstructPropertyAccessor<T, TValue>([NotNull] this PropertyInfo propertyInfo, bool conversionIsRequired = false)
+    public static Expression<Func<T, TValue>> ConstructPropertyAccessor<T, TValue>([NotNull] this PropertyInfo propertyInfo)
     {
         if (propertyInfo is null) throw new ArgumentNullException(nameof(propertyInfo));
         if (propertyInfo.ReflectedType != typeof(T)) throw new InvalidOperationException($"The provided property was obtained from a different type. Property name: {propertyInfo.Name}, T: {TypeNames<T>.Value}, Reflected type: {TypeNames.Get(propertyInfo.ReflectedType)}");
@@ -34,7 +34,7 @@ public static class ExpressionsExtensions
         var parameter = Expression.Parameter(typeof(T));
         
         Expression accessPropertyValue = Expression.Property(parameter, propertyInfo);
-        if (conversionIsRequired) accessPropertyValue = Expression.Convert(accessPropertyValue, typeof(TValue));
+        if (propertyInfo.PropertyType != typeof(TValue)) accessPropertyValue = Expression.Convert(accessPropertyValue, typeof(TValue));
         
         return Expression.Lambda<Func<T, TValue>>(accessPropertyValue, parameter);
     }

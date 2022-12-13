@@ -31,19 +31,24 @@ public class ExpressionsExtensionsTests
     [Fact]
     public void PropertyAccessorShouldBeSuccessfullyConstructed()
     {
-        var propertyInfo = typeof(Person).GetProperty(nameof(Person.FirstName));
-        Assert.NotNull(propertyInfo);
-        
-        var propertyAccessor = propertyInfo.ConstructPropertyAccessor<Person, string>();
-        Assert.NotNull(propertyAccessor);
-
-        var compiledPropertyAccessor = propertyAccessor.Compile();
-        Assert.NotNull(compiledPropertyAccessor);
+        var firstNameAccessor = GetCompiledPropertyAccessorInvocationResult<Person, string>(nameof(Person.FirstName));
 
         var personRandomizer = new PersonRandomizer();
         var person = personRandomizer.PrepareRandomValue();
 
-        var firstName = compiledPropertyAccessor(person);
+        var firstName = firstNameAccessor(person);
+        Assert.Equal(person.FirstName, firstName);
+    }
+    
+    [Fact]
+    public void PropertyAccessorShouldBeSuccessfullyConstructedWhenConversionIsNecessary()
+    {
+        var firstNameAccessor = GetCompiledPropertyAccessorInvocationResult<Person, object>(nameof(Person.FirstName));
+
+        var personRandomizer = new PersonRandomizer();
+        var person = personRandomizer.PrepareRandomValue();
+
+        var firstName = firstNameAccessor(person);
         Assert.Equal(person.FirstName, firstName);
     }
     
@@ -51,5 +56,21 @@ public class ExpressionsExtensionsTests
     {
         var memberInfo = selector.GetMemberInfo();
         memberInfo.AssertSameMember(declaringType, memberName);
+    }
+
+    private static Func<T, TValue> GetCompiledPropertyAccessorInvocationResult<T, TValue>(string propertyName)
+    {
+        Assert.False(string.IsNullOrWhiteSpace(propertyName));
+
+        var propertyInfo = typeof(T).GetProperty(propertyName);
+        Assert.NotNull(propertyInfo);
+        
+        var propertyAccessor = propertyInfo.ConstructPropertyAccessor<T, TValue>();
+        Assert.NotNull(propertyAccessor);
+
+        var compiledPropertyAccessor = propertyAccessor.Compile();
+        Assert.NotNull(compiledPropertyAccessor);
+
+        return compiledPropertyAccessor;
     }
 }

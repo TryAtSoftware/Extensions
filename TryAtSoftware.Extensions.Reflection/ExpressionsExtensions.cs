@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 
 /// <summary>
-/// A static class containing standard extension methods that are useful when working with extensions.
+/// A static class containing standard extension methods that are useful when working with expressions.
 /// </summary>
 public static class ExpressionsExtensions
 {

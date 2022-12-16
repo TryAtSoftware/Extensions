@@ -1,12 +1,21 @@
-﻿namespace TryAtSoftware.Extensions.Reflection.Interfaces;
+namespace TryAtSoftware.Extensions.Reflection.Interfaces;
 
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 
+/// <summary>
+/// An interface defining the structure of a component responsible for discovering and caching information about a subset of the members of a given type.
+/// </summary>
 public interface IMembersBinder
 {
-    [NotNull] Type Type { get; }
-    [NotNull] IReadOnlyDictionary<string, MemberInfo> MemberInfos { get; }
+    /// <summary>
+    /// Gets the type used by this member binder.
+    /// </summary>
+    Type Type { get; }
+
+    /// <summary>
+    /// Gets an <see cref="IReadOnlyDictionary{TKey, TValue}"/> where all discovered <see cref="MemberInfo"/> instances are mapped appropriately to a given key.
+    /// </summary>
+    IReadOnlyDictionary<string, MemberInfo> MemberInfos { get; }
 }

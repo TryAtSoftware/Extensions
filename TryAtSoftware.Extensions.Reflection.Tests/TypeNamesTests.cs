@@ -1,4 +1,4 @@
-﻿namespace TryAtSoftware.Extensions.Reflection.Tests;
+namespace TryAtSoftware.Extensions.Reflection.Tests;
 
 using System;
 using System.Collections.Generic;
@@ -9,6 +9,9 @@ using Xunit;
 
 public static class TypeNamesTests
 {
+    [Fact]
+    public static void ExceptionShouldBeThrownIfTheProvidedTypeWasNull() => Assert.Throws<ArgumentNullException>(() => TypeNames.Get(null));
+
     [Theory]
     [MemberData(nameof(GetTestData))]
     [MemberData(nameof(GetOpenGenericsTestData))]

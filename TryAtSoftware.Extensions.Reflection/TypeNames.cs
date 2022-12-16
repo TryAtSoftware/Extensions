@@ -1,10 +1,9 @@
-﻿namespace TryAtSoftware.Extensions.Reflection;
+namespace TryAtSoftware.Extensions.Reflection;
 
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 
 public static class TypeNames
 {
@@ -13,6 +12,7 @@ public static class TypeNames
 
     public static string Get(Type type)
     {
+        if (type is null) throw new ArgumentNullException(nameof(type));
         if (_memo.TryGetValue(type, out var memoizedName)) return memoizedName;
 
         var sanitizedTypeName = SanitizeTypeName(type);
@@ -33,7 +33,7 @@ public static class TypeNames
         return name;
     }
 
-    private static string SanitizeTypeName([NotNull] Type type)
+    private static string SanitizeTypeName(Type type)
     {
         var originalTypeName = type.Name;
         if (!type.IsGenericType) return originalTypeName;

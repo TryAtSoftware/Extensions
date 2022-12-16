@@ -1,12 +1,11 @@
-﻿namespace TryAtSoftware.Extensions.Reflection.Interfaces;
+namespace TryAtSoftware.Extensions.Reflection.Interfaces;
 
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 
 public interface IMembersBinder
 {
-    [NotNull] Type Type { get; }
-    [NotNull] IReadOnlyDictionary<string, MemberInfo> MemberInfos { get; }
+    Type Type { get; }
+    IReadOnlyDictionary<string, MemberInfo> MemberInfos { get; }
 }

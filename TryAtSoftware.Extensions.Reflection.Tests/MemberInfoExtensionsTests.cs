@@ -39,7 +39,7 @@ public class MemberInfoExtensionsTests
         var instance = new TestHelerClass();
         MemberInfo methodInfo = typeof(TestHelerClass).GetMethod(nameof(TestHelerClass.Method));
 
-        Assert.Throws<ArgumentException>(() => methodInfo.GetValue(instance));
+        Assert.Throws<InvalidOperationException>(() => methodInfo.GetValue(instance));
     }
 
     private class TestHelerClass

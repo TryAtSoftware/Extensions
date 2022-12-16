@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 
 /// <summary>
-/// An interface defining the structure of a component responsible for discovering and caching information about part of the members of a given type.
+/// An interface defining the structure of a component responsible for discovering and caching information about a subset of the members of a given type.
 /// </summary>
 public interface IMembersBinder
 {

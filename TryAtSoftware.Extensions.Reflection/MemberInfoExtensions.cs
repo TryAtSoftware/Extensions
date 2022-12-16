@@ -13,7 +13,7 @@ public static class MemberInfoExtensions
     /// </summary>
     /// <param name="memberInfo">The extended <see cref="MemberInfo"/> instance.</param>
     /// <param name="instance">The object whose member value will be returned.</param>
-    /// <returns>Returns the value for the extended <paramref name="memberInfo"/> and the prvided <paramref name="instance"/>.</returns>
+    /// <returns>Returns the value for the extended <paramref name="memberInfo"/> and the provided <paramref name="instance"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the extended <paramref name="memberInfo"/> is null.</exception>
     /// <exception cref="InvalidOperationException">Thrown if a value for the provided <paramref name="memberInfo"/> could not be resolved.</exception>
     public static object? GetValue(this MemberInfo memberInfo, object? instance)

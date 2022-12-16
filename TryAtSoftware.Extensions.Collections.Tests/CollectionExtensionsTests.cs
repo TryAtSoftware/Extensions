@@ -72,6 +72,31 @@ public class CollectionExtensionsTests
         foreach (var (expectedElement, actualElement) in expected.Zip(iteratedResult)) Assert.Equal(expectedElement, actualElement);
     }
 
+    [Fact]
+    public void SafeWhereShouldThrowIfThePassedCollectionIsNull() => Assert.Throws<ArgumentNullException>(() => ((IEnumerable<int>)null).SafeWhere(IsOdd));
+
+    [Fact]
+    public void SafeWhereShouldReturnTheSameCollectionIfNoConditionIsPassed()
+    {
+        var collection = GetStandardCollection();
+        var result = collection.SafeWhere(null);
+        Assert.NotNull(result);
+        Assert.Same(collection, result);
+    }
+
+    [Fact]
+    public void SafeWhereShouldRespectTheProvidedCondition()
+    {
+        var collection = GetStandardCollection();
+        var result = collection.SafeWhere(IsOdd).ToHashSet();
+
+        foreach (var el in collection)
+        {
+            if (IsOdd(el)) Assert.Contains(el, result);
+            else Assert.DoesNotContain(el, result);
+        }
+    }
+
     public static IEnumerable<object[]> GetConcatenateWithTestData()
     {
         yield return new object[] { null, null, Array.Empty<object>() };
@@ -103,6 +128,8 @@ public class CollectionExtensionsTests
         Array.Copy(b, 0, result, a.Length, b.Length);
         return result;
     }
+
+    private static bool IsOdd(int a) => a % 2 == 0;
 
     private static IEnumerable<int> GetStandardCollection() => Enumerable.Range(0, 5);
 }

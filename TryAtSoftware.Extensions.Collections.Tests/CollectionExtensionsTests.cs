@@ -87,14 +87,13 @@ public class CollectionExtensionsTests
     [Fact]
     public void SafeWhereShouldRespectTheProvidedCondition()
     {
-        var collection = GetStandardCollection();
-        var result = collection.SafeWhere(IsOdd).ToHashSet();
+        var collection = Repeat(GetStandardCollection(), 5);
+        var oddNumbersMap = GetElementsMap(collection.Where(IsOdd));
 
-        foreach (var el in collection)
-        {
-            if (IsOdd(el)) Assert.Contains(el, result);
-            else Assert.DoesNotContain(el, result);
-        }
+        var result = collection.SafeWhere(IsOdd);
+        var resultMap = GetElementsMap(result);
+
+        Assert.Equal(oddNumbersMap, resultMap);
     }
 
     public static IEnumerable<object[]> GetConcatenateWithTestData()
@@ -132,4 +131,26 @@ public class CollectionExtensionsTests
     private static bool IsOdd(int a) => a % 2 == 0;
 
     private static IEnumerable<int> GetStandardCollection() => Enumerable.Range(0, 5);
+
+    private static IEnumerable<T> Repeat<T>(IEnumerable<T> collection, int n)
+    {
+        foreach (var el in collection)
+        {
+            for (int i = 0; i < n; i++) yield return el;
+        }
+    }
+        
+    private static IDictionary<T, int> GetElementsMap<T>(IEnumerable<T> collection)
+    {
+        Assert.NotNull(collection);
+
+        var map = new Dictionary<T, int>();
+        foreach (var el in collection)
+        {
+            if (!map.ContainsKey(el)) map[el] = 0;
+            map[el]++;
+        }
+
+        return map;
+    }
 }

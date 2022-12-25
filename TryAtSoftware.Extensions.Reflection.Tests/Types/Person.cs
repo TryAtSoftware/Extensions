@@ -9,4 +9,6 @@ public class Person
     public ushort Age { get; set; }
 
     public string FullName => $"{this.FirstName} {this.MiddleName} {this.LastName}";
+
+    private string InaccessibleProperty => "You cannot access this value";
 }

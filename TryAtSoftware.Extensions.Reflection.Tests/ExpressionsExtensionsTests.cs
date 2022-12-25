@@ -14,7 +14,7 @@ public class ExpressionsExtensionsTests
 
     [Fact]
     public void MemberInfoShouldBeSuccessfullyRetrieved() => AssertMemberInfoRetrieval<Person, string>(p => p.FirstName, typeof(Person), nameof(Person.FirstName));
-
+    
     [Fact]
     public void MemberInfoShouldBeSuccessfullyRetrievedFromDerivedClasses() => AssertMemberInfoRetrieval<Student, string>(p => p.FirstName, typeof(Person), nameof(Person.FirstName));
 
@@ -38,6 +38,18 @@ public class ExpressionsExtensionsTests
 
         var firstName = firstNameAccessor(person);
         Assert.Equal(person.FirstName, firstName);
+    }
+    
+    [Fact]
+    public void AccessorShouldBeSuccessfullyConstructedForInaccessibleProperties()
+    {
+        var inaccessiblePropertyAccessor = GetCompiledPropertyAccessorInvocationResult<Person, string>("InaccessibleProperty", BindingFlags.NonPublic);
+
+        var personRandomizer = new PersonRandomizer();
+        var person = personRandomizer.PrepareRandomValue();
+
+        var inaccessibleValue = inaccessiblePropertyAccessor(person);
+        Assert.Equal("You cannot access this value", inaccessibleValue);
     }
     
     [Fact]
@@ -67,11 +79,11 @@ public class ExpressionsExtensionsTests
         memberInfo.AssertSameMember(declaringType, memberName);
     }
 
-    private static Func<T, TValue> GetCompiledPropertyAccessorInvocationResult<T, TValue>(string propertyName)
+    private static Func<T, TValue> GetCompiledPropertyAccessorInvocationResult<T, TValue>(string propertyName, BindingFlags additionalBindingFlags = 0)
     {
         Assert.False(string.IsNullOrWhiteSpace(propertyName));
 
-        var propertyInfo = typeof(T).GetProperty(propertyName);
+        var propertyInfo = typeof(T).GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | additionalBindingFlags);
         Assert.NotNull(propertyInfo);
         
         var propertyAccessor = propertyInfo.ConstructPropertyAccessor<T, TValue>();

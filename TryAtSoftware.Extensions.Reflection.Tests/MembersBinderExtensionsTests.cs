@@ -3,7 +3,7 @@
 using System;
 using System.Reflection;
 using TryAtSoftware.Extensions.Reflection.Interfaces;
-using TryAtSoftware.Extensions.Reflection.Tests.Types;
+using TryAtSoftware.Extensions.Reflection.Tests.Models;
 using Xunit;
 
 public class MembersBinderExtensionsTests

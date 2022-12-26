@@ -217,6 +217,9 @@ Example:
 ```C#
 IMembersBinder binder = new MembersBinder<TEntity>(IsValidMember, BindingFlags.Public | BindingFlags.Instance);
 
+// Equivalent to:
+// IMembersBinder = new MembersBinder(typeof(TEntity), IsValidMember, BindingFlags.Public | BindingFlags.Instance);
+
 static bool IsValidMember(MemberInfo memberInfo)
     => memberInfo switch
     {
@@ -226,4 +229,26 @@ static bool IsValidMember(MemberInfo memberInfo)
     };
 
 // Now every discovered member for the `TEntity` type will be mapped against its name throughout the `binder.MemberInfos` dictionary.
+```
+
+### Expression extensions
+
+#### `ConstructPropertyAccessor`
+
+This is an extension method that should construct an expression for accessing the value of a specific property.
+Usually, it is a good practice to minimize the reflection calls in code. One way of achieving this is throughout expressions (that are constructed and compiled only once for the lifetime of a program).
+This expression method can be easily used with the `IMembersBinder` we described in the previous chapter.
+Conversions are also handled, e.g. a common use case is to retrieve the values of all properties by boxing them as `object` instances - this can be achieved without any additional configurations as long as the required conversion can be executed.
+
+Example:
+```C#
+IMembersBinder binder = new MembersBinder<TEntity>(x => x is PropertyInfo {CanRead: true}, BindingFlags.Public | BindingFlags.Instance);
+List<Expression<Func<TEntity, object>>> valueAccessors = new List<Expression<Func<TEntity, object>>>();
+
+foreach (var (_, memberInfo) in binder.MemberInfos)
+{
+    var propertyInfo = memberInfo as PropertyInfo;
+    var accessor = propertyInfo.ConstructPropertyAccessor<TEntity, object>();
+    valueAccessors.Add(accessor);
+}
 ```

@@ -45,12 +45,31 @@ public static class ExpressionsExtensions
     {
         if (propertyInfo is null) throw new ArgumentNullException(nameof(propertyInfo));
         if (propertyInfo.ReflectedType != typeof(T)) throw new InvalidOperationException($"The provided property was obtained from a different type. Property name: {propertyInfo.Name}, T: {TypeNames<T>.Value}, Reflected type: {TypeNames.Get(propertyInfo.ReflectedType)}");
-        
+        if (!propertyInfo.CanRead) throw new InvalidOperationException("The property is not readable.");
+
         var parameter = Expression.Parameter(typeof(T));
-        
+
         Expression accessPropertyValue = Expression.Property(parameter, propertyInfo);
         if (propertyInfo.PropertyType != typeof(TValue)) accessPropertyValue = Expression.Convert(accessPropertyValue, typeof(TValue));
-        
+
         return Expression.Lambda<Func<T, TValue>>(accessPropertyValue, parameter);
+    }
+
+    public static Expression<Action<T, TValue>> ConstructPropertySetter<T, TValue>(this PropertyInfo propertyInfo)
+    {
+        if (propertyInfo is null) throw new ArgumentNullException(nameof(propertyInfo));
+        if (propertyInfo.ReflectedType != typeof(T)) throw new InvalidOperationException($"The provided property was obtained from a different type. Property name: {propertyInfo.Name}, T: {TypeNames<T>.Value}, Reflected type: {TypeNames.Get(propertyInfo.ReflectedType)}");
+        if (!propertyInfo.CanWrite) throw new InvalidOperationException("The property is read-only.");
+
+        var instanceParameter = Expression.Parameter(typeof(T));
+        var valueParameter = Expression.Parameter(typeof(TValue));
+
+        Expression propertyExpression = Expression.Property(instanceParameter, propertyInfo);
+        Expression valueExpression = valueParameter;
+        if (propertyInfo.PropertyType != typeof(TValue)) valueExpression = Expression.Convert(valueExpression, propertyInfo.PropertyType);
+
+        var assignExpression = Expression.Assign(propertyExpression, valueExpression);
+
+        return Expression.Lambda<Action<T, TValue>>(assignExpression, instanceParameter, valueParameter);
     }
 }

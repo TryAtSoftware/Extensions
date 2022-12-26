@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using TryAtSoftware.Extensions.Reflection.Tests.Randomization;
 using TryAtSoftware.Extensions.Reflection.Tests.Types;
+using TryAtSoftware.Randomizer.Core.Helpers;
 using Xunit;
 
 public class ExpressionsExtensionsTests
@@ -31,7 +32,7 @@ public class ExpressionsExtensionsTests
     [Fact]
     public void PropertyAccessorShouldBeSuccessfullyConstructed()
     {
-        var firstNameAccessor = GetCompiledPropertyAccessorInvocationResult<Person, string>(nameof(Person.FirstName));
+        var firstNameAccessor = GetCompiledPropertyAccessor<Person, string>(nameof(Person.FirstName));
 
         var personRandomizer = new PersonRandomizer();
         var person = personRandomizer.PrepareRandomValue();
@@ -43,7 +44,7 @@ public class ExpressionsExtensionsTests
     [Fact]
     public void AccessorShouldBeSuccessfullyConstructedForInaccessibleProperties()
     {
-        var inaccessiblePropertyAccessor = GetCompiledPropertyAccessorInvocationResult<Person, string>("InaccessibleProperty", BindingFlags.NonPublic);
+        var inaccessiblePropertyAccessor = GetCompiledPropertyAccessor<Person, string>("InaccessibleProperty", BindingFlags.NonPublic);
 
         var personRandomizer = new PersonRandomizer();
         var person = personRandomizer.PrepareRandomValue();
@@ -55,7 +56,7 @@ public class ExpressionsExtensionsTests
     [Fact]
     public void PropertyAccessorShouldBeSuccessfullyConstructedWhenConversionIsNecessary()
     {
-        var firstNameAccessor = GetCompiledPropertyAccessorInvocationResult<Person, object>(nameof(Person.FirstName));
+        var firstNameAccessor = GetCompiledPropertyAccessor<Person, object>(nameof(Person.FirstName));
 
         var personRandomizer = new PersonRandomizer();
         var person = personRandomizer.PrepareRandomValue();
@@ -72,6 +73,30 @@ public class ExpressionsExtensionsTests
 
         Assert.Throws<InvalidOperationException>(() => firstNameProperty.ConstructPropertyAccessor<Person, string>());
     }
+
+    [Fact]
+    public void PropertySetterShouldBeConstructedSuccessfully()
+    {
+        var firstNameSetter = GetCompiledPropertySetter<Person, string>(nameof(Person.FirstName));
+        
+        var person = new Person();
+        var randomString = RandomizationHelper.GetRandomString();
+        
+        firstNameSetter(person, randomString);
+        Assert.Equal(randomString, person.FirstName);
+    }
+
+    [Fact]
+    public void PropertySetterShouldBeConstructedSuccessfullyWhenConversionIsRequired()
+    {
+        var firstNameSetter = GetCompiledPropertySetter<Person, byte>(nameof(Person.Age));
+        
+        var person = new Person();
+        var randomByte = (byte)RandomizationHelper.RandomInteger(byte.MinValue, byte.MaxValue);
+        
+        firstNameSetter(person, randomByte);
+        Assert.Equal(randomByte, person.Age);
+    }
     
     private static void AssertMemberInfoRetrieval<T, TValue>(Expression<Func<T, TValue>> selector, Type declaringType, string memberName)
     {
@@ -79,7 +104,7 @@ public class ExpressionsExtensionsTests
         memberInfo.AssertSameMember(declaringType, memberName);
     }
 
-    private static Func<T, TValue> GetCompiledPropertyAccessorInvocationResult<T, TValue>(string propertyName, BindingFlags additionalBindingFlags = 0)
+    private static Func<T, TValue> GetCompiledPropertyAccessor<T, TValue>(string propertyName, BindingFlags additionalBindingFlags = 0)
     {
         Assert.False(string.IsNullOrWhiteSpace(propertyName));
 
@@ -93,5 +118,21 @@ public class ExpressionsExtensionsTests
         Assert.NotNull(compiledPropertyAccessor);
 
         return compiledPropertyAccessor;
+    }
+
+    private static Action<T, TValue> GetCompiledPropertySetter<T, TValue>(string propertyName, BindingFlags additionalBindingFlags = 0)
+    {
+        Assert.False(string.IsNullOrWhiteSpace(propertyName));
+
+        var propertyInfo = typeof(T).GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | additionalBindingFlags);
+        Assert.NotNull(propertyInfo);
+        
+        var propertySetter = propertyInfo.ConstructPropertySetter<T, TValue>();
+        Assert.NotNull(propertySetter);
+
+        var compiledPropertySetter = propertySetter.Compile();
+        Assert.NotNull(compiledPropertySetter);
+
+        return compiledPropertySetter;
     }
 }

@@ -152,5 +152,34 @@ foreach (Guid id in identifiers.OrEmptyIfNull().SafeWhere(predicate))
 
 ### `ConcatenateWith`
 
+This is an extension method that can be used to concatenate two collections safely in terms of their nullability.
+Examples of **incorrect** code:
+
+```C#
+IEnumerable<int> a = /* initialization... */;
+IEnumerable<int> b = /* initialization... */;
+
+IEnumerable<int> concatenated;
+if (a == null && b == null) concatenated = Enumerable.Empty<int>();
+else if (a == null) concatenated = b;
+else if (b == null) concatenated = a;
+else 
+{
+    List<int> tempConcatenated = new List<int>();
+    foreach (int el in a) tempConcatenated.Add(el);
+    foreach (int el in b) tempConcatenated.Add(el);
+    
+    concatenated = tempConcatenated;
+}
+```
+
+Examples of **correct** code:
+
+```C#
+IEnumerable<int> a = /* initialization... */;
+IEnumerable<int> b = /* initialization... */;
+
+IEnumerable<int> concatenated = a.ConcatenateWith(b);
+```
 
 # TryAtSoftware.Extensions.Reflection

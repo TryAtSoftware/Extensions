@@ -9,7 +9,7 @@ using System.Reflection;
 public static class MemberInfoExtensions
 {
     /// <summary>
-    /// Use this method to retrieve the value of a member info for a given instnce.
+    /// Use this method to retrieve the value of a member info for a given instance.
     /// </summary>
     /// <param name="memberInfo">The extended <see cref="MemberInfo"/> instance.</param>
     /// <param name="instance">The object whose member value will be returned.</param>

@@ -17,9 +17,9 @@ public static class TypeNames
     private static readonly ConcurrentDictionary<Type, string> _memo = new();
 
     /// <summary>
-    /// Use this method to get the beutified name of the requested <paramref name="type"/>.
+    /// Use this method to get the beautified name of the requested <paramref name="type"/>.
     /// </summary>
-    /// <param name="type">The <see cref="Type"/> for which a beutified name should be generated and returned.</param>
+    /// <param name="type">The <see cref="Type"/> for which a beautified name should be generated and returned.</param>
     /// <returns>Returns the subsequently generated beautified name of the provided <paramref name="type"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the provided <paramref name="type"/> is null.</exception>
     public static string Get(Type type)

@@ -1,6 +1,6 @@
 ﻿namespace TryAtSoftware.Extensions.Reflection.Tests.Randomization;
 
-using TryAtSoftware.Extensions.Reflection.Tests.Types;
+using TryAtSoftware.Extensions.Reflection.Tests.Models;
 using TryAtSoftware.Randomizer.Core;
 using TryAtSoftware.Randomizer.Core.Primitives;
 

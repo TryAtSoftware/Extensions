@@ -33,24 +33,59 @@ public static class ExpressionsExtensions
     }
 
     /// <summary>
-    /// Use this method in order to construct an <see cref="Expression"/> pointing to a given property.
+    /// Use this method in order to construct an <see cref="Expression"/> for retrieving the value of a given property.
     /// </summary>
     /// <param name="propertyInfo">The <see cref="PropertyInfo"/> describing the property that should be referenced.</param>
     /// <typeparam name="T">The type containing the provided <paramref name="propertyInfo"/> (should be equal to its reflected type).</typeparam>
     /// <typeparam name="TValue">The type of value that should be retrieved from the requested property (if this value does not match the property type, a conversion will be applied).</typeparam>
-    /// <returns>Returns a subsequently built expression pointing to the requested property.</returns>
+    /// <returns>Returns a subsequently built expression for retrieving the value of the requested property.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the provided <paramref name="propertyInfo"/> is null.</exception>
     /// <exception cref="InvalidOperationException">Thrown if the <see cref="MemberInfo.ReflectedType"/> of the provided <paramref name="propertyInfo"/> does not match <typeparamref name="T"/>.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the provided <paramref name="propertyInfo"/> is not readable.</exception>
     public static Expression<Func<T, TValue>> ConstructPropertyAccessor<T, TValue>(this PropertyInfo propertyInfo)
     {
         if (propertyInfo is null) throw new ArgumentNullException(nameof(propertyInfo));
-        if (propertyInfo.ReflectedType != typeof(T)) throw new InvalidOperationException($"The provided property was obtained from a different type. Property name: {propertyInfo.Name}, T: {TypeNames<T>.Value}, Reflected type: {TypeNames.Get(propertyInfo.ReflectedType)}");
-        
+        ValidateCorrectReflectedType(propertyInfo, typeof(T));
+        if (!propertyInfo.CanRead) throw new InvalidOperationException("The property is not readable.");
+
         var parameter = Expression.Parameter(typeof(T));
-        
+
         Expression accessPropertyValue = Expression.Property(parameter, propertyInfo);
         if (propertyInfo.PropertyType != typeof(TValue)) accessPropertyValue = Expression.Convert(accessPropertyValue, typeof(TValue));
-        
+
         return Expression.Lambda<Func<T, TValue>>(accessPropertyValue, parameter);
+    }
+
+    /// <summary>
+    /// Use this method in order to construct an <see cref="Expression"/> for setting the value of a given property.
+    /// </summary>
+    /// <param name="propertyInfo">The <see cref="PropertyInfo"/> describing the property that should be referenced.</param>
+    /// <typeparam name="T">The type containing the provided <paramref name="propertyInfo"/> (should be equal to its reflected type).</typeparam>
+    /// <typeparam name="TValue">The type of value that should be set to the requested property (if this value does not match the property type, a conversion will be applied).</typeparam>
+    /// <returns>Returns a subsequently built expression for setting a value to the requested property.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if the provided <paramref name="propertyInfo"/> is null.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the <see cref="MemberInfo.ReflectedType"/> of the provided <paramref name="propertyInfo"/> does not match <typeparamref name="T"/>.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the provided <paramref name="propertyInfo"/> is read-only.</exception>
+    public static Expression<Action<T, TValue>> ConstructPropertySetter<T, TValue>(this PropertyInfo propertyInfo)
+    {
+        if (propertyInfo is null) throw new ArgumentNullException(nameof(propertyInfo));
+        ValidateCorrectReflectedType(propertyInfo, typeof(T));
+        if (!propertyInfo.CanWrite) throw new InvalidOperationException("The property is read-only.");
+
+        var instanceParameter = Expression.Parameter(typeof(T));
+        var valueParameter = Expression.Parameter(typeof(TValue));
+
+        Expression propertyExpression = Expression.Property(instanceParameter, propertyInfo);
+        Expression valueExpression = valueParameter;
+        if (propertyInfo.PropertyType != typeof(TValue)) valueExpression = Expression.Convert(valueExpression, propertyInfo.PropertyType);
+
+        var assignExpression = Expression.Assign(propertyExpression, valueExpression);
+
+        return Expression.Lambda<Action<T, TValue>>(assignExpression, instanceParameter, valueParameter);
+    }
+
+    private static void ValidateCorrectReflectedType(MemberInfo memberInfo, Type operativeType)
+    {
+        if (memberInfo.ReflectedType != operativeType) throw new InvalidOperationException($"The provided member was obtained from a different type. Member name: {memberInfo.Name}, T: {TypeNames.Get(operativeType)}, Reflected type: {TypeNames.Get(memberInfo.ReflectedType)}");
     }
 }

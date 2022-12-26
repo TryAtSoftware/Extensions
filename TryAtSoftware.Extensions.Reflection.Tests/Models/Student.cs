@@ -1,4 +1,4 @@
-﻿namespace TryAtSoftware.Extensions.Reflection.Tests.Types;
+﻿namespace TryAtSoftware.Extensions.Reflection.Tests.Models;
 
 public class Student : Person
 {

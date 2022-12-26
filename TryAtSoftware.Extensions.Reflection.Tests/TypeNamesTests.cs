@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TryAtSoftware.Extensions.Reflection.Tests.Types;
+using TryAtSoftware.Extensions.Reflection.Tests.Models;
 using Xunit;
 
 public static class TypeNamesTests

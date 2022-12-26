@@ -57,6 +57,7 @@ string text = string.Join(", ", numbers.OrEmptyIfNull());
 
 This is an extension method that will return a new enumerable containing all values from the extended one that are not `null` in the same order.
 The main use case is to reduce the amount of conditions when iterating a collection of elements.
+
 Examples of **incorrect** code:
 
 ```C#
@@ -88,6 +89,7 @@ foreach (string w in words.OrEmptyIfNull().IgnoreNullValues())
 
 This is an extension method that will return a new enumerable containing all values from the extended one that do not equal the default one in the same order.
 The main use case is to reduce the amount of conditions when iterating a collection of elements.
+
 Examples of **incorrect** code:
 
 ```C#
@@ -116,6 +118,37 @@ foreach (Guid id in identifiers.OrEmptyIfNull().IgnoreDefaultValues())
 ```
 
 ### `SafeWhere`
+
+This is an extension method that can be used to filter the elements of the extended `enumerable` safely in terms of the nullability of the `predicate`.
+
+Examples of **incorrect** code:
+
+```C#
+IEnumerable<Guid> identifiers = /* initialization... */;
+
+if (identifiers != null)
+{
+    Predicate<Guid> predicate = /* initialization... */;
+    if (predicate != null) identifiers = identifiers.Where(predicate);
+
+    foreach (Guid id in identifiers) 
+    {
+        /* Do something */
+    }
+}
+```
+
+Examples of **correct** code:
+
+```C#
+IEnumerable<Guid> identifiers = /* initialization... */;
+Predicate<Guid> predicate = /* initialization... */;
+
+foreach (Guid id in identifiers.OrEmptyIfNull().SafeWhere(predicate)) 
+{
+    // Do something
+}
+```
 
 ### `ConcatenateWith`
 

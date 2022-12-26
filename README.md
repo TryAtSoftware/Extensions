@@ -17,4 +17,107 @@
 
 # TryAtSoftware.Extensions.Collection
 
+This is a library containing extension methods that should simplify some common operations with collections.
+
+### `OrEmptyIfNull`
+
+This is an extension method that will return an empty enumerable if the extended one was null.
+The main use case is to prevent unnecessary exceptions whenever a `null` enumerable should not be treated differently than an `empty` enumerable.
+
+Examples of **incorrect** code:
+
+```C#
+IEnumerable<int> numbers = /* initialization... */;
+
+// 1. Iterating an `IEnumerable<T>` instance
+if (numbers != null)
+{
+    foreach (int num in numbers) { /* Do something */ }
+}
+
+// 2. Passing an `IEnumerable<T>` instance to other methods
+string text;
+if (numbers != null) text = string.Empty;
+else text = string.Join(", ", numbers);
+```
+
+Examples of **correct** code:
+
+```C#
+IEnumerable<int> numbers = /* initialization... */;
+
+// 1. Iterating an `IEnumerable<T>` instance
+foreach (int num in numbers.OrEmptyIfNull()) { /* Do something */ }
+
+// 2. Passing an `IEnumerable<T>` instance to other methods
+string text = string.Join(", ", numbers.OrEmptyIfNull());
+```
+
+### `IgnoreNullValues`
+
+This is an extension method that will return a new enumerable containing all values from the extended one that are not `null` in the same order.
+The main use case is to reduce the amount of conditions when iterating a collection of elements.
+Examples of **incorrect** code:
+
+```C#
+IEnumerable<string> words = /* initialization... */;
+
+if (words != null)
+{
+    foreach (string w in words) 
+    {
+        if (w == null) continue;
+ 
+        /* Do something */
+    }
+}
+```
+
+Examples of **correct** code:
+
+```C#
+IEnumerable<string> words = /* initialization... */;
+
+foreach (string w in words.OrEmptyIfNull().IgnoreNullValues()) 
+{
+    // Do something
+}
+```
+
+### `IgnoreDefaultValues`
+
+This is an extension method that will return a new enumerable containing all values from the extended one that do not equal the default one in the same order.
+The main use case is to reduce the amount of conditions when iterating a collection of elements.
+Examples of **incorrect** code:
+
+```C#
+IEnumerable<Guid> identifiers = /* initialization... */;
+
+if (identifiers != null)
+{
+    foreach (Guid id in identifiers) 
+    {
+        if (id == Guid.Empty) continue;
+ 
+        /* Do something */
+    }
+}
+```
+
+Examples of **correct** code:
+
+```C#
+IEnumerable<Guid> identifiers = /* initialization... */;
+
+foreach (Guid id in identifiers.OrEmptyIfNull().IgnoreDefaultValues()) 
+{
+    // Do something
+}
+```
+
+### `SafeWhere`
+
+### `ConcatenateWith`
+
+
 # TryAtSoftware.Extensions.Reflection

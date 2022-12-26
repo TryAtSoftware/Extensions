@@ -10,7 +10,7 @@ using System.Linq;
 public static class CollectionExtensions
 {
     /// <summary>
-    /// Use this method to filter the elments of the <paramref name="collection"/> safely in terms of the <paramref name="filter"/> nullability.
+    /// Use this method to filter the elements of the <paramref name="collection"/> safely in terms of the <paramref name="filter"/> nullability.
     /// </summary>
     /// <typeparam name="T">The type of elements in the collection.</typeparam>
     /// <param name="collection">The extended <see cref="IEnumerable{T}"/> instance.</param>

@@ -28,9 +28,6 @@ public class ExpressionsExtensionsTests
     }
 
     [Fact]
-    public void ExceptionShouldBeThrownIfNullExpressionIsSentToTheConstructPropertyAccessorMethod() => Assert.Throws<ArgumentNullException>(() => ((PropertyInfo)null)!.ConstructPropertyAccessor<Person, string>());
-
-    [Fact]
     public void PropertyAccessorShouldBeSuccessfullyConstructed()
     {
         var firstNameAccessor = GetCompiledPropertyAccessor<Person, string>(nameof(Person.FirstName));
@@ -65,6 +62,9 @@ public class ExpressionsExtensionsTests
         var firstName = firstNameAccessor(person);
         Assert.Equal(person.FirstName, firstName);
     }
+
+    [Fact]
+    public void ExceptionShouldBeThrownIfNullExpressionIsSentToTheConstructPropertyAccessorMethod() => Assert.Throws<ArgumentNullException>(() => ((PropertyInfo)null)!.ConstructPropertyAccessor<Person, string>());
 
     [Fact]
     public void PropertyAccessorShouldNotBeConstructedIfTheReflectedTypeDoesNotCorrespondToTheProvidedGenericTypeParameter()
@@ -125,6 +125,9 @@ public class ExpressionsExtensionsTests
 
         Assert.Throws<InvalidOperationException>(() => inaccessiblePropertyGetter.ConstructPropertySetter<ModelWithInaccessibleProperty, string>());
     }
+
+    [Fact]
+    public void ExceptionShouldBeThrownIfNullExpressionIsSentToTheConstructPropertySetterMethod() => Assert.Throws<ArgumentNullException>(() => ((PropertyInfo)null)!.ConstructPropertySetter<Person, string>());
 
     private static void AssertMemberInfoRetrieval<T, TValue>(Expression<Func<T, TValue>> selector, Type declaringType, string memberName)
     {

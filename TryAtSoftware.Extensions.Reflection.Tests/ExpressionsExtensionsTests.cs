@@ -3,8 +3,9 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using TryAtSoftware.Extensions.Reflection.Tests.Models;
+using TryAtSoftware.Extensions.Reflection.Tests.Models.Specialized;
 using TryAtSoftware.Extensions.Reflection.Tests.Randomization;
-using TryAtSoftware.Extensions.Reflection.Tests.Types;
 using TryAtSoftware.Randomizer.Core.Helpers;
 using Xunit;
 
@@ -44,10 +45,10 @@ public class ExpressionsExtensionsTests
     [Fact]
     public void AccessorShouldBeSuccessfullyConstructedForInaccessibleProperties()
     {
-        var inaccessiblePropertyAccessor = GetCompiledPropertyAccessor<ExpressionTestsClass, string>("InaccessibleProperty", BindingFlags.NonPublic);
+        var inaccessiblePropertyAccessor = GetCompiledPropertyAccessor<ModelWithInaccessibleProperty, string>("InaccessibleProperty", BindingFlags.NonPublic);
 
         var inaccessiblePropertyValue = RandomizationHelper.GetRandomString();
-        var testInstance = new ExpressionTestsClass { InaccessiblePropertySetter = inaccessiblePropertyValue };
+        var testInstance = new ModelWithInaccessibleProperty { InaccessiblePropertySetter = inaccessiblePropertyValue };
 
         var inaccessibleValue = inaccessiblePropertyAccessor(testInstance);
         Assert.Equal(inaccessiblePropertyValue, inaccessibleValue);
@@ -77,10 +78,10 @@ public class ExpressionsExtensionsTests
     [Fact]
     public void PropertyAccessorShouldNotBeConstructedIfItIsNotReadable()
     {
-        var inaccessiblePropertySetter = typeof(ExpressionTestsClass).GetProperty(nameof(ExpressionTestsClass.InaccessiblePropertySetter));
+        var inaccessiblePropertySetter = typeof(ModelWithInaccessibleProperty).GetProperty(nameof(ModelWithInaccessibleProperty.InaccessiblePropertySetter));
         Assert.NotNull(inaccessiblePropertySetter);
 
-        Assert.Throws<InvalidOperationException>(() => inaccessiblePropertySetter.ConstructPropertyAccessor<ExpressionTestsClass, string>());
+        Assert.Throws<InvalidOperationException>(() => inaccessiblePropertySetter.ConstructPropertyAccessor<ModelWithInaccessibleProperty, string>());
     }
 
     [Fact]
@@ -119,10 +120,10 @@ public class ExpressionsExtensionsTests
     [Fact]
     public void PropertySetterShouldNotBeConstructedIfItIsReadOnly()
     {
-        var inaccessiblePropertyGetter = typeof(ExpressionTestsClass).GetProperty(nameof(ExpressionTestsClass.InaccessiblePropertyGetter));
+        var inaccessiblePropertyGetter = typeof(ModelWithInaccessibleProperty).GetProperty(nameof(ModelWithInaccessibleProperty.InaccessiblePropertyGetter));
         Assert.NotNull(inaccessiblePropertyGetter);
 
-        Assert.Throws<InvalidOperationException>(() => inaccessiblePropertyGetter.ConstructPropertySetter<ExpressionTestsClass, string>());
+        Assert.Throws<InvalidOperationException>(() => inaccessiblePropertyGetter.ConstructPropertySetter<ModelWithInaccessibleProperty, string>());
     }
 
     private static void AssertMemberInfoRetrieval<T, TValue>(Expression<Func<T, TValue>> selector, Type declaringType, string memberName)
@@ -161,12 +162,5 @@ public class ExpressionsExtensionsTests
         Assert.NotNull(compiledPropertySetter);
 
         return compiledPropertySetter;
-    }
-
-    private class ExpressionTestsClass
-    {
-        private string InaccessibleProperty { get; set; }
-        public string InaccessiblePropertySetter { set => this.InaccessibleProperty = value; }
-        public string InaccessiblePropertyGetter { get => this.InaccessibleProperty; }
     }
 }

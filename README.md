@@ -204,3 +204,26 @@ Here is a comparison between the `type.ToString()` and `TypeNames.Get(type)`:
 | `Task<>`           | System.Threading.Tasks.Task\`1\[TResult]                                           | Task\<TResult>       |
 | `List<>`           | System.Collections.Generic.List\`1\[T]                                             | List\<T>             |
 
+### `IMembersBinder`
+
+This is an interface defining the structure of an utility component exposing information about a specific subset of the members for a given type.
+There are two classes implementing this interface - a non-generic `MembersBinder` and a generic `MembersBinder<T>`.
+They accept the following parameters throughout their constructors:
+- `isValid`: A filtering function that should determine whether or not a member should be included within the final result set. If no value is provided for this parameter, every member will be included. 
+- `keySelector`: A function mapping each each member to unique key. If no value is provided to this parameter, the name of the member will be used (which means that in case of overrides or members with the same name there will be issues)
+- `bindingFlags`: The binding flags used to control the member search throughout reflection.
+
+Example:
+```C#
+IMembersBinder binder = new MembersBinder<TEntity>(IsValidMember, BindingFlags.Public | BindingFlags.Instance);
+
+static bool IsValidMember(MemberInfo memberInfo)
+    => memberInfo switch
+    {
+        PropertyInfo pi => pi.CanWrite,
+        FieldInfo _ => true,
+        _ => false
+    };
+
+// Now every discovered member for the `TEntity` type will be mapped against its name throughout the `binder.MemberInfos` dictionary.
+```

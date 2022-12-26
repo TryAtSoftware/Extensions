@@ -15,7 +15,7 @@
 
 `Try At Software` is a software development company based in Bulgaria. We are mainly using `dotnet` technologies (`C#`, `ASP.NET Core`, `Entity Framework Core`, etc.) and our main idea is to provide a set of tools that can simplify the majority of work a developer does on a daily basis.
 
-# TryAtSoftware.Extensions.Collection
+# _TryAtSoftware.Extensions.Collection_
 
 This is a library containing extension methods that should simplify some common operations with collections.
 
@@ -182,4 +182,25 @@ IEnumerable<int> b = /* initialization... */;
 IEnumerable<int> concatenated = a.ConcatenateWith(b);
 ```
 
-# TryAtSoftware.Extensions.Reflection
+# _TryAtSoftware.Extensions.Reflection_
+
+This is a library containing extension methods and utility components that should simplify (and optimize) some common operations with reflection.
+
+### `TypeNames`
+
+This is an utility component that should construct and cache a beautified name for a type.
+There are two ways to use it:
+
+- Throughout the generic `TypeNames<T>` class and the `Value` property;
+- Throughout the non-generic `TypeNames` class and the `Get(type)` method.
+
+The main idea behind this component is to provide efficiently a meaningful and readable type name (including open generics).
+Here is a comparison between the `type.ToString()` and `TypeNames.Get(type)`:
+
+| type               | type.ToString()                                                                    | TypeNames.Get(type)  |
+|--------------------|------------------------------------------------------------------------------------|----------------------|
+| `Task<int>`        | System.Threading.Tasks.Task\`1\[System.Int32]                                      | Task\<Int32>         |
+| `Task<List<long>>` | System.Collections.Generic.List\`1\[System.Threading.Tasks.Task\`1\[System.Int64]] | List\<Task\<Person>> |
+| `Task<>`           | System.Threading.Tasks.Task\`1\[TResult]                                           | Task\<TResult>       |
+| `List<>`           | System.Collections.Generic.List\`1\[T]                                             | List\<T>             |
+

@@ -66,10 +66,10 @@ public class MembersBinder : IMembersBinder
 }
 
 /// <summary>
-/// A standard generc implementation of the <see cref="IMembersBinder"/> interface.
+/// A standard generic implementation of the <see cref="IMembersBinder"/> interface.
 /// </summary>
-/// <typeparam name="TEntity">The type used by this member binder.</typeparam>
-public class MembersBinder<TEntity> : MembersBinder
+/// <typeparam name="T">The type used by this member binder.</typeparam>
+public class MembersBinder<T> : MembersBinder
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="MembersBinder{TEntity}"/> class.
@@ -88,7 +88,7 @@ public class MembersBinder<TEntity> : MembersBinder
     /// <param name="keySelector">A function that should map each discovered <see cref="MemberInfo"/> instance to unique key. If this is null, the member's name will be used (which should be avoided when possible).</param>
     /// <param name="bindingFlags">The binding flags used to control the member search.</param>
     public MembersBinder(Func<MemberInfo, bool>? isValid, Func<MemberInfo, string>? keySelector, BindingFlags bindingFlags)
-        : base(typeof(TEntity), isValid, keySelector, bindingFlags)
+        : base(typeof(T), isValid, keySelector, bindingFlags)
     {
     }
 }

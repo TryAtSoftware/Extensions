@@ -97,15 +97,32 @@ public class ExpressionsExtensionsTests
     }
 
     [Fact]
+    public void SetterShouldBeSuccessfullyConstructedForInaccessibleProperties()
+    {
+        var inaccessiblePropertySetter = GetCompiledPropertySetter<ModelWithInaccessibleProperty, string>("InaccessibleProperty", BindingFlags.NonPublic);
+
+        var inaccessiblePropertyValue = RandomizationHelper.GetRandomString();
+        var testInstance = new ModelWithInaccessibleProperty();
+
+        inaccessiblePropertySetter(testInstance, inaccessiblePropertyValue);
+        Assert.Equal(inaccessiblePropertyValue, testInstance.InaccessiblePropertyGetter);
+    }
+
+    [Fact]
     public void PropertySetterShouldBeConstructedSuccessfullyWhenConversionIsRequired()
     {
-        var firstNameSetter = GetCompiledPropertySetter<Person, byte>(nameof(Person.Age));
+        var byteAgeSetter = GetCompiledPropertySetter<Person, byte>(nameof(Person.Age));
+        var objectAgeSetter = GetCompiledPropertySetter<Person, object>(nameof(Person.Age));
 
         var person = new Person();
-        var randomByte = (byte)RandomizationHelper.RandomInteger(byte.MinValue, byte.MaxValue);
-
-        firstNameSetter(person, randomByte);
-        Assert.Equal(randomByte, person.Age);
+        
+        var randomByteAge = (byte)RandomizationHelper.RandomInteger(byte.MinValue, byte.MaxValue);
+        byteAgeSetter(person, randomByteAge);
+        Assert.Equal(randomByteAge, person.Age);
+        
+        var randomInt16Age = (ushort)RandomizationHelper.RandomInteger(ushort.MinValue, ushort.MaxValue);
+        objectAgeSetter(person, randomInt16Age);
+        Assert.Equal(randomInt16Age, person.Age);
     }
 
     [Fact]

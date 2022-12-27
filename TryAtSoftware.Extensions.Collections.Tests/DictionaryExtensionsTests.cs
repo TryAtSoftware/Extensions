@@ -72,4 +72,64 @@ public class DictionaryExtensionsTests
 
         Assert.Equal(standardDictionary, readonlyDictionary);
     }
+
+    [Fact]
+    public void MapSafelyShouldHandleNull()
+    {
+        var result = ((IEnumerable<object>?)null).MapSafely(x => 1, x => 2);
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void MapSafelyShouldThrowExceptionIfTheProvidedKeySelectorIsNull()
+    {
+        var standardCollection = TestsHelper.GetStandardCollection();
+        Assert.Throws<ArgumentNullException>(() => standardCollection.MapSafely<int, int, int>(null!, x => x));
+    }
+
+    [Fact]
+    public void MapSafelyShouldThrowExceptionIfTheProvidedValueSelectorIsNull()
+    {
+        var standardCollection = TestsHelper.GetStandardCollection();
+        Assert.Throws<ArgumentNullException>(() => standardCollection.MapSafely<int, int, int>(x => x, null!));
+    }
+
+    [Fact]
+    public void MapSafelyShouldHandleNullKeys()
+    {
+        var standardCollection = TestsHelper.GetStandardCollection();
+        var mapResult = standardCollection.MapSafely<int, string, int>(x => null!, x => x);
+        Assert.NotNull(mapResult);
+        Assert.Empty(mapResult);
+    }
+
+    [Fact]
+    public void MapSafelyShouldHandleDuplicateKeys()
+    {
+        var standardCollection = TestsHelper.GetStandardCollection().ToArray();
+        var randomKey = RandomizationHelper.GetRandomString();
+        var mapResult = standardCollection.MapSafely(_ => randomKey, x => x);
+        Assert.NotNull(mapResult);
+
+        var singleRecord = Assert.Single(mapResult);
+        Assert.Equal(randomKey, singleRecord.Key);
+        Assert.Equal(standardCollection[0], singleRecord.Value);
+    }
+
+    [Fact]
+    public void MapSafelyShouldWorkCorrectly()
+    {
+        var standardCollection = TestsHelper.GetStandardCollection().ToArray();
+        var mapResult = standardCollection.MapSafely(x => x, DoubleNumber);
+        Assert.Equal(standardCollection.Length, mapResult.Count);
+
+        foreach (var el in standardCollection)
+        {
+            Assert.True(mapResult.ContainsKey(el));
+            Assert.Equal(DoubleNumber(el), mapResult[el]);
+        }
+
+        static int DoubleNumber(int t) => t * 2;
+    }
 }

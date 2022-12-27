@@ -51,4 +51,36 @@ public static class DictionaryExtensions
     public static IReadOnlyDictionary<TKey, TValue> AsReadOnlyDictionary<TKey, TValue>(this IDictionary<TKey, TValue>? dictionary)
         where TKey : notnull
         => new ReadOnlyDictionary<TKey, TValue>(dictionary.OrEmptyIfNull());
+
+    /// <summary>
+    /// Use this method to form a mapping between the selected keys and values for each element in the extended <paramref name="collection"/>.
+    /// This method is `safe` in terms of what happens whenever two elements have the same key - no exception is thrown and the original value remains unchanged.
+    /// </summary>
+    /// <typeparam name="TSource">The type of elements in the collection.</typeparam>
+    /// <typeparam name="TKey">The type of keys in the dictionary to form.</typeparam>
+    /// <typeparam name="TValue">The type of values in the dictionary to form.</typeparam>
+    /// <param name="collection">The extended <see cref="IEnumerable{T}"/> instance.</param>
+    /// <param name="keySelector">A function that should select the key for each <typeparamref name="TSource"/> instance from the extended collection.</param>
+    /// <param name="valueSelector">A function that should select the value for each <typeparamref name="TSource"/> instance from the extended collection.</param>
+    /// <returns>Returns an <see cref="IDictionary{TKey, TValue}"/> instance formed by using the values of the extended <paramref name="collection"/>.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if the provided <paramref name="keySelector"/> is null.</exception>
+    /// <exception cref="ArgumentNullException">Thrown if the provided <paramref name="valueSelector"/> is null.</exception>
+    public static IDictionary<TKey, TValue> MapSafely<TSource, TKey, TValue>(this IEnumerable<TSource?>? collection, Func<TSource, TKey> keySelector, Func<TSource, TValue> valueSelector)
+        where TKey : notnull
+    {
+        if (keySelector is null) throw new ArgumentNullException(nameof(keySelector));
+        if (valueSelector is null) throw new ArgumentNullException(nameof(valueSelector));
+
+        var dictionary = new Dictionary<TKey, TValue>();
+        foreach (var sourceElement in collection.OrEmptyIfNull().IgnoreNullValues())
+        {
+            var key = keySelector(sourceElement);
+            if (key is null || dictionary.ContainsKey(key)) continue;
+
+            var value = valueSelector(sourceElement);
+            dictionary[key] = value;
+        }
+
+        return dictionary;
+    }
 }

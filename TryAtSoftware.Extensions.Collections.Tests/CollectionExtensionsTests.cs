@@ -122,6 +122,27 @@ public class CollectionExtensionsTests
         Assert.Equal(oddNumbersMap, resultMap);
     }
 
+    [Fact]
+    public void SetIntersectionShouldHandleNull()
+    {
+        var result = ((IEnumerable<HashSet<object>>?)null).SetIntersection();
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void SetIntersectionShouldWorjCorrectly()
+    {
+        var standardCollection = GetStandardCollection().ToArray();
+        
+        // This test includes repeating elements, empty sets and null sets.
+        var collectionOfSets = new[] { new HashSet<int>(standardCollection), new HashSet<int>(standardCollection), new HashSet<int>(), null };
+        var intersection = collectionOfSets.SetIntersection();
+        
+        Assert.Equal(standardCollection.Length, intersection.Count);
+        foreach (var el in standardCollection) Assert.Contains(el, intersection);
+    }
+
     public static IEnumerable<object?[]> GetConcatenateWithTestData()
     {
         yield return new object?[] { null, null, Array.Empty<object>() };

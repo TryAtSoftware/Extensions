@@ -12,7 +12,7 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <Description>This is an internal package used to make work with collections cleaner and easier than ever before.</Description>
-        <Copyright>Copyright (c) .NET Foundation and contributors 2008-2021</Copyright>
+        <Copyright>Copyright (c) Tony Troeff</Copyright>
         <PackageTags>tryatsoftware extensions collections</PackageTags>
     </PropertyGroup>
 

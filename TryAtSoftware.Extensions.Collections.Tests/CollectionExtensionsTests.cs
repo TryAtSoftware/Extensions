@@ -19,18 +19,18 @@ public class CollectionExtensionsTests
     [Fact]
     public void OrEmptyIfNullShouldReturnEmptyCollectionIfNullIsPassed()
     {
-        var result = ((IEnumerable<object>)null).OrEmptyIfNull();
+        var result = ((IEnumerable<object>)null!).OrEmptyIfNull();
         Assert.NotNull(result);
         Assert.Empty(result);
     }
 
     [Fact]
-    public void IgnoreNullValuesShouldThrowIfThePassedCollectionIsNull() => Assert.Throws<ArgumentNullException>(() => ((IEnumerable<object>)null).IgnoreNullValues());
+    public void IgnoreNullValuesShouldThrowIfThePassedCollectionIsNull() => Assert.Throws<ArgumentNullException>(() => ((IEnumerable<object>)null!).IgnoreNullValues());
 
     [Fact]
     public void IgnoreNullValuesShouldReturnCollectionWithNonNullableElements()
     {
-        var dirtyCollection = new object[]
+        var dirtyCollection = new object?[]
         {
             null, new(), new(), null, new(),
             null
@@ -39,11 +39,33 @@ public class CollectionExtensionsTests
         Assert.NotNull(cleanCollection);
         Assert.Equal(3, cleanCollection.Count);
 
-        foreach (var element in cleanCollection) Assert.NotNull(element);
+        Assert.Same(dirtyCollection[1], cleanCollection[0]);
+        Assert.Same(dirtyCollection[2], cleanCollection[1]);
+        Assert.Same(dirtyCollection[4], cleanCollection[2]);
     }
 
     [Fact]
-    public void IgnoreDefaultValuesShouldThrowIfThePassedCollectionIsNull() => Assert.Throws<ArgumentNullException>(() => ((IEnumerable<int>)null).IgnoreDefaultValues());
+    public void IgnoreNullOrWhitespaceValuesShouldThrowIfThePassedCollectionIsNull() => Assert.Throws<ArgumentNullException>(() => ((IEnumerable<string>)null!).IgnoreNullOrWhitespaceValues());
+
+    [Fact]
+    public void IgnoreNullOrWhitespaceValuesShouldReturnCollectionWithNonEmptyStrings()
+    {
+        var dirtyCollection = new string?[]
+        {
+            "word", null, string.Empty, "hello", "   ", "\t", "monday", "\r\n"
+        };
+        
+        var cleanCollection = dirtyCollection.IgnoreNullOrWhitespaceValues().ToList();
+        Assert.NotNull(cleanCollection);
+        Assert.Equal(3, cleanCollection.Count);
+
+        Assert.Same(dirtyCollection[0], cleanCollection[0]);
+        Assert.Same(dirtyCollection[3], cleanCollection[1]);
+        Assert.Same(dirtyCollection[6], cleanCollection[2]);
+    }
+
+    [Fact]
+    public void IgnoreDefaultValuesShouldThrowIfThePassedCollectionIsNull() => Assert.Throws<ArgumentNullException>(() => ((IEnumerable<int>)null!).IgnoreDefaultValues());
 
     [Fact]
     public void IgnoreDefaultValuesShouldReturnCollectionWithElementsNotEqualToDefault()
@@ -57,7 +79,11 @@ public class CollectionExtensionsTests
         Assert.NotNull(cleanCollection);
         Assert.Equal(5, cleanCollection.Count);
 
-        foreach (var element in cleanCollection) Assert.NotEqual(default, element);
+        Assert.Equal(dirtyCollection[1], cleanCollection[0]);
+        Assert.Equal(dirtyCollection[2], cleanCollection[1]);
+        Assert.Equal(dirtyCollection[4], cleanCollection[2]);
+        Assert.Equal(dirtyCollection[5], cleanCollection[3]);
+        Assert.Equal(dirtyCollection[8], cleanCollection[4]);
     }
 
     [Theory]
@@ -73,7 +99,7 @@ public class CollectionExtensionsTests
     }
 
     [Fact]
-    public void SafeWhereShouldThrowIfThePassedCollectionIsNull() => Assert.Throws<ArgumentNullException>(() => ((IEnumerable<int>)null).SafeWhere(IsOdd));
+    public void SafeWhereShouldThrowIfThePassedCollectionIsNull() => Assert.Throws<ArgumentNullException>(() => ((IEnumerable<int>)null!).SafeWhere(IsOdd));
 
     [Fact]
     public void SafeWhereShouldReturnTheSameCollectionIfNoConditionIsPassed()
@@ -96,13 +122,13 @@ public class CollectionExtensionsTests
         Assert.Equal(oddNumbersMap, resultMap);
     }
 
-    public static IEnumerable<object[]> GetConcatenateWithTestData()
+    public static IEnumerable<object?[]> GetConcatenateWithTestData()
     {
-        yield return new object[] { null, null, Array.Empty<object>() };
+        yield return new object?[] { null, null, Array.Empty<object>() };
 
         var standardCollection = GetStandardCollection().ToArray();
-        yield return new object[] { null, standardCollection, standardCollection };
-        yield return new object[] { standardCollection, null, standardCollection };
+        yield return new object?[] { null, standardCollection, standardCollection };
+        yield return new object?[] { standardCollection, null, standardCollection };
 
         const int elementsCount = 5;
         var oddNumbers = new int[elementsCount];
@@ -136,11 +162,12 @@ public class CollectionExtensionsTests
     {
         foreach (var el in collection)
         {
-            for (int i = 0; i < n; i++) yield return el;
+            for (var i = 0; i < n; i++) yield return el;
         }
     }
         
     private static IDictionary<T, int> GetElementsMap<T>(IEnumerable<T> collection)
+        where T : notnull
     {
         Assert.NotNull(collection);
 

@@ -10,7 +10,7 @@ public class CollectionExtensionsTests
     [Fact]
     public void OrEmptyIfNullShouldReturnTheSameCollectionIfItIsNotNull()
     {
-        var collection = GetStandardCollection();
+        var collection = TestsHelper.GetStandardCollection();
         var result = collection.OrEmptyIfNull();
         Assert.NotNull(result);
         Assert.Same(collection, result);
@@ -19,7 +19,7 @@ public class CollectionExtensionsTests
     [Fact]
     public void OrEmptyIfNullShouldReturnEmptyCollectionIfNullIsPassed()
     {
-        var result = ((IEnumerable<object>)null!).OrEmptyIfNull();
+        var result = ((IEnumerable<object>?)null).OrEmptyIfNull();
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -104,7 +104,7 @@ public class CollectionExtensionsTests
     [Fact]
     public void SafeWhereShouldReturnTheSameCollectionIfNoConditionIsPassed()
     {
-        var collection = GetStandardCollection();
+        var collection = TestsHelper.GetStandardCollection();
         var result = collection.SafeWhere(null);
         Assert.NotNull(result);
         Assert.Same(collection, result);
@@ -113,11 +113,11 @@ public class CollectionExtensionsTests
     [Fact]
     public void SafeWhereShouldRespectTheProvidedCondition()
     {
-        var collection = Repeat(GetStandardCollection(), 5);
-        var oddNumbersMap = GetElementsMap(collection.Where(IsOdd));
+        var collection = TestsHelper.Repeat(TestsHelper.GetStandardCollection(), 5);
+        var oddNumbersMap = TestsHelper.GetElementsMap(collection.Where(IsOdd));
 
         var result = collection.SafeWhere(IsOdd);
-        var resultMap = GetElementsMap(result);
+        var resultMap = TestsHelper.GetElementsMap(result);
 
         Assert.Equal(oddNumbersMap, resultMap);
     }
@@ -133,7 +133,7 @@ public class CollectionExtensionsTests
     [Fact]
     public void SetIntersectionShouldWorjCorrectly()
     {
-        var standardCollection = GetStandardCollection().ToArray();
+        var standardCollection = TestsHelper.GetStandardCollection().ToArray();
         
         // This test includes repeating elements, empty sets and null sets.
         var collectionOfSets = new[] { new HashSet<int>(standardCollection), new HashSet<int>(standardCollection), new HashSet<int>(), null };
@@ -154,7 +154,7 @@ public class CollectionExtensionsTests
     [Fact]
     public void AsReadOnlyCollectionShouldWorkCorrectly()
     {
-        var standardCollection = GetStandardCollection();
+        var standardCollection = TestsHelper.GetStandardCollection();
         var readonlyCollection = standardCollection.AsReadOnlyCollection();
 
         Assert.Equal(standardCollection, readonlyCollection);
@@ -164,7 +164,7 @@ public class CollectionExtensionsTests
     {
         yield return new object?[] { null, null, Array.Empty<object>() };
 
-        var standardCollection = GetStandardCollection().ToArray();
+        var standardCollection = TestsHelper.GetStandardCollection().ToArray();
         yield return new object?[] { null, standardCollection, standardCollection };
         yield return new object?[] { standardCollection, null, standardCollection };
 
@@ -193,29 +193,4 @@ public class CollectionExtensionsTests
     }
 
     private static bool IsOdd(int a) => a % 2 == 0;
-
-    private static IEnumerable<int> GetStandardCollection() => Enumerable.Range(0, 5);
-
-    private static IEnumerable<T> Repeat<T>(IEnumerable<T> collection, int n)
-    {
-        foreach (var el in collection)
-        {
-            for (var i = 0; i < n; i++) yield return el;
-        }
-    }
-        
-    private static IDictionary<T, int> GetElementsMap<T>(IEnumerable<T> collection)
-        where T : notnull
-    {
-        Assert.NotNull(collection);
-
-        var map = new Dictionary<T, int>();
-        foreach (var el in collection)
-        {
-            if (!map.ContainsKey(el)) map[el] = 0;
-            map[el]++;
-        }
-
-        return map;
-    }
 }

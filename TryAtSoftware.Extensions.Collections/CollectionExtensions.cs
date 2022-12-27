@@ -2,6 +2,7 @@ namespace TryAtSoftware.Extensions.Collections;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 /// <summary>
@@ -104,4 +105,12 @@ public static class CollectionExtensions
 
         return compoundSet;
     }
+
+    /// <summary>
+    /// Use this method to construct an <see cref="IReadOnlyCollection{T}"/> instance from the extended <paramref name="collection"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the collection.</typeparam>
+    /// <param name="collection">The extended <see cref="IEnumerable{T}"/> instance.</param>
+    /// <returns>Returns an <see cref="IReadOnlyCollection{T}"/> containing all elements from the extended <paramref name="collection"/> in the same order.</returns>
+    public static IReadOnlyCollection<T> AsReadOnlyCollection<T>(this IEnumerable<T>? collection) => collection.OrEmptyIfNull().ToList().AsReadOnly();
 }

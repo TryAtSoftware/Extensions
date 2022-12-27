@@ -143,6 +143,23 @@ public class CollectionExtensionsTests
         foreach (var el in standardCollection) Assert.Contains(el, intersection);
     }
 
+    [Fact]
+    public void AsReadOnlyCollectionShouldHandleNull()
+    {
+        var result = ((IEnumerable<object>?)null).AsReadOnlyCollection();
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void AsReadOnlyCollectionShouldWorkCorrectly()
+    {
+        var standardCollection = GetStandardCollection();
+        var readonlyCollection = standardCollection.AsReadOnlyCollection();
+
+        Assert.Equal(standardCollection, readonlyCollection);
+    }
+
     public static IEnumerable<object?[]> GetConcatenateWithTestData()
     {
         yield return new object?[] { null, null, Array.Empty<object>() };

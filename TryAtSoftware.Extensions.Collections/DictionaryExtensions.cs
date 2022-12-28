@@ -31,7 +31,7 @@ public static class DictionaryExtensions
     /// <returns>Returns the value for the requested key.</returns>
     public static TValue EnsureValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
         where TKey : notnull
-        where TValue : class, new()
+        where TValue : new()
     {
         if (dictionary is null) throw new ArgumentNullException(nameof(dictionary));
         if (dictionary.TryGetValue(key, out var value)) return value;

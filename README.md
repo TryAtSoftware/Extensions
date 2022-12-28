@@ -445,3 +445,21 @@ foreach (var (_, memberInfo) in binder.MemberInfos)
     valueSetters.Add(setter);
 }
 ```
+
+### Generic extensions
+
+#### `ExtractGenericParametersSetup`
+
+This method will produce a dictionary where against the name of a generic parameter is stored the actual type associated with that parameter according to some external configuration.
+This method should be used whenever each generic parameter is uniquely identified with a certain attribute.
+All entries within the external configuration map should have as a key the attribute type and as a value the type that should be substituted for a generic parameter decorated with the corresponding attribute.
+
+Example:
+```C#
+public class MyType<[KeyType] TKey, [ValueType] TValue> {}
+
+IDictionary<Type, Type> typesMap = new Dictionary<Type, Type> { { typeof(KeyTypeAttribute), typeof(int) }, { typeof(ValueTypeAttribute), typeof(string) } };
+
+/// should return { "TKey": typeof(int), "TValue": typeof(string) }
+IDictionary<string, Type> genericParametersSetup = ExtractGenericParametersSetup(typeof(MyType), typesMap);
+```

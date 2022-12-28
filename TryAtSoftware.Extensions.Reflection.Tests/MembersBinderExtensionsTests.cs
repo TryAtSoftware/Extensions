@@ -22,7 +22,7 @@ public class MembersBinderExtensionsTests
     }
 
     [Fact]
-    public void GetRequiredMemberInfoShouldHandleInvalidMembersBinderParameter() => Assert.Throws<ArgumentNullException>(() => ((IMembersBinder) null).GetRequiredMemberInfo(nameof(Person.FirstName)));
+    public void GetRequiredMemberInfoShouldHandleInvalidMembersBinderParameter() => Assert.Throws<ArgumentNullException>(() => ((IMembersBinder) null!).GetRequiredMemberInfo(nameof(Person.FirstName)));
 
     [Fact]
     public void GetRequiredMemberInfoShouldHandleInvalidMemberNameParameter()

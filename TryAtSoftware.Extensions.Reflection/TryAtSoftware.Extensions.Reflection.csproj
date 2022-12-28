@@ -12,12 +12,12 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <Description>This is an internal package used to make work with reflection cleaner and easier than ever before.</Description>
-        <Copyright>Copyright (c) .NET Foundation and contributors 2008-2021</Copyright>
+        <Copyright>Copyright (c) Tony Troeff</Copyright>
         <PackageTags>tryatsoftware extensions reflection</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="SonarAnalyzer.CSharp" Version="8.50.0.58025" PrivateAssets="all" />
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="8.51.0.59060" PrivateAssets="all" />
         <PackageReference Include="TryAtSoftware.Extensions.Collections" Version="1.0.0" />
     </ItemGroup>
 

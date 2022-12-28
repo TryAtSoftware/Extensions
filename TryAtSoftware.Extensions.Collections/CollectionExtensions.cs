@@ -2,6 +2,7 @@ namespace TryAtSoftware.Extensions.Collections;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 /// <summary>
@@ -40,10 +41,22 @@ public static class CollectionExtensions
     /// <param name="collection">The extended <see cref="IEnumerable{T}"/> instance.</param>
     /// <returns>Returns an <see cref="IEnumerable{T}"/> containing all elements from the extended <paramref name="collection"/> that are not null in the same order.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the provided <paramref name="collection"/> is null.</exception>
-    public static IEnumerable<T> IgnoreNullValues<T>(this IEnumerable<T> collection)
+    public static IEnumerable<T> IgnoreNullValues<T>(this IEnumerable<T?> collection)
     {
         if (collection is null) throw new ArgumentNullException(nameof(collection));
-        return collection.Where(x => x is not null);
+        return collection.Where(x => x is not null)!;
+    }
+
+    /// <summary>
+    /// Use this method to filter out all values that are null, empty or consist of whitespace characters only from the extended <paramref name="collection"/>.
+    /// </summary>
+    /// <param name="collection">The extended <see cref="IEnumerable{T}"/> instance.</param>
+    /// <returns>Returns an <see cref="IEnumerable{T}"/> containing all elements from the extended <paramref name="collection"/> that are not are null or empty and do not consist of whitespace characters only.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if the provided <paramref name="collection"/> is null.</exception>
+    public static IEnumerable<string> IgnoreNullOrWhitespaceValues(this IEnumerable<string?> collection)
+    {
+        if (collection is null) throw new ArgumentNullException(nameof(collection));
+        return collection.Where(x => !string.IsNullOrWhiteSpace(x))!;
     }
     
     /// <summary>
@@ -74,4 +87,30 @@ public static class CollectionExtensions
         foreach (var item in collection.OrEmptyIfNull()) yield return item;
         foreach (var item in otherCollection.OrEmptyIfNull()) yield return item;
     }
+
+    /// <summary>
+    /// Use this method to produce the intersection between multiple <see cref="HashSet{T}"/> instances.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the hash set.</typeparam>
+    /// <param name="sets">The extended collection of <see cref="HashSet{T}"/> instances.</param>
+    /// <returns>A <see cref="HashSet{T}"/> that contains the elements that form the intersection of the extended sets.</returns>
+    public static HashSet<T> SetIntersection<T>(this IEnumerable<HashSet<T>?>? sets)
+    {
+        var compoundSet = new HashSet<T>();
+        foreach (var set in sets.OrEmptyIfNull().IgnoreNullValues())
+        {
+            foreach (var value in set)
+                compoundSet.Add(value);
+        }
+
+        return compoundSet;
+    }
+
+    /// <summary>
+    /// Use this method to construct an <see cref="IReadOnlyCollection{T}"/> instance from the extended <paramref name="collection"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the collection.</typeparam>
+    /// <param name="collection">The extended <see cref="IEnumerable{T}"/> instance.</param>
+    /// <returns>Returns an <see cref="IReadOnlyCollection{T}"/> containing all elements from the extended <paramref name="collection"/> in the same order.</returns>
+    public static IReadOnlyCollection<T> AsReadOnlyCollection<T>(this IEnumerable<T>? collection) => collection.OrEmptyIfNull().ToList().AsReadOnly();
 }

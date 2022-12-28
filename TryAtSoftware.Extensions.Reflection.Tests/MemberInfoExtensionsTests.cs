@@ -9,15 +9,16 @@ public class MemberInfoExtensionsTests
     [Fact]
     public void GetValueShouldThrowExceptionIfNullMemberInfoIsPassed()
     {
-        var instance = new TestHelerClass();
-        Assert.Throws<ArgumentNullException>(() => ((MemberInfo)null).GetValue(instance));
+        var instance = new MemberInfoExtensionsTestHelperClass();
+        Assert.Throws<ArgumentNullException>(() => ((MemberInfo)null!).GetValue(instance));
     }
 
     [Fact]
     public void GetValueShouldWorkCorrectlyWithFields()
     {
-        var instance = new TestHelerClass();
-        MemberInfo fieldInfo = typeof(TestHelerClass).GetField(nameof(TestHelerClass.field));
+        var instance = new MemberInfoExtensionsTestHelperClass();
+        var fieldInfo = typeof(MemberInfoExtensionsTestHelperClass).GetField(nameof(MemberInfoExtensionsTestHelperClass.field));
+        Assert.NotNull(fieldInfo);
 
         var value = fieldInfo.GetValue(instance);
         Assert.Equal("This is a field", value);
@@ -26,8 +27,9 @@ public class MemberInfoExtensionsTests
     [Fact]
     public void GetValueShouldWorkCorrectlyWithProperties()
     {
-        var instance = new TestHelerClass();
-        MemberInfo propertyInfo = typeof(TestHelerClass).GetProperty(nameof(TestHelerClass.Property));
+        var instance = new MemberInfoExtensionsTestHelperClass();
+        var propertyInfo = typeof(MemberInfoExtensionsTestHelperClass).GetProperty(nameof(MemberInfoExtensionsTestHelperClass.Property));
+        Assert.NotNull(propertyInfo);
 
         var value = propertyInfo.GetValue(instance);
         Assert.Equal("This is a property", value);
@@ -36,13 +38,14 @@ public class MemberInfoExtensionsTests
     [Fact]
     public void GetValueShouldNotWorkWithMethods()
     {
-        var instance = new TestHelerClass();
-        MemberInfo methodInfo = typeof(TestHelerClass).GetMethod(nameof(TestHelerClass.Method));
+        var instance = new MemberInfoExtensionsTestHelperClass();
+        var methodInfo = typeof(MemberInfoExtensionsTestHelperClass).GetMethod(nameof(MemberInfoExtensionsTestHelperClass.Method));
+        Assert.NotNull(methodInfo);
 
         Assert.Throws<InvalidOperationException>(() => methodInfo.GetValue(instance));
     }
 
-    private class TestHelerClass
+    private class MemberInfoExtensionsTestHelperClass
     {
         public string field = "This is a field";
 

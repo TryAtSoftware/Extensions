@@ -2,7 +2,11 @@
 
 public class ModelWithInaccessibleProperty
 {
-    private string InaccessibleProperty { get; set; }
+    private string? InaccessibleProperty { get; set; }
+    
+#pragma warning disable S2376
     public string InaccessiblePropertySetter { set => this.InaccessibleProperty = value; }
-    public string InaccessiblePropertyGetter { get => this.InaccessibleProperty; }
+#pragma warning restore S2376
+    
+    public string? InaccessiblePropertyGetter { get => this.InaccessibleProperty; }
 }

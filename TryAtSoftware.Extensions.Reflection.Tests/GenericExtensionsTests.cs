@@ -83,10 +83,10 @@ public class GenericExtensionsTests
     }
     
     [Fact]
-    public void MakeGenericTypeShouldHandleNullTypesMap()
+    public void MakeGenericTypeShouldHandleNullGenericParametersSetup()
     {
         var type = typeof(GenericType<,>);
-        Assert.Throws<ArgumentNullException>(() => type.MakeGenericType(null!));
+        Assert.Throws<ArgumentNullException>(() => type.MakeGenericType(genericParametersSetup: null!));
     }
     
     [Fact]

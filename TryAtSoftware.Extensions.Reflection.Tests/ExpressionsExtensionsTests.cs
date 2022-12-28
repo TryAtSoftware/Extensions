@@ -12,18 +12,18 @@ using Xunit;
 public class ExpressionsExtensionsTests
 {
     [Fact]
-    public void ExceptionShouldBeThrownIfNullExpressionIsSentToTheGetMemberInfoMethod() => Assert.Throws<ArgumentNullException>(() => ((Expression<Func<Person, string>>)null)!.GetMemberInfo());
+    public void ExceptionShouldBeThrownIfNullExpressionIsSentToTheGetMemberInfoMethod() => Assert.Throws<ArgumentNullException>(() => ((Expression<Func<Person, string>>)null!).GetMemberInfo());
 
     [Fact]
-    public void MemberInfoShouldBeSuccessfullyRetrieved() => AssertMemberInfoRetrieval<Person, string>(p => p.FirstName, typeof(Person), nameof(Person.FirstName));
+    public void MemberInfoShouldBeSuccessfullyRetrieved() => AssertMemberInfoRetrieval<Person, string?>(p => p.FirstName, typeof(Person), nameof(Person.FirstName));
 
     [Fact]
-    public void MemberInfoShouldBeSuccessfullyRetrievedFromDerivedClasses() => AssertMemberInfoRetrieval<Student, string>(p => p.FirstName, typeof(Person), nameof(Person.FirstName));
+    public void MemberInfoShouldBeSuccessfullyRetrievedFromDerivedClasses() => AssertMemberInfoRetrieval<Student, string?>(p => p.FirstName, typeof(Person), nameof(Person.FirstName));
 
     [Fact]
     public void ExceptionShouldBeThrownIfMemberInfoCannotBeRetrievedSuccessfully()
     {
-        Expression<Func<Person, string>> expression = p => p.ToString();
+        Expression<Func<Person, string?>> expression = p => p.ToString();
         Assert.Throws<InvalidOperationException>(() => expression.GetMemberInfo());
     }
 
@@ -64,7 +64,7 @@ public class ExpressionsExtensionsTests
     }
 
     [Fact]
-    public void ExceptionShouldBeThrownIfNullExpressionIsSentToTheConstructPropertyAccessorMethod() => Assert.Throws<ArgumentNullException>(() => ((PropertyInfo)null)!.ConstructPropertyAccessor<Person, string>());
+    public void ExceptionShouldBeThrownIfNullExpressionIsSentToTheConstructPropertyAccessorMethod() => Assert.Throws<ArgumentNullException>(() => ((PropertyInfo)null!).ConstructPropertyAccessor<Person, string>());
 
     [Fact]
     public void PropertyAccessorShouldNotBeConstructedIfTheReflectedTypeDoesNotCorrespondToTheProvidedGenericTypeParameter()
@@ -144,7 +144,7 @@ public class ExpressionsExtensionsTests
     }
 
     [Fact]
-    public void ExceptionShouldBeThrownIfNullExpressionIsSentToTheConstructPropertySetterMethod() => Assert.Throws<ArgumentNullException>(() => ((PropertyInfo)null)!.ConstructPropertySetter<Person, string>());
+    public void ExceptionShouldBeThrownIfNullExpressionIsSentToTheConstructPropertySetterMethod() => Assert.Throws<ArgumentNullException>(() => ((PropertyInfo)null!).ConstructPropertySetter<Person, string>());
 
     private static void AssertMemberInfoRetrieval<T, TValue>(Expression<Func<T, TValue>> selector, Type declaringType, string memberName)
     {

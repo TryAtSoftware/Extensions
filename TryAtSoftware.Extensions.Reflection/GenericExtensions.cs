@@ -69,8 +69,8 @@ public static class GenericExtensions
         foreach (var genericArgument in type.GetGenericArguments())
         {
             Type currentResolvedType;
-            if (genericArgument.IsGenericParameter && genericParametersSetup.TryGetValue(genericArgument.Name, out var resolvedType))
-                currentResolvedType = resolvedType;
+            if (genericArgument.IsGenericParameter)
+                currentResolvedType = genericParametersSetup.TryGetValue(genericArgument.Name, out var resolvedType) ? resolvedType : genericArgument;
             else
                 currentResolvedType = MakeGenericType(genericArgument, genericParametersSetup);
 

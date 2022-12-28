@@ -51,7 +51,7 @@ public static class CollectionExtensions
     /// Use this method to filter out all values that are null, empty or consist of whitespace characters only from the extended <paramref name="collection"/>.
     /// </summary>
     /// <param name="collection">The extended <see cref="IEnumerable{T}"/> instance.</param>
-    /// <returns>Returns an <see cref="IEnumerable{T}"/> containing all elements from the extended <paramref name="collection"/> that are not are null or empty and do not consist of whitespace characters only.</returns>
+    /// <returns>Returns an <see cref="IEnumerable{T}"/> containing all elements from the extended <paramref name="collection"/> that are not null or empty and do not consist of whitespace characters only.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the provided <paramref name="collection"/> is null.</exception>
     public static IEnumerable<string> IgnoreNullOrWhitespaceValues(this IEnumerable<string?> collection)
     {

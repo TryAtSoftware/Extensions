@@ -85,6 +85,38 @@ foreach (string w in words.OrEmptyIfNull().IgnoreNullValues())
 }
 ```
 
+### `IgnoreNullOrWhitespaceValues`
+
+This is an extension method that will return a new enumerable containing all string values from the extended one that are not null or empty and do not consist of whitespace characters only in the same order.
+The main use case is to reduce the amount of conditions when iterating a collection of string elements.
+
+Examples of **incorrect** code:
+
+```C#
+IEnumerable<string> words = /* initialization... */;
+
+if (words != null)
+{
+    foreach (string w in words) 
+    {
+        if (string.IsNullOrWhitespace(w)) continue;
+ 
+        /* Do something */
+    }
+}
+```
+
+Examples of **correct** code:
+
+```C#
+IEnumerable<string> words = /* initialization... */;
+
+foreach (string w in words.OrEmptyIfNull().IgnoreNullOrWhitespaceValues()) 
+{
+    // Do something
+}
+```
+
 ### `IgnoreDefaultValues`
 
 This is an extension method that will return a new enumerable containing all values from the extended one that do not equal the default one in the same order.

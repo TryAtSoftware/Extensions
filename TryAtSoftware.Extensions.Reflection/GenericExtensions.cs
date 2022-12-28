@@ -13,7 +13,7 @@ public static class GenericExtensions
     /// Use this method to extract in a dictionary the setup of generic parameters for a given type.
     /// </summary>
     /// <param name="type">The type used to extract the generic types setup from.</param>
-    /// <param name="typesConfiguration">A one-to-one mapping of "attribute type" and "generic parameter type".</param>
+    /// <param name="typesMap">A one-to-one mapping of "attribute type" and "generic parameter type".</param>
     /// <returns>Returns a dictionary containing the specific types for each of the generic parameters against their names.</returns>
     /// <remarks>
     /// Imagine we have the following type definition:
@@ -23,13 +23,13 @@ public static class GenericExtensions
     /// should return { "TKey": typeof(int), "TValue": typeof(string) }
     /// </remarks>
     /// <exception cref="ArgumentNullException">Thrown if the extended <paramref name="type"/> is null.</exception>
-    /// <exception cref="ArgumentNullException">Thrown if the <paramref name="typesConfiguration"/> is null.</exception>
+    /// <exception cref="ArgumentNullException">Thrown if the <paramref name="typesMap"/> is null.</exception>
     /// <exception cref="InvalidOperationException">Thrown if there are none or more than one attributes for any of the unresolved generic parameters.</exception>
     /// <exception cref="InvalidOperationException">Thrown if there is no configured type for the attribute a generic parameter is decorated with.</exception>
-    public static IDictionary<string, Type> ExtractGenericParametersSetup(this Type type, IDictionary<Type, Type> typesConfiguration)
+    public static IDictionary<string, Type> ExtractGenericParametersSetup(this Type type, IDictionary<Type, Type> typesMap)
     {
         if (type is null) throw new ArgumentNullException(nameof(type));
-        if (typesConfiguration is null) throw new ArgumentNullException(nameof(typesConfiguration));
+        if (typesMap is null) throw new ArgumentNullException(nameof(typesMap));
 
         var dict = new Dictionary<string, Type>();
         if (!type.ContainsGenericParameters) return dict;
@@ -41,7 +41,7 @@ public static class GenericExtensions
             if (attributes.Length == 0) throw new InvalidOperationException($"Generic parameter could not be resolved for automatically registered component of type {TypeNames.Get(type)}.");
 
             var attributeType = attributes[0].AttributeType;
-            if (!typesConfiguration.TryGetValue(attributeType, out var resolvedGenericType) || resolvedGenericType is null)
+            if (!typesMap.TryGetValue(attributeType, out var resolvedGenericType) || resolvedGenericType is null)
                 throw new InvalidOperationException($"There was no provided type for the {attributeType}.");
 
             dict[genericArgument.Name] = resolvedGenericType;

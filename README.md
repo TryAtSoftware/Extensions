@@ -227,7 +227,7 @@ HashSet<int> b = new HashSet<int> { 2, 3, 4 };
 HashSet<int> c = new HashSet<int> { 3, 4, 5 };
 
 HashSet<int>[] allSets = new [] { a, b, c };
-HashSet<int> intersection = allSets.SetUnion(); // This will contain: 1, 2, 3, 4, 5
+HashSet<int> union = allSets.Union(); // This will contain: 1, 2, 3, 4, 5
 ```
 
 ### `AsReadOnlyCollection`

@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
 
         <PackageId>TryAtSoftware.Extensions.Reflection</PackageId>
-        <Version>1.0.1</Version>
+        <Version>1.1.0</Version>
         <Authors>Tony Troeff</Authors>
         <RepositoryUrl>https://github.com/TryAtSoftware/Extensions</RepositoryUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -18,7 +18,7 @@
 
     <ItemGroup>
         <PackageReference Include="SonarAnalyzer.CSharp" Version="8.51.0.59060" PrivateAssets="all" />
-        <PackageReference Include="TryAtSoftware.Extensions.Collections" Version="1.0.1" />
+        <PackageReference Include="TryAtSoftware.Extensions.Collections" Version="1.0.0" />
     </ItemGroup>
 
 </Project>

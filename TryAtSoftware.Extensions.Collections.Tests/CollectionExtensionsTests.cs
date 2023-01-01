@@ -50,7 +50,7 @@ public class CollectionExtensionsTests
     [Fact]
     public void IgnoreNullOrWhitespaceValuesShouldReturnCollectionWithNonEmptyStrings()
     {
-        var dirtyCollection = new string?[]
+        var dirtyCollection = new[]
         {
             "word", null, string.Empty, "hello", "   ", "\t", "monday", "\r\n"
         };
@@ -113,7 +113,7 @@ public class CollectionExtensionsTests
     [Fact]
     public void SafeWhereShouldRespectTheProvidedCondition()
     {
-        var collection = TestsHelper.Repeat(TestsHelper.GetStandardCollection(), 5);
+        var collection = TestsHelper.Repeat(TestsHelper.GetStandardCollection(), 5).ToArray();
         var oddNumbersMap = TestsHelper.GetElementsMap(collection.Where(IsOdd));
 
         var result = collection.SafeWhere(IsOdd);
@@ -123,21 +123,21 @@ public class CollectionExtensionsTests
     }
 
     [Fact]
-    public void SetIntersectionShouldHandleNull()
+    public void SetUnionShouldHandleNull()
     {
-        var result = ((IEnumerable<HashSet<object>>?)null).SetIntersection();
+        var result = ((IEnumerable<HashSet<object>>?)null).Union();
         Assert.NotNull(result);
         Assert.Empty(result);
     }
 
     [Fact]
-    public void SetIntersectionShouldWorjCorrectly()
+    public void SetUnionShouldWorkCorrectly()
     {
         var standardCollection = TestsHelper.GetStandardCollection().ToArray();
         
         // This test includes repeating elements, empty sets and null sets.
         var collectionOfSets = new[] { new HashSet<int>(standardCollection), new HashSet<int>(standardCollection), new HashSet<int>(), null };
-        var intersection = collectionOfSets.SetIntersection();
+        var intersection = collectionOfSets.Union();
         
         Assert.Equal(standardCollection.Length, intersection.Count);
         foreach (var el in standardCollection) Assert.Contains(el, intersection);
@@ -154,7 +154,7 @@ public class CollectionExtensionsTests
     [Fact]
     public void AsReadOnlyCollectionShouldWorkCorrectly()
     {
-        var standardCollection = TestsHelper.GetStandardCollection();
+        var standardCollection = TestsHelper.GetStandardCollection().ToArray();
         var readonlyCollection = standardCollection.AsReadOnlyCollection();
 
         Assert.Equal(standardCollection, readonlyCollection);

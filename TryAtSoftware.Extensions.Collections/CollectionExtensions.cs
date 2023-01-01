@@ -89,17 +89,17 @@ public static class CollectionExtensions
     }
 
     /// <summary>
-    /// Use this method to produce the intersection between multiple <see cref="HashSet{T}"/> instances.
+    /// Use this method to produce the union of multiple <see cref="HashSet{T}"/> instances.
     /// </summary>
-    /// <typeparam name="T">The type of elements in the hash set.</typeparam>
-    /// <param name="sets">The extended collection of <see cref="HashSet{T}"/> instances.</param>
-    /// <returns>A <see cref="HashSet{T}"/> that contains the elements that form the intersection of the extended sets.</returns>
-    public static HashSet<T> SetIntersection<T>(this IEnumerable<HashSet<T>?>? sets)
+    /// <typeparam name="T">The type of elements in the collections.</typeparam>
+    /// <param name="collections">The extended collection of <see cref="IEnumerable{T}"/> instances.</param>
+    /// <returns>A <see cref="HashSet{T}"/> that contains the elements that form the union of the extended collections.</returns>
+    public static HashSet<T> Union<T>(this IEnumerable<IEnumerable<T>?>? collections)
     {
         var compoundSet = new HashSet<T>();
-        foreach (var set in sets.OrEmptyIfNull().IgnoreNullValues())
+        foreach (var collection in collections.OrEmptyIfNull().IgnoreNullValues())
         {
-            foreach (var value in set)
+            foreach (var value in collection)
                 compoundSet.Add(value);
         }
 

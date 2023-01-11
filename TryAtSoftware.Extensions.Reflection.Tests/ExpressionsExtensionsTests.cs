@@ -1,4 +1,4 @@
-﻿namespace TryAtSoftware.Extensions.Reflection.Tests;
+namespace TryAtSoftware.Extensions.Reflection.Tests;
 
 using System;
 using System.Linq.Expressions;
@@ -145,6 +145,25 @@ public class ExpressionsExtensionsTests
 
     [Fact]
     public void ExceptionShouldBeThrownIfNullExpressionIsSentToTheConstructPropertySetterMethod() => Assert.Throws<ArgumentNullException>(() => ((PropertyInfo)null!).ConstructPropertySetter<Person, string>());
+
+    [Fact]
+    public void ConstructObjectInitializerShouldWorkCorrectly()
+    {
+        var constructorInfo = typeof(ModelWithConstructors).GetConstructor(new[] { typeof(string), typeof(int), typeof(char) });
+        Assert.NotNull(constructorInfo);
+
+        var newInstanceInitializerExpression = constructorInfo.ConstructObjectInitializer<ModelWithConstructors>();
+        var newInstanceInitializer = newInstanceInitializerExpression.Compile();
+
+        var text = RandomizationHelper.GetRandomString();
+        var number = RandomizationHelper.RandomInteger(1, 100);
+        var data = newInstanceInitializer(new object?[] { text, number, null });
+        Assert.NotNull(data);
+        Assert.Equal(1, data.UsedConstructor);
+        Assert.Equal(text, data.Text);
+        Assert.Equal(number, data.Number);
+        Assert.Equal('t', data.Symbol);
+    }
 
     private static void AssertMemberInfoRetrieval<T, TValue>(Expression<Func<T, TValue>> selector, Type declaringType, string memberName)
     {

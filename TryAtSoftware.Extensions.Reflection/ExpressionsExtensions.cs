@@ -1,6 +1,7 @@
 namespace TryAtSoftware.Extensions.Reflection;
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -82,6 +83,27 @@ public static class ExpressionsExtensions
         var assignExpression = Expression.Assign(propertyExpression, valueExpression);
 
         return Expression.Lambda<Action<T, TValue>>(assignExpression, instanceParameter, valueParameter);
+    }
+
+    public static Expression<Func<object?[], T>> ConstructObjectInitializer<T>(this ConstructorInfo constructorInfo)
+    {
+        if (constructorInfo is null) throw new ArgumentNullException(nameof(constructorInfo));
+        ValidateCorrectReflectedType(constructorInfo, typeof(T));
+
+        var argumentsParameter = Expression.Parameter(typeof(object?[]));
+
+        var parameters = constructorInfo.GetParameters();
+        var parameterExpressions = new Expression[parameters.Length];
+
+        for (var i = 0; i < parameters.Length; i++)
+        {
+            parameterExpressions[i] = Expression.ArrayIndex(argumentsParameter, Expression.Constant(i));
+            if (parameters[i].HasDefaultValue) parameterExpressions[i] = Expression.Coalesce(parameterExpressions[i], Expression.Constant(parameters[i].DefaultValue));
+            if (parameters[i].ParameterType != typeof(object)) parameterExpressions[i] = Expression.Convert(parameterExpressions[i], parameters[i].ParameterType);
+        }
+
+        var initializeExpression = Expression.New(constructorInfo, parameterExpressions);
+        return Expression.Lambda<Func<object?[], T>>(initializeExpression, argumentsParameter);
     }
 
     private static void ValidateCorrectReflectedType(MemberInfo memberInfo, Type operativeType)

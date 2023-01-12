@@ -1,6 +1,7 @@
 namespace TryAtSoftware.Extensions.Reflection;
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -82,6 +83,37 @@ public static class ExpressionsExtensions
         var assignExpression = Expression.Assign(propertyExpression, valueExpression);
 
         return Expression.Lambda<Action<T, TValue>>(assignExpression, instanceParameter, valueParameter);
+    }
+
+    /// <summary>
+    /// Use this method in order to construct an <see cref="Expression"/> for instantiation an object of type <typeparamref name="T"/> using the requested <paramref name="constructorInfo"/>.
+    /// </summary>
+    /// <param name="propertyInfo">The <see cref="ConstructorInfo"/> describing the constructor that should be used during the instantiation process.</param>
+    /// <typeparam name="T">The type of object to be instantiated (should be equal to the reflected type of the extended <paramref name="constructorInfo"/>).</typeparam>
+    /// <returns>Returns a subsequently built expression for constructing a new instance of type <typeparamref name="T"/>.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if the provided <paramref name="constructorInfo"/> is null.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the <see cref="MemberInfo.ReflectedType"/> of the provided <paramref name="constructorInfo"/> does not match <typeparamref name="T"/>.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the provided <paramref name="constructorInfo"/> is a constructor of an abstract class.</exception>
+    public static Expression<Func<object?[], T>> ConstructObjectInitializer<T>(this ConstructorInfo constructorInfo)
+    {
+        if (constructorInfo is null) throw new ArgumentNullException(nameof(constructorInfo));
+        ValidateCorrectReflectedType(constructorInfo, typeof(T));
+        if (constructorInfo.DeclaringType.IsAbstract) throw new InvalidOperationException("This is a constructor of an abstract class.");
+
+        var argumentsParameter = Expression.Parameter(typeof(object?[]));
+
+        var parameters = constructorInfo.GetParameters();
+        var parameterExpressions = new Expression[parameters.Length];
+
+        for (var i = 0; i < parameters.Length; i++)
+        {
+            parameterExpressions[i] = Expression.ArrayIndex(argumentsParameter, Expression.Constant(i));
+            if (parameters[i].HasDefaultValue) parameterExpressions[i] = Expression.Coalesce(parameterExpressions[i], Expression.Constant(parameters[i].DefaultValue));
+            if (parameters[i].ParameterType != typeof(object)) parameterExpressions[i] = Expression.Convert(parameterExpressions[i], parameters[i].ParameterType);
+        }
+
+        var initializeExpression = Expression.New(constructorInfo, parameterExpressions);
+        return Expression.Lambda<Func<object?[], T>>(initializeExpression, argumentsParameter);
     }
 
     private static void ValidateCorrectReflectedType(MemberInfo memberInfo, Type operativeType)

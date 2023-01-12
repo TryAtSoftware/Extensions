@@ -1,6 +1,8 @@
-﻿namespace TryAtSoftware.Extensions.Reflection.Tests;
+namespace TryAtSoftware.Extensions.Reflection.Tests;
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using TryAtSoftware.Extensions.Reflection.Tests.Models;
@@ -8,11 +10,13 @@ using TryAtSoftware.Extensions.Reflection.Tests.Models.Specialized;
 using TryAtSoftware.Extensions.Reflection.Tests.Randomization;
 using TryAtSoftware.Randomizer.Core.Helpers;
 using Xunit;
+using static System.Net.Mime.MediaTypeNames;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public class ExpressionsExtensionsTests
 {
     [Fact]
-    public void ExceptionShouldBeThrownIfNullExpressionIsSentToTheGetMemberInfoMethod() => Assert.Throws<ArgumentNullException>(() => ((Expression<Func<Person, string>>)null!).GetMemberInfo());
+    public void ExceptionShouldBeThrownIfNullExpressionIsPassedToTheGetMemberInfoMethod() => Assert.Throws<ArgumentNullException>(() => ((Expression<Func<Person, string>>)null!).GetMemberInfo());
 
     [Fact]
     public void MemberInfoShouldBeSuccessfullyRetrieved() => AssertMemberInfoRetrieval<Person, string?>(p => p.FirstName, typeof(Person), nameof(Person.FirstName));
@@ -64,7 +68,7 @@ public class ExpressionsExtensionsTests
     }
 
     [Fact]
-    public void ExceptionShouldBeThrownIfNullExpressionIsSentToTheConstructPropertyAccessorMethod() => Assert.Throws<ArgumentNullException>(() => ((PropertyInfo)null!).ConstructPropertyAccessor<Person, string>());
+    public void ExceptionShouldBeThrownIfNullIsPassedToTheConstructPropertyAccessorMethod() => Assert.Throws<ArgumentNullException>(() => ((PropertyInfo)null!).ConstructPropertyAccessor<Person, string>());
 
     [Fact]
     public void PropertyAccessorShouldNotBeConstructedIfTheReflectedTypeDoesNotCorrespondToTheProvidedGenericTypeParameter()
@@ -115,11 +119,11 @@ public class ExpressionsExtensionsTests
         var objectAgeSetter = GetCompiledPropertySetter<Person, object>(nameof(Person.Age));
 
         var person = new Person();
-        
+
         var randomByteAge = (byte)RandomizationHelper.RandomInteger(byte.MinValue, byte.MaxValue);
         byteAgeSetter(person, randomByteAge);
         Assert.Equal(randomByteAge, person.Age);
-        
+
         var randomInt16Age = (ushort)RandomizationHelper.RandomInteger(ushort.MinValue, ushort.MaxValue);
         objectAgeSetter(person, randomInt16Age);
         Assert.Equal(randomInt16Age, person.Age);
@@ -144,7 +148,115 @@ public class ExpressionsExtensionsTests
     }
 
     [Fact]
-    public void ExceptionShouldBeThrownIfNullExpressionIsSentToTheConstructPropertySetterMethod() => Assert.Throws<ArgumentNullException>(() => ((PropertyInfo)null!).ConstructPropertySetter<Person, string>());
+    public void ExceptionShouldBeThrownIfNullIsPassedToTheConstructPropertySetterMethod() => Assert.Throws<ArgumentNullException>(() => ((PropertyInfo)null!).ConstructPropertySetter<Person, string>());
+
+    [Theory]
+    [MemberData(nameof(GenerateObjectInitializationParameters))]
+    public void ConstructObjectInitializerShouldWorkCorrectly(string text, int number, char? symbol)
+    {
+        var constructorsBinder = new MembersBinder<ModelWithConstructors>(
+            x => x.MemberType == MemberTypes.Constructor,
+            x => PrepareConstructorName(Assert.IsAssignableFrom<ConstructorInfo>(x)),
+            BindingFlags.Public | BindingFlags.Instance);
+        Assert.Equal(4, constructorsBinder.MemberInfos.Count);
+
+        var predefinedParameterValues = new Dictionary<Type, object?>() { { typeof(string), text }, { typeof(int), number }, { typeof(char), symbol } };
+
+        var constructorId = 1;
+        foreach (var (_, member) in constructorsBinder.MemberInfos.OrderByDescending(x => x.Key))
+        {
+            var constructorInfo = Assert.IsAssignableFrom<ConstructorInfo>(member);
+            AssertCorrectObjectInitialization(constructorInfo, constructorId++, predefinedParameterValues);
+        }
+    }
+
+    [Fact]
+    public void ConstructObjectInitializerShouldWorkCorrectlyForInaccessibleConstructors()
+    {
+        var constructor = typeof(ModelWithConstructors).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, new[] { typeof(int), typeof(string), typeof(int), typeof(char) });
+        Assert.NotNull(constructor);
+
+        var constructorId = RandomizationHelper.RandomInteger(10, 101);
+        var text = RandomizationHelper.GetRandomString();
+        var number = RandomizationHelper.RandomInteger(1, 1001);
+        var symbol = (char)('a' + RandomizationHelper.RandomInteger(0, 26));
+
+        var newInstanceInitializerExpression = constructor.ConstructObjectInitializer<ModelWithConstructors>();
+        var newInstanceInitializer = newInstanceInitializerExpression.Compile();
+
+        var instance = newInstanceInitializer(new object[] { constructorId, text, number, symbol });
+        Assert.NotNull(instance);
+
+        Assert.Equal(constructorId, instance.UsedConstructor);
+        Assert.Equal(text, instance.Text);
+        Assert.Equal(number, instance.Number);
+        Assert.Equal(symbol, instance.Symbol);
+    }
+
+    [Fact]
+    public void ObjectInitializerShouldNotBeConstructedIfTheReflectedTypeDoesNotCorrespondToTheProvidedGenericTypeParameter()
+    {
+        var personConstructor = typeof(Person).GetConstructor(Array.Empty<Type>());
+        Assert.NotNull(personConstructor);
+        Assert.Throws<InvalidOperationException>(() => personConstructor.ConstructObjectInitializer<ModelWithConstructors>());
+    }
+
+    [Fact]
+    public void ObjectInitializerShouldNotBeConstructedForAbstractTypes()
+    {
+        var abstractModelConstructor = typeof(AbstractModel).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, Array.Empty<Type>());
+        Assert.NotNull(abstractModelConstructor);
+        Assert.Throws<InvalidOperationException>(() => abstractModelConstructor.ConstructObjectInitializer<AbstractModel>());
+    }
+
+    [Fact]
+    public void ExceptionShouldBeThrownIfNullIsPassedToTheConstructObjectInitializerMethod() => Assert.Throws<ArgumentNullException>(() => ((ConstructorInfo)null!).ConstructObjectInitializer<ModelWithConstructors>());
+
+    public static IEnumerable<object?[]> GenerateObjectInitializationParameters()
+    {
+        yield return new object?[] { RandomizationHelper.GetRandomString(), RandomizationHelper.RandomInteger(1, 101), null };
+        yield return new object[] { RandomizationHelper.GetRandomString(), RandomizationHelper.RandomInteger(1, 101), (char)('a' + RandomizationHelper.RandomInteger(0, 26)) };
+    }
+
+    private static void AssertCorrectObjectInitialization(ConstructorInfo constructorInfo, int constructorId, Dictionary<Type, object?> predefinedParameterValues)
+    {
+        Assert.NotNull(constructorInfo);
+
+        var parameters = constructorInfo.GetParameters();
+        var constructorParameterTypes = new HashSet<Type>();
+        var objectInitializationArguments = new object?[parameters.Length];
+        for (var i = 0; i < parameters.Length; i++)
+        {
+            constructorParameterTypes.Add(parameters[i].ParameterType);
+            predefinedParameterValues.TryGetValue(parameters[i].ParameterType, out objectInitializationArguments[i]);
+        }
+
+        var newInstanceInitializerExpression = constructorInfo.ConstructObjectInitializer<ModelWithConstructors>();
+        var newInstanceInitializer = newInstanceInitializerExpression.Compile();
+
+        var instance = newInstanceInitializer(objectInitializationArguments);
+        Assert.NotNull(instance);
+
+        AssertValue(x => x.Text, () => ModelWithConstructors.DefaultText);
+        AssertValue(x => x.Number, () => ModelWithConstructors.DefaultNumber);
+        AssertValue(x => x.Symbol, () => ModelWithConstructors.DefaultSymbol);
+        Assert.Equal(constructorId, instance.UsedConstructor);
+
+        void AssertValue<T>(Func<ModelWithConstructors, T> valueSelector, Func<T> defaultValueSelector)
+        {
+            var instanceValue = valueSelector(instance);
+            if (constructorParameterTypes.Contains(typeof(T)) && predefinedParameterValues.TryGetValue(typeof(T), out var predefinedValue) && predefinedValue is not null) Assert.Equal(predefinedValue, instanceValue);
+            else Assert.Equal(defaultValueSelector(), instanceValue);
+        }
+    }
+
+    private static string PrepareConstructorName(ConstructorInfo constructorInfo)
+    {
+        Assert.NotNull(constructorInfo);
+
+        var parameterTypeNames = constructorInfo.GetParameters().Select(p => TypeNames.Get(p.ParameterType));
+        return $"Constructor - {string.Join(", ", parameterTypeNames)}";
+    }
 
     private static void AssertMemberInfoRetrieval<T, TValue>(Expression<Func<T, TValue>> selector, Type declaringType, string memberName)
     {

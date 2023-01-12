@@ -6,16 +6,16 @@ public class ModelWithConstructors
     public const string DefaultText = "Hello, world!";
     public const int DefaultNumber = 13;
 
-    private ModelWithConstructors(int constructorIndex, string text, int number)
+    private ModelWithConstructors(int constructorIndex, string text, int number, char symbol = DefaultSymbol)
     {
         this.UsedConstructor = constructorIndex;
         this.Text = text;
         this.Number = number;
+        this.Symbol = symbol;
     }
 
-    public ModelWithConstructors(string text, int number, char symbol = DefaultSymbol) : this(1, text, number)
+    public ModelWithConstructors(string text, int number, char symbol = DefaultSymbol) : this(1, text, number, symbol)
     {
-        this.Symbol = symbol;
     }
 
     public ModelWithConstructors(string text) : this(2, text, DefaultNumber)

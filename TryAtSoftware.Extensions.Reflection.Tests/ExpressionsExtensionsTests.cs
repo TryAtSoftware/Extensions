@@ -10,6 +10,8 @@ using TryAtSoftware.Extensions.Reflection.Tests.Models.Specialized;
 using TryAtSoftware.Extensions.Reflection.Tests.Randomization;
 using TryAtSoftware.Randomizer.Core.Helpers;
 using Xunit;
+using static System.Net.Mime.MediaTypeNames;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public class ExpressionsExtensionsTests
 {
@@ -117,11 +119,11 @@ public class ExpressionsExtensionsTests
         var objectAgeSetter = GetCompiledPropertySetter<Person, object>(nameof(Person.Age));
 
         var person = new Person();
-        
+
         var randomByteAge = (byte)RandomizationHelper.RandomInteger(byte.MinValue, byte.MaxValue);
         byteAgeSetter(person, randomByteAge);
         Assert.Equal(randomByteAge, person.Age);
-        
+
         var randomInt16Age = (ushort)RandomizationHelper.RandomInteger(ushort.MinValue, ushort.MaxValue);
         objectAgeSetter(person, randomInt16Age);
         Assert.Equal(randomInt16Age, person.Age);
@@ -148,29 +150,70 @@ public class ExpressionsExtensionsTests
     [Fact]
     public void ExceptionShouldBeThrownIfNullExpressionIsSentToTheConstructPropertySetterMethod() => Assert.Throws<ArgumentNullException>(() => ((PropertyInfo)null!).ConstructPropertySetter<Person, string>());
 
-    [Fact]
-    public void ConstructObjectInitializerShouldWorkCorrectly()
+    [Theory]
+    [MemberData(nameof(GenerateObjectInitializationParameters))]
+    public void ConstructObjectInitializerShouldWorkCorrectly(string text, int number, char? symbol)
     {
         var constructorsBinder = new MembersBinder<ModelWithConstructors>(
             x => x.MemberType == MemberTypes.Constructor,
-            x => $"Constructor [{string.Join(", ", ((ConstructorInfo) x).GetParameters().Select(p => TypeNames.Get(p.ParameterType)))}]",
+            x => PrepareConstructorName(Assert.IsAssignableFrom<ConstructorInfo>(x)),
             BindingFlags.Public | BindingFlags.Instance);
         Assert.Equal(4, constructorsBinder.MemberInfos.Count);
 
-        var constructorInfo = typeof(ModelWithConstructors).GetConstructor(new[] { typeof(string), typeof(int), typeof(char) });
+        var predefinedParameterValues = new Dictionary<Type, object?>() { { typeof(string), text }, { typeof(int), number }, { typeof(char), symbol } };
+
+        var constructorId = 1;
+        foreach (var (_, member) in constructorsBinder.MemberInfos.OrderByDescending(x => x.Key))
+        {
+            var constructorInfo = Assert.IsAssignableFrom<ConstructorInfo>(member);
+            AssertCorrectObjectInitialization(constructorInfo, constructorId++, predefinedParameterValues);
+        }
+    }
+
+    public static IEnumerable<object?[]> GenerateObjectInitializationParameters()
+    {
+        yield return new object?[] { RandomizationHelper.GetRandomString(), RandomizationHelper.RandomInteger(1, 101), null };
+        yield return new object[] { RandomizationHelper.GetRandomString(), RandomizationHelper.RandomInteger(1, 101), (char)('a' + RandomizationHelper.RandomInteger(0, 26)) };
+    }
+
+    private static void AssertCorrectObjectInitialization(ConstructorInfo constructorInfo, int constructorId, Dictionary<Type, object?> predefinedParameterValues)
+    {
         Assert.NotNull(constructorInfo);
+
+        var parameters = constructorInfo.GetParameters();
+        var constructorParameterTypes = new HashSet<Type>();
+        var objectInitializationArguments = new object?[parameters.Length];
+        for (var i = 0; i < parameters.Length; i++)
+        {
+            constructorParameterTypes.Add(parameters[i].ParameterType);
+            predefinedParameterValues.TryGetValue(parameters[i].ParameterType, out objectInitializationArguments[i]);
+        }
 
         var newInstanceInitializerExpression = constructorInfo.ConstructObjectInitializer<ModelWithConstructors>();
         var newInstanceInitializer = newInstanceInitializerExpression.Compile();
 
-        var text = RandomizationHelper.GetRandomString();
-        var number = RandomizationHelper.RandomInteger(1, 100);
-        var data = newInstanceInitializer(new object?[] { text, number, null });
-        Assert.NotNull(data);
-        Assert.Equal(1, data.UsedConstructor);
-        Assert.Equal(text, data.Text);
-        Assert.Equal(number, data.Number);
-        Assert.Equal(ModelWithConstructors.DefaultSymbol, data.Symbol);
+        var instance = newInstanceInitializer(objectInitializationArguments);
+        Assert.NotNull(instance);
+
+        AssertValue(x => x.Text, () => ModelWithConstructors.DefaultText);
+        AssertValue(x => x.Number, () => ModelWithConstructors.DefaultNumber);
+        AssertValue(x => x.Symbol, () => ModelWithConstructors.DefaultSymbol);
+        Assert.Equal(constructorId, instance.UsedConstructor);
+
+        void AssertValue<T>(Func<ModelWithConstructors, T> valueSelector, Func<T> defaultValueSelector)
+        {
+            var instanceValue = valueSelector(instance);
+            if (constructorParameterTypes.Contains(typeof(T)) && predefinedParameterValues.TryGetValue(typeof(T), out var predefinedValue) && predefinedValue is not null) Assert.Equal(predefinedValue, instanceValue);
+            else Assert.Equal(defaultValueSelector(), instanceValue);
+        }
+    }
+
+    private static string PrepareConstructorName(ConstructorInfo constructorInfo)
+    {
+        Assert.NotNull(constructorInfo);
+
+        var parameterTypeNames = constructorInfo.GetParameters().Select(p => TypeNames.Get(p.ParameterType));
+        return $"Constructor - {string.Join(", ", parameterTypeNames)}";
     }
 
     private static void AssertMemberInfoRetrieval<T, TValue>(Expression<Func<T, TValue>> selector, Type declaringType, string memberName)

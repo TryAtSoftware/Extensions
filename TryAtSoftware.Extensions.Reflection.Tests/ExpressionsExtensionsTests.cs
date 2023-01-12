@@ -16,7 +16,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 public class ExpressionsExtensionsTests
 {
     [Fact]
-    public void ExceptionShouldBeThrownIfNullExpressionIsSentToTheGetMemberInfoMethod() => Assert.Throws<ArgumentNullException>(() => ((Expression<Func<Person, string>>)null!).GetMemberInfo());
+    public void ExceptionShouldBeThrownIfNullExpressionIsPassedToTheGetMemberInfoMethod() => Assert.Throws<ArgumentNullException>(() => ((Expression<Func<Person, string>>)null!).GetMemberInfo());
 
     [Fact]
     public void MemberInfoShouldBeSuccessfullyRetrieved() => AssertMemberInfoRetrieval<Person, string?>(p => p.FirstName, typeof(Person), nameof(Person.FirstName));
@@ -68,7 +68,7 @@ public class ExpressionsExtensionsTests
     }
 
     [Fact]
-    public void ExceptionShouldBeThrownIfNullExpressionIsSentToTheConstructPropertyAccessorMethod() => Assert.Throws<ArgumentNullException>(() => ((PropertyInfo)null!).ConstructPropertyAccessor<Person, string>());
+    public void ExceptionShouldBeThrownIfNullIsPassedToTheConstructPropertyAccessorMethod() => Assert.Throws<ArgumentNullException>(() => ((PropertyInfo)null!).ConstructPropertyAccessor<Person, string>());
 
     [Fact]
     public void PropertyAccessorShouldNotBeConstructedIfTheReflectedTypeDoesNotCorrespondToTheProvidedGenericTypeParameter()
@@ -148,7 +148,7 @@ public class ExpressionsExtensionsTests
     }
 
     [Fact]
-    public void ExceptionShouldBeThrownIfNullExpressionIsSentToTheConstructPropertySetterMethod() => Assert.Throws<ArgumentNullException>(() => ((PropertyInfo)null!).ConstructPropertySetter<Person, string>());
+    public void ExceptionShouldBeThrownIfNullIsPassedToTheConstructPropertySetterMethod() => Assert.Throws<ArgumentNullException>(() => ((PropertyInfo)null!).ConstructPropertySetter<Person, string>());
 
     [Theory]
     [MemberData(nameof(GenerateObjectInitializationParameters))]
@@ -169,6 +169,48 @@ public class ExpressionsExtensionsTests
             AssertCorrectObjectInitialization(constructorInfo, constructorId++, predefinedParameterValues);
         }
     }
+
+    [Fact]
+    public void ConstructObjectInitializerShouldWorkCorrectlyForInaccessibleConstructors()
+    {
+        var constructor = typeof(ModelWithConstructors).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, new[] { typeof(int), typeof(string), typeof(int), typeof(char) });
+        Assert.NotNull(constructor);
+
+        var constructorId = RandomizationHelper.RandomInteger(10, 101);
+        var text = RandomizationHelper.GetRandomString();
+        var number = RandomizationHelper.RandomInteger(1, 1001);
+        var symbol = (char)('a' + RandomizationHelper.RandomInteger(0, 26));
+
+        var newInstanceInitializerExpression = constructor.ConstructObjectInitializer<ModelWithConstructors>();
+        var newInstanceInitializer = newInstanceInitializerExpression.Compile();
+
+        var instance = newInstanceInitializer(new object[] { constructorId, text, number, symbol });
+        Assert.NotNull(instance);
+
+        Assert.Equal(constructorId, instance.UsedConstructor);
+        Assert.Equal(text, instance.Text);
+        Assert.Equal(number, instance.Number);
+        Assert.Equal(symbol, instance.Symbol);
+    }
+
+    [Fact]
+    public void ObjectInitializerShouldNotBeConstructedIfTheReflectedTypeDoesNotCorrespondToTheProvidedGenericTypeParameter()
+    {
+        var personConstructor = typeof(Person).GetConstructor(Array.Empty<Type>());
+        Assert.NotNull(personConstructor);
+        Assert.Throws<InvalidOperationException>(() => personConstructor.ConstructObjectInitializer<ModelWithConstructors>());
+    }
+
+    [Fact]
+    public void ObjectInitializerShouldNotBeConstructedForAbstractTypes()
+    {
+        var abstractModelConstructor = typeof(AbstractModel).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, Array.Empty<Type>());
+        Assert.NotNull(abstractModelConstructor);
+        Assert.Throws<InvalidOperationException>(() => abstractModelConstructor.ConstructObjectInitializer<AbstractModel>());
+    }
+
+    [Fact]
+    public void ExceptionShouldBeThrownIfNullIsPassedToTheConstructObjectInitializerMethod() => Assert.Throws<ArgumentNullException>(() => ((ConstructorInfo)null!).ConstructObjectInitializer<ModelWithConstructors>());
 
     public static IEnumerable<object?[]> GenerateObjectInitializationParameters()
     {

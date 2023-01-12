@@ -162,7 +162,7 @@ public class ExpressionsExtensionsTests
         Assert.Equal(1, data.UsedConstructor);
         Assert.Equal(text, data.Text);
         Assert.Equal(number, data.Number);
-        Assert.Equal('t', data.Symbol);
+        Assert.Equal(ModelWithConstructors.DefaultSymbol, data.Symbol);
     }
 
     private static void AssertMemberInfoRetrieval<T, TValue>(Expression<Func<T, TValue>> selector, Type declaringType, string memberName)

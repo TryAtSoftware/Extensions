@@ -1,6 +1,8 @@
 namespace TryAtSoftware.Extensions.Reflection.Tests;
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using TryAtSoftware.Extensions.Reflection.Tests.Models;
@@ -149,6 +151,12 @@ public class ExpressionsExtensionsTests
     [Fact]
     public void ConstructObjectInitializerShouldWorkCorrectly()
     {
+        var constructorsBinder = new MembersBinder<ModelWithConstructors>(
+            x => x.MemberType == MemberTypes.Constructor,
+            x => $"Constructor [{string.Join(", ", ((ConstructorInfo) x).GetParameters().Select(p => TypeNames.Get(p.ParameterType)))}]",
+            BindingFlags.Public | BindingFlags.Instance);
+        Assert.Equal(4, constructorsBinder.MemberInfos.Count);
+
         var constructorInfo = typeof(ModelWithConstructors).GetConstructor(new[] { typeof(string), typeof(int), typeof(char) });
         Assert.NotNull(constructorInfo);
 

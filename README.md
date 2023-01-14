@@ -67,10 +67,10 @@ IEnumerable<string> words = /* initialization... */;
 
 if (words != null)
 {
-    foreach (string w in words) 
+    foreach (string w in words)
     {
         if (w == null) continue;
- 
+
         /* Do something */
     }
 }
@@ -81,7 +81,7 @@ It can be **improved** like this:
 ```C#
 IEnumerable<string> words = /* initialization... */;
 
-foreach (string w in words.OrEmptyIfNull().IgnoreNullValues()) 
+foreach (string w in words.OrEmptyIfNull().IgnoreNullValues())
 {
     // Do something
 }
@@ -99,10 +99,10 @@ IEnumerable<string> words = /* initialization... */;
 
 if (words != null)
 {
-    foreach (string w in words) 
+    foreach (string w in words)
     {
         if (string.IsNullOrWhitespace(w)) continue;
- 
+
         /* Do something */
     }
 }
@@ -113,7 +113,7 @@ It can be **improved** like this:
 ```C#
 IEnumerable<string> words = /* initialization... */;
 
-foreach (string w in words.OrEmptyIfNull().IgnoreNullOrWhitespaceValues()) 
+foreach (string w in words.OrEmptyIfNull().IgnoreNullOrWhitespaceValues())
 {
     // Do something
 }
@@ -131,10 +131,10 @@ IEnumerable<Guid> identifiers = /* initialization... */;
 
 if (identifiers != null)
 {
-    foreach (Guid id in identifiers) 
+    foreach (Guid id in identifiers)
     {
         if (id == Guid.Empty) continue;
- 
+
         /* Do something */
     }
 }
@@ -145,7 +145,7 @@ It can be **improved** like this:
 ```C#
 IEnumerable<Guid> identifiers = /* initialization... */;
 
-foreach (Guid id in identifiers.OrEmptyIfNull().IgnoreDefaultValues()) 
+foreach (Guid id in identifiers.OrEmptyIfNull().IgnoreDefaultValues())
 {
     // Do something
 }
@@ -165,7 +165,7 @@ if (identifiers != null)
     Predicate<Guid> predicate = /* initialization... */;
     if (predicate != null) identifiers = identifiers.Where(predicate);
 
-    foreach (Guid id in identifiers) 
+    foreach (Guid id in identifiers)
     {
         /* Do something */
     }
@@ -178,7 +178,7 @@ It can be **improved** like this:
 IEnumerable<Guid> identifiers = /* initialization... */;
 Predicate<Guid> predicate = /* initialization... */;
 
-foreach (Guid id in identifiers.OrEmptyIfNull().SafeWhere(predicate)) 
+foreach (Guid id in identifiers.OrEmptyIfNull().SafeWhere(predicate))
 {
     // Do something
 }
@@ -197,12 +197,12 @@ IEnumerable<int> concatenated;
 if (a == null && b == null) concatenated = Enumerable.Empty<int>();
 else if (a == null) concatenated = b;
 else if (b == null) concatenated = a;
-else 
+else
 {
     List<int> tempConcatenated = new List<int>();
     foreach (int el in a) tempConcatenated.Add(el);
     foreach (int el in b) tempConcatenated.Add(el);
-    
+
     concatenated = tempConcatenated;
 }
 ```
@@ -221,6 +221,7 @@ IEnumerable<int> concatenated = a.ConcatenateWith(b);
 This extension method will produce the union of multiple `IEnumerable<T>` instances.
 
 Example:
+
 ```C#
 HashSet<int> a = new HashSet<int> { 1, 2, 3 };
 HashSet<int> b = new HashSet<int> { 2, 3, 4 };
@@ -255,6 +256,7 @@ IReadOnlyCollection<Guid> readOnlyCollection = identifiers.AsReadOnlyCollection(
 ## Dictionaries
 
 ### `OrEmptyIfNull`
+
 This is an extension method that will return an empty dictionary if the extended one was `null`.
 The main use case is to prevent unnecessary exceptions whenever a `null` dictionary should not be treated differently than an `empty` dictionary.
 
@@ -371,7 +373,7 @@ The main idea behind this component is to provide efficiently a meaningful and r
 Here is a comparison between the `type.ToString()` and `TypeNames.Get(type)`:
 
 | type               | type.ToString()                                                                    | TypeNames.Get(type)  |
-|--------------------|------------------------------------------------------------------------------------|----------------------|
+| ------------------ | ---------------------------------------------------------------------------------- | -------------------- |
 | `Task<int>`        | System.Threading.Tasks.Task\`1\[System.Int32]                                      | Task\<Int32>         |
 | `Task<List<long>>` | System.Collections.Generic.List\`1\[System.Threading.Tasks.Task\`1\[System.Int64]] | List\<Task\<Person>> |
 | `Task<>`           | System.Threading.Tasks.Task\`1\[TResult]                                           | Task\<TResult>       |
@@ -382,11 +384,13 @@ Here is a comparison between the `type.ToString()` and `TypeNames.Get(type)`:
 This is an interface defining the structure of an utility component exposing information about a specific subset of the members for a given type.
 There are two classes implementing this interface - a non-generic `MembersBinder` and a generic `MembersBinder<T>`.
 They accept the following parameters throughout their constructors:
-- `isValid`: A filtering function that should determine whether or not a member should be included within the final result set. If no value is provided for this parameter, every member will be included. 
+
+- `isValid`: A filtering function that should determine whether or not a member should be included within the final result set. If no value is provided for this parameter, every member will be included.
 - `keySelector`: A function mapping each each member to unique key. If no value is provided to this parameter, the name of the member will be used (which means that in case of overrides or members with the same name there will be issues)
 - `bindingFlags`: The binding flags used to control the member search throughout reflection.
 
 Example:
+
 ```C#
 IMembersBinder binder = new MembersBinder<TEntity>(IsValidMember, BindingFlags.Public | BindingFlags.Instance);
 
@@ -414,6 +418,7 @@ This expression method can be easily used with the `IMembersBinder` we described
 Conversions are also handled, e.g. a common use case is to retrieve the values of all properties by boxing them as `object` instances - this can be achieved without any additional configurations as long as the required conversion can be executed.
 
 Example:
+
 ```C#
 IMembersBinder binder = new MembersBinder<TEntity>(x => x is PropertyInfo { CanRead: true}, BindingFlags.Public | BindingFlags.Instance);
 List<Expression<Func<TEntity, object>>> valueAccessors = new List<Expression<Func<TEntity, object>>>();
@@ -434,6 +439,7 @@ This expression method can be easily used with the `IMembersBinder` we described
 Conversions are also handled, e.g. a common use case is to set the values of all properties after unboxing `object` instances - this can be achieved without any additional configurations as long as the required conversion can be executed.
 
 Example:
+
 ```C#
 IMembersBinder binder = new MembersBinder<TEntity>(x => x is PropertyInfo { CanWrite: true}, BindingFlags.Public | BindingFlags.Instance);
 List<Expression<Action<TEntity, object>>> valueSetters = new List<Expression<Action<TEntity, object>>>();
@@ -443,6 +449,32 @@ foreach (var (_, memberInfo) in binder.MemberInfos)
     var propertyInfo = memberInfo as PropertyInfo;
     var setter = propertyInfo.ConstructPropertySetter<TEntity, object>();
     valueSetters.Add(setter);
+}
+```
+
+#### `ConstructObjectInitializer`
+
+This is an extension method that should construct an expression for instantiating an object using a specific constructor.
+Usually, it is a good practice to minimize the reflection calls in code. One way of achieving this is throughout expressions (that are constructed and compiled only once for the lifetime of a program).
+This expression method can be easily used with the `IMembersBinder` we described in the previous chapter.
+
+Example:
+
+```C#
+IMembersBinder binder = new MembersBinder<TEntity>(x => x is ConstructorInfo, x => PrepareConstructorKey((ConstructorInfo)x), BindingFlags.Public | BindingFlags.Instance);
+List<Expression<Func<object?[], TEntity>>> objectInitializers = new List<Expression<Func<object?[], TEntity>>>();
+
+foreach (var (_, memberInfo) in binder.MemberInfos)
+{
+    var constructorInfo = memberInfo as ConstructorInfo;
+    var objectInitializer = constructorInfo.ConstructObjectInitializer<TEntity>();
+    objectInitializers.Add(objectInitializer);
+}
+
+static string PrepareConstructorKey(ConstructorInfo constructorInfo)
+{
+    var parameterTypeNames = constructorInfo.GetParameters().Select(p => TypeNames.Get(p.ParameterType));
+    return $"Constructor[{string.Join(", ", parameterTypeNames)}]";
 }
 ```
 
@@ -458,6 +490,7 @@ If there are none or multiple attributes for a generic parameter, this method wi
 If the external configuration is missing some attribute type, an exception will be thrown as well.
 
 Example:
+
 ```C#
 public class MyType<[KeyType] TKey, [ValueType] TValue> {}
 
@@ -472,6 +505,7 @@ IDictionary<string, Type> genericParametersSetup = ExtractGenericParametersSetup
 Use this method to make the extended type generic using a parameters setup.
 
 Example:
+
 ```C#
 public class MyType<[KeyType] TKey, [ValueType] TValue> {}
 

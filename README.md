@@ -373,7 +373,7 @@ The main idea behind this component is to provide efficiently a meaningful and r
 Here is a comparison between the `type.ToString()` and `TypeNames.Get(type)`:
 
 | type               | type.ToString()                                                                    | TypeNames.Get(type)  |
-| ------------------ | ---------------------------------------------------------------------------------- | -------------------- |
+|--------------------|------------------------------------------------------------------------------------|----------------------|
 | `Task<int>`        | System.Threading.Tasks.Task\`1\[System.Int32]                                      | Task\<Int32>         |
 | `Task<List<long>>` | System.Collections.Generic.List\`1\[System.Threading.Tasks.Task\`1\[System.Int64]] | List\<Task\<Person>> |
 | `Task<>`           | System.Threading.Tasks.Task\`1\[TResult]                                           | Task\<TResult>       |
@@ -407,6 +407,13 @@ static bool IsValidMember(MemberInfo memberInfo)
 
 // Now every discovered member for the `TEntity` type will be mapped against its name throughout the `binder.MemberInfos` dictionary.
 ```
+
+#### Members binder and extended interfaces
+
+It is known that whenever the `.GetMembers()` method is invoked for an interface type, none of the members defined in extended interfaces will be returned.
+The default implementations of the `IMembersBinder` method overcome this and will include members from all of the extended interfaces by recursively retrieving all of them.
+That being said, it is obvious that the `ReflectedType` in this case may not equal the `Type` of the `IMembersBinder` instance.
+
 
 ### Expression extensions
 

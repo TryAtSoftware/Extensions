@@ -10,8 +10,6 @@ using TryAtSoftware.Extensions.Reflection.Tests.Models.Specialized;
 using TryAtSoftware.Extensions.Reflection.Tests.Randomization;
 using TryAtSoftware.Randomizer.Core.Helpers;
 using Xunit;
-using static System.Net.Mime.MediaTypeNames;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public class ExpressionsExtensionsTests
 {
@@ -31,13 +29,11 @@ public class ExpressionsExtensionsTests
         Assert.Throws<InvalidOperationException>(() => expression.GetMemberInfo());
     }
 
-    [Fact]
-    public void PropertyAccessorShouldBeSuccessfullyConstructed()
+    [Theory]
+    [MemberData(nameof(GeneratePersonInstances))]
+    public void PropertyAccessorShouldBeSuccessfullyConstructed(Person person)
     {
         var firstNameAccessor = GetCompiledPropertyAccessor<Person, string>(nameof(Person.FirstName));
-
-        var personRandomizer = new PersonRandomizer();
-        var person = personRandomizer.PrepareRandomValue();
 
         var firstName = firstNameAccessor(person);
         Assert.Equal(person.FirstName, firstName);
@@ -88,12 +84,12 @@ public class ExpressionsExtensionsTests
         Assert.Throws<InvalidOperationException>(() => inaccessiblePropertySetter.ConstructPropertyAccessor<ModelWithInaccessibleProperty, string>());
     }
 
-    [Fact]
-    public void PropertySetterShouldBeConstructedSuccessfully()
+    [Theory]
+    [MemberData(nameof(GeneratePersonInstances))]
+    public void PropertySetterShouldBeConstructedSuccessfully(Person person)
     {
         var firstNameSetter = GetCompiledPropertySetter<Person, string>(nameof(Person.FirstName));
 
-        var person = new Person();
         var randomString = RandomizationHelper.GetRandomString();
 
         firstNameSetter(person, randomString);
@@ -211,6 +207,15 @@ public class ExpressionsExtensionsTests
 
     [Fact]
     public void ExceptionShouldBeThrownIfNullIsPassedToTheConstructObjectInitializerMethod() => Assert.Throws<ArgumentNullException>(() => ((ConstructorInfo)null!).ConstructObjectInitializer<ModelWithConstructors>());
+
+    public static IEnumerable<object[]> GeneratePersonInstances()
+    {
+        var personRandomizer = new PersonRandomizer();
+        var studentRandomizer = new StudentRandomizer();
+
+        yield return new object[] { personRandomizer.PrepareRandomValue() };
+        yield return new object[] { studentRandomizer.PrepareRandomValue() };
+    }
 
     public static IEnumerable<object?[]> GenerateObjectInitializationParameters()
     {

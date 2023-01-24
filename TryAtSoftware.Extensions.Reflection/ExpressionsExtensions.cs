@@ -1,7 +1,6 @@
 namespace TryAtSoftware.Extensions.Reflection;
 
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -88,7 +87,7 @@ public static class ExpressionsExtensions
     /// <summary>
     /// Use this method in order to construct an <see cref="Expression"/> for instantiation an object of type <typeparamref name="T"/> using the requested <paramref name="constructorInfo"/>.
     /// </summary>
-    /// <param name="propertyInfo">The <see cref="ConstructorInfo"/> describing the constructor that should be used during the instantiation process.</param>
+    /// <param name="constructorInfo">The <see cref="ConstructorInfo"/> describing the constructor that should be used during the instantiation process.</param>
     /// <typeparam name="T">The type of object to be instantiated (should be equal to the reflected type of the extended <paramref name="constructorInfo"/>).</typeparam>
     /// <returns>Returns a subsequently built expression for constructing a new instance of type <typeparamref name="T"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the provided <paramref name="constructorInfo"/> is null.</exception>
@@ -98,6 +97,8 @@ public static class ExpressionsExtensions
     {
         if (constructorInfo is null) throw new ArgumentNullException(nameof(constructorInfo));
         ValidateCorrectReflectedType(constructorInfo, typeof(T));
+
+        if (constructorInfo.DeclaringType is null) throw new InvalidOperationException("The `DeclaringType` property for the constructor was null.");
         if (constructorInfo.DeclaringType.IsAbstract) throw new InvalidOperationException("This is a constructor of an abstract class.");
 
         var argumentsParameter = Expression.Parameter(typeof(object?[]));
@@ -118,6 +119,8 @@ public static class ExpressionsExtensions
 
     private static void ValidateCorrectReflectedType(MemberInfo memberInfo, Type operativeType)
     {
-        if (memberInfo.ReflectedType != operativeType) throw new InvalidOperationException($"The provided member was obtained from a different type. Member name: {memberInfo.Name}, T: {TypeNames.Get(operativeType)}, Reflected type: {TypeNames.Get(memberInfo.ReflectedType)}");
+        var reflectedType = memberInfo.ReflectedType;
+        if (reflectedType is null) throw new InvalidOperationException($"The `ReflectedType` property for the member {memberInfo.Name} was null.");
+        if (!reflectedType.IsAssignableFrom(operativeType)) throw new InvalidOperationException($"The provided member was obtained from a different type. Member name: {memberInfo.Name}, T: {TypeNames.Get(operativeType)}, Reflected type: {TypeNames.Get(reflectedType)}");
     }
 }

@@ -3,6 +3,7 @@ namespace TryAtSoftware.Extensions.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 using TryAtSoftware.Extensions.Collections;
 using TryAtSoftware.Extensions.Reflection.Interfaces;
@@ -43,10 +44,10 @@ public class MembersBinder : IMembersBinder
     /// <inheritdoc />
     public IReadOnlyDictionary<string, MemberInfo> MemberInfos { get; }
 
-    private static Dictionary<string, MemberInfo> GetMembers(IReflect type, Func<MemberInfo, bool>? isValid, BindingFlags bindingFlags, Func<MemberInfo, string>? keySelector)
+    private static Dictionary<string, MemberInfo> GetMembers(Type type, Func<MemberInfo, bool>? isValid, BindingFlags bindingFlags, Func<MemberInfo, string>? keySelector)
     {
         var membersDict = new Dictionary<string, MemberInfo>();
-        var members = type.GetMembers(bindingFlags).SafeWhere(isValid);
+        var members = GetMembers(type, isValid, bindingFlags);
 
         foreach (var member in members)
         {
@@ -62,6 +63,14 @@ public class MembersBinder : IMembersBinder
         }
 
         return membersDict;
+    }
+
+    private static IEnumerable<MemberInfo> GetMembers(Type type, Func<MemberInfo, bool>? isValid, BindingFlags bindingFlags)
+    {
+        var members = type.GetMembers(bindingFlags).SafeWhere(isValid);
+
+        if (!type.IsInterface) return members;
+        return type.GetInterfaces().Select(ei => GetMembers(ei, isValid, bindingFlags)).Aggregate(members, (c, em) => c.ConcatenateWith(em));
     }
 }
 

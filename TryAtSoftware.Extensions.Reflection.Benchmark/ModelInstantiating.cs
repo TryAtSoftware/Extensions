@@ -37,7 +37,7 @@ public class ModelInstantiating
     [Benchmark]
     public void InstantiateModelUsingReflection()
     {
-        for (var i = 0; i < this.N; i++) _ = Activator.CreateInstance(typeof(BenchmarkModel));
+        for (var i = 0; i < this.N; i++) _ = Activator.CreateInstance(this._type);
     }
 
     [Benchmark]

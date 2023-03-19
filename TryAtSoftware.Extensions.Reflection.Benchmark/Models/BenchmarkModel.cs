@@ -1,4 +1,4 @@
-﻿namespace TryAtSoftware.Extensions.Reflection.Benchmark;
+﻿namespace TryAtSoftware.Extensions.Reflection.Benchmark.Models;
 
 public class BenchmarkModel
 {

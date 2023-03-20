@@ -2,48 +2,47 @@
 
 using System.Reflection;
 using BenchmarkDotNet.Attributes;
+using TryAtSoftware.Extensions.Reflection.Benchmark.Models;
 
 /*
 16/03/2023, TryAtSoftware.Extensions.Reflection v1.1.1-alpha.2
-|                          Method |       N |         Mean |      Error |       StdDev |       Median |
-|-------------------------------- |-------- |-------------:|-----------:|-------------:|-------------:|
-| SetPropertyValueUsingReflection |   10000 |    327.84 us |   1.940 us |     1.720 us |    327.93 us |
-| SetPropertyValueUsingExpression |   10000 |     11.37 us |   0.035 us |     0.031 us |     11.37 us |
-| SetPropertyValueUsingReflection |   50000 |  1,561.69 us |  17.282 us |    14.431 us |  1,559.26 us |
-| SetPropertyValueUsingExpression |   50000 |     56.73 us |   0.629 us |     0.588 us |     56.39 us |
-| SetPropertyValueUsingReflection |  100000 |  3,072.71 us |   9.992 us |     8.344 us |  3,073.82 us |
-| SetPropertyValueUsingExpression |  100000 |    113.21 us |   0.927 us |     0.774 us |    112.92 us |
-| SetPropertyValueUsingReflection |  500000 | 15,677.52 us | 105.741 us |    98.910 us | 15,662.07 us |
-| SetPropertyValueUsingExpression |  500000 |    566.84 us |   3.425 us |     3.036 us |    565.96 us |
-| SetPropertyValueUsingReflection | 1000000 | 31,877.39 us | 635.977 us | 1,146.798 us | 31,247.00 us |
-| SetPropertyValueUsingExpression | 1000000 |  1,131.43 us |   3.365 us |     2.983 us |  1,130.91 us |
+|                          Method |           Mean |       Error |      StdDev |
+|-------------------------------- |---------------:|------------:|------------:|
+| SetPropertyValueUsingReflection |     31.6062 ns |   0.3097 ns |   0.2586 ns |
+|   SetPropertyValueUsingDelegate |      1.6304 ns |   0.0228 ns |   0.0191 ns |
+| SetPropertyValueUsingExpression |      0.5817 ns |   0.0408 ns |   0.0382 ns |
+|     CompileValueSettingDelegate |    346.5711 ns |   6.5976 ns |   5.8486 ns |
+|   CompileValueSettingExpression | 47,610.6336 ns | 225.6740 ns | 200.0541 ns |
  */
 public class ValueSetting
 {
-    private readonly BenchmarkModel _benchmarkModel = new () { Value = 1024 };
+    private readonly Model _benchmarkModel = new () { Value = 1024 };
     private PropertyInfo _propertyInfo = null!;
-    private Action<BenchmarkModel, int> _compiledExpression = null!;
-
-    [Params(10_000, 50_000, 100_000, 500_000, 1_000_000)] public int N { get; set; }
+    private Action<Model, int> _compiledExpression = null!;
+    private Action<Model, int> _compiledDelegate = null!;
 
     [GlobalSetup]
     public void Setup()
     {
-        this._propertyInfo = typeof(BenchmarkModel).GetProperty(nameof(BenchmarkModel.Value)) ?? throw new InvalidOperationException("Property was not successfully retrieved.");
+        this._propertyInfo = typeof(Model).GetProperty(nameof(Model.Value))!;
 
-        var valueSettingExpression = this._propertyInfo.ConstructPropertySetter<BenchmarkModel, int>();
+        var valueSettingExpression = this._propertyInfo.ConstructPropertySetter<Model, int>();
         this._compiledExpression = valueSettingExpression.Compile();
+        this._compiledDelegate = this._propertyInfo.SetMethod!.CreateDelegate<Action<Model, int>>();
     }
 
     [Benchmark]
-    public void SetPropertyValueUsingReflection()
-    {
-        for (var i = 0; i < this.N; i++) this._propertyInfo.SetValue(this._benchmarkModel, i);
-    }
+    public void SetPropertyValueUsingReflection() => this._propertyInfo.SetValue(this._benchmarkModel, 314);
 
     [Benchmark]
-    public void SetPropertyValueUsingExpression()
-    {
-        for (var i = 0; i < this.N; i++) this._compiledExpression(this._benchmarkModel, i);
-    }
+    public void SetPropertyValueUsingDelegate() => this._compiledDelegate(this._benchmarkModel, 314);
+
+    [Benchmark]
+    public void SetPropertyValueUsingExpression() => this._compiledExpression(this._benchmarkModel, 314);
+
+    [Benchmark]
+    public void CompileValueSettingDelegate() => _ = this._propertyInfo.SetMethod!.CreateDelegate<Action<Model, int>>();
+
+    [Benchmark]
+    public void CompileValueSettingExpression() => _ =  this._propertyInfo.ConstructPropertySetter<Model, int>().Compile();
 }

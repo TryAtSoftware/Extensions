@@ -118,7 +118,7 @@ public static class ExpressionsExtensions
             if (parameters[i].ParameterType != typeof(object)) parameterExpressions[i] = Expression.Convert(parameterExpressions[i], parameters[i].ParameterType);
         }
 
-        var incorrectParametersLengthException = new InvalidOperationException($"The object initializer requires {parameters.Length} provided parameters.");
+        var incorrectParametersLengthException = new InvalidOperationException($"The object initializer requires {parameters.Length} parameters to be provided.");
         var validateParametersLengthExpression = Expression.IfThen(Expression.NotEqual(Expression.ArrayLength(argumentsParameter), Expression.Constant(parameters.Length)), Expression.Throw(Expression.Constant(incorrectParametersLengthException))); 
         var initializeExpression = Expression.Block(validateParametersLengthExpression, Expression.New(constructorInfo, parameterExpressions));
         return Expression.Lambda<Func<object?[], T>>(initializeExpression, argumentsParameter);

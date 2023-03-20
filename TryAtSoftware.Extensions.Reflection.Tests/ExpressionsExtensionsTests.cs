@@ -202,6 +202,18 @@ public class ExpressionsExtensionsTests
     }
 
     [Fact]
+    public void ObjectInitializerShouldThrowExceptionIfMoreParametersAreProvided()
+    {
+        var constructor = typeof(ModelWithConstructors).GetConstructor(Array.Empty<Type>());
+        Assert.NotNull(constructor);
+        
+        var newInstanceInitializerExpression = constructor.ConstructObjectInitializer<ModelWithConstructors>();
+        var newInstanceInitializer = newInstanceInitializerExpression.Compile();
+
+        Assert.Throws<InvalidOperationException>(() => newInstanceInitializer(new object?[] { 15 }));
+    }
+
+    [Fact]
     public void ObjectInitializerShouldNotBeConstructedIfTheReflectedTypeDoesNotCorrespondToTheProvidedGenericTypeParameter()
     {
         var personConstructor = typeof(Person).GetConstructor(Array.Empty<Type>());

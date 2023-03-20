@@ -106,21 +106,16 @@ public static class ExpressionsExtensions
         var parameters = constructorInfo.GetParameters();
         var parameterExpressions = new Expression[parameters.Length];
 
-        var requiredParameters = 0;
         for (var i = 0; i < parameters.Length; i++)
         {
             parameterExpressions[i] = Expression.ArrayIndex(argumentsParameter, Expression.Constant(i));
             if (parameters[i].HasDefaultValue) parameterExpressions[i] = Expression.Coalesce(parameterExpressions[i], Expression.Constant(parameters[i].DefaultValue));
-            else requiredParameters++;
-            
             if (parameters[i].ParameterType != typeof(object)) parameterExpressions[i] = Expression.Convert(parameterExpressions[i], parameters[i].ParameterType);
         }
 
-        var initializeExpression = Expression.Block(
-                Expression.IfThen(
-                    Expression.LessThan(Expression.ArrayLength(argumentsParameter), Expression.Constant(requiredParameters)),
-                    Expression.Throw(Expression.Constant(new InvalidOperationException("Not enough arguments are provided")))),
-                Expression.New(constructorInfo, parameterExpressions));
+        var incorrectParametersLengthException = new InvalidOperationException($"The object initializer requires {parameters.Length} provided parameters.");
+        var validateParametersLengthExpression = Expression.IfThen(Expression.NotEqual(Expression.ArrayLength(argumentsParameter), Expression.Constant(parameters.Length)), Expression.Throw(Expression.Constant(incorrectParametersLengthException))); 
+        var initializeExpression = Expression.Block(validateParametersLengthExpression, Expression.New(constructorInfo, parameterExpressions));
         return Expression.Lambda<Func<object?[], T>>(initializeExpression, argumentsParameter);
     }
 

@@ -5,7 +5,7 @@ using BenchmarkDotNet.Attributes;
 using TryAtSoftware.Extensions.Reflection.Benchmark.Models;
 
 /*
-16/03/2023, TryAtSoftware.Extensions.Reflection v1.1.1-alpha.2
+Examined on 16/03/2023:
 |                               Method |          Mean |       Error |      StdDev |
 |------------------------------------- |--------------:|------------:|------------:|
 | RetrievePropertyValueUsingReflection |     13.777 ns |   0.1390 ns |   0.1301 ns |

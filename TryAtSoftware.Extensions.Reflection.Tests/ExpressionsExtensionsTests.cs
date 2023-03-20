@@ -195,7 +195,7 @@ public class ExpressionsExtensionsTests
         var constructor = typeof(ModelWithConstructors).GetConstructor(new[] { typeof(string), typeof(int), typeof(char) });
         Assert.NotNull(constructor);
         
-        var newInstanceInitializerExpression = constructor.ConstructObjectInitializer<ModelWithConstructors>();
+        var newInstanceInitializerExpression = constructor.ConstructObjectInitializer<ModelWithConstructors>(includeParametersCountValidation: true);
         var newInstanceInitializer = newInstanceInitializerExpression.Compile();
 
         Assert.Throws<InvalidOperationException>(() => newInstanceInitializer(Array.Empty<object?>()));
@@ -207,7 +207,7 @@ public class ExpressionsExtensionsTests
         var constructor = typeof(ModelWithConstructors).GetConstructor(Array.Empty<Type>());
         Assert.NotNull(constructor);
         
-        var newInstanceInitializerExpression = constructor.ConstructObjectInitializer<ModelWithConstructors>();
+        var newInstanceInitializerExpression = constructor.ConstructObjectInitializer<ModelWithConstructors>(includeParametersCountValidation: true);
         var newInstanceInitializer = newInstanceInitializerExpression.Compile();
 
         Assert.Throws<InvalidOperationException>(() => newInstanceInitializer(new object?[] { 15 }));

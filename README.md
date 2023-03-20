@@ -465,6 +465,11 @@ This is an extension method that should construct an expression for instantiatin
 Usually, it is a good practice to minimize the reflection calls in code. One way of achieving this is throughout expressions (that are constructed and compiled only once for the lifetime of a program).
 This expression method can be easily used with the `IMembersBinder` we described in the previous chapter.
 
+This methods accept one optional parameter called `includeParametersCountValidation`. It indicates whether or not the subsequently constructed expression should include a check to validate the correct count of provided values.
+
+An expression constructed by this extension method can be compiled to a function that accepts an array of values that correspond to the parameters of the extended `ConstructorInfo` instance.
+If any of the parameters is optional and its default value should be used, the corresponding element (from the provided array) must be `null`.
+
 Example:
 
 ```C#

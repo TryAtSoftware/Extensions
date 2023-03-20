@@ -1,6 +1,6 @@
 ﻿namespace TryAtSoftware.Extensions.Reflection.Benchmark.Models;
 
-public class BenchmarkModel
+internal class Model
 {
     public required int Value { get; set; }
 }

@@ -156,7 +156,7 @@ public class ExpressionsExtensionsTests
             BindingFlags.Public | BindingFlags.Instance);
         Assert.Equal(4, constructorsBinder.MemberInfos.Count);
 
-        var predefinedParameterValues = new Dictionary<Type, object?>() { { typeof(string), text }, { typeof(int), number }, { typeof(char), symbol } };
+        var predefinedParameterValues = new Dictionary<Type, object?> { { typeof(string), text }, { typeof(int), number }, { typeof(char), symbol } };
 
         var constructorId = 1;
         foreach (var (_, member) in constructorsBinder.MemberInfos.OrderByDescending(x => x.Key))
@@ -187,6 +187,18 @@ public class ExpressionsExtensionsTests
         Assert.Equal(text, instance.Text);
         Assert.Equal(number, instance.Number);
         Assert.Equal(symbol, instance.Symbol);
+    }
+
+    [Fact]
+    public void ObjectInitializerShouldThrowExceptionIfLessParametersAreProvided()
+    {
+        var constructor = typeof(ModelWithConstructors).GetConstructor(new[] { typeof(string), typeof(int), typeof(char) });
+        Assert.NotNull(constructor);
+        
+        var newInstanceInitializerExpression = constructor.ConstructObjectInitializer<ModelWithConstructors>();
+        var newInstanceInitializer = newInstanceInitializerExpression.Compile();
+
+        Assert.Throws<InvalidOperationException>(() => newInstanceInitializer(Array.Empty<object?>()));
     }
 
     [Fact]

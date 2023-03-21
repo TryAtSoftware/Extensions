@@ -8,6 +8,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution items", "Solution 
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 		README.md = README.md
+		TryAtSoftware.Extensions.Collections.md = TryAtSoftware.Extensions.Collections.md
+		TryAtSoftware.Extensions.Reflection.md = TryAtSoftware.Extensions.Reflection.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TryAtSoftware.Extensions.Reflection", "TryAtSoftware.Extensions.Reflection\TryAtSoftware.Extensions.Reflection.csproj", "{54D8EE1B-9113-4744-BE18-2D9022714F90}"

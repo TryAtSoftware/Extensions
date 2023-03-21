@@ -1,0 +1,183 @@
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=TryAtSoftware_Extensions&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=TryAtSoftware_Extensions)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=TryAtSoftware_Extensions&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=TryAtSoftware_Extensions)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=TryAtSoftware_Extensions&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=TryAtSoftware_Extensions)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=TryAtSoftware_Extensions&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=TryAtSoftware_Extensions)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=TryAtSoftware_Extensions&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=TryAtSoftware_Extensions)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=TryAtSoftware_Extensions&metric=bugs)](https://sonarcloud.io/summary/new_code?id=TryAtSoftware_Extensions)
+
+[![Core validation](https://github.com/TryAtSoftware/Extensions/actions/workflows/Core%20validation.yml/badge.svg)](https://github.com/TryAtSoftware/Extensions/actions/workflows/Core%20validation.yml)
+
+# About the project
+
+`TryAtSoftware.Extensions` is a library containing extension methods and utility components that should simplify (and optimize) some common operations with reflection.
+
+# About us
+
+`Try At Software` is a software development company based in Bulgaria. We are mainly using `dotnet` technologies (`C#`, `ASP.NET Core`, `Entity Framework Core`, etc.) and our main idea is to provide a set of tools that can simplify the majority of work a developer does on a daily basis.
+
+# Getting started
+
+## `TypeNames`
+
+This is an utility component that should construct and cache a beautified name for a type.
+There are two ways to use it:
+
+- Throughout the generic `TypeNames<T>` class and the `Value` property;
+- Throughout the non-generic `TypeNames` class and the `Get(type)` method.
+
+The main idea behind this component is to provide efficiently a meaningful and readable type name (including open generics).
+Here is a comparison between the `type.ToString()` and `TypeNames.Get(type)`:
+
+| type               | type.ToString()                                                                    | TypeNames.Get(type)  |
+|--------------------|------------------------------------------------------------------------------------|----------------------|
+| `Task<int>`        | System.Threading.Tasks.Task\`1\[System.Int32]                                      | Task\<Int32>         |
+| `Task<List<long>>` | System.Collections.Generic.List\`1\[System.Threading.Tasks.Task\`1\[System.Int64]] | List\<Task\<Person>> |
+| `Task<>`           | System.Threading.Tasks.Task\`1\[TResult]                                           | Task\<TResult>       |
+| `List<>`           | System.Collections.Generic.List\`1\[T]                                             | List\<T>             |
+
+## `IMembersBinder`
+
+This is an interface defining the structure of an utility component exposing information about a specific subset of the members for a given type.
+There are two classes implementing this interface - a non-generic `MembersBinder` and a generic `MembersBinder<T>`.
+They accept the following parameters throughout their constructors:
+
+- `isValid`: A filtering function that should determine whether or not a member should be included within the final result set. If no value is provided for this parameter, every member will be included.
+- `keySelector`: A function mapping each each member to unique key. If no value is provided to this parameter, the name of the member will be used (which means that in case of overrides or members with the same name there will be issues)
+- `bindingFlags`: The binding flags used to control the member search throughout reflection.
+
+Example:
+
+```C#
+IMembersBinder binder = new MembersBinder<TEntity>(IsValidMember, BindingFlags.Public | BindingFlags.Instance);
+
+// Equivalent to:
+// IMembersBinder = new MembersBinder(typeof(TEntity), IsValidMember, BindingFlags.Public | BindingFlags.Instance);
+
+static bool IsValidMember(MemberInfo memberInfo)
+    => memberInfo switch
+    {
+        PropertyInfo pi => pi.CanWrite,
+        FieldInfo _ => true,
+        _ => false
+    };
+
+// Now every discovered member for the `TEntity` type will be mapped against its name throughout the `binder.MemberInfos` dictionary.
+```
+
+### Members binder and extended interfaces
+
+It is known that whenever the `.GetMembers()` method is invoked for an interface type, none of the members defined in extended interfaces will be returned.
+The default implementations of the `IMembersBinder` method overcome this and will include members from all of the extended interfaces by recursively retrieving all of them.
+That being said, it is obvious that the `ReflectedType` in this case may not equal the `Type` of the `IMembersBinder` instance.
+
+
+## Expression extensions
+
+### `ConstructPropertyAccessor`
+
+This is an extension method that should construct an expression for accessing the value of a specific property.
+Usually, it is a good practice to minimize the reflection calls in code. One way of achieving this is throughout expressions (that are constructed and compiled only once for the lifetime of a program).
+This expression method can be easily used with the `IMembersBinder` we described in the previous chapter.
+Conversions are also handled, e.g. a common use case is to retrieve the values of all properties by boxing them as `object` instances - this can be achieved without any additional configurations as long as the required conversion can be executed.
+
+Example:
+
+```C#
+IMembersBinder binder = new MembersBinder<TEntity>(x => x is PropertyInfo { CanRead: true}, BindingFlags.Public | BindingFlags.Instance);
+List<Expression<Func<TEntity, object>>> valueAccessors = new List<Expression<Func<TEntity, object>>>();
+
+foreach (var (_, memberInfo) in binder.MemberInfos)
+{
+    var propertyInfo = memberInfo as PropertyInfo;
+    var accessor = propertyInfo.ConstructPropertyAccessor<TEntity, object>();
+    valueAccessors.Add(accessor);
+}
+```
+
+### `ConstructPropertySetter`
+
+This is an extension method that should construct an expression for setting the value of a specific property.
+Usually, it is a good practice to minimize the reflection calls in code. One way of achieving this is throughout expressions (that are constructed and compiled only once for the lifetime of a program).
+This expression method can be easily used with the `IMembersBinder` we described in the previous chapter.
+Conversions are also handled, e.g. a common use case is to set the values of all properties after unboxing `object` instances - this can be achieved without any additional configurations as long as the required conversion can be executed.
+
+Example:
+
+```C#
+IMembersBinder binder = new MembersBinder<TEntity>(x => x is PropertyInfo { CanWrite: true}, BindingFlags.Public | BindingFlags.Instance);
+List<Expression<Action<TEntity, object>>> valueSetters = new List<Expression<Action<TEntity, object>>>();
+
+foreach (var (_, memberInfo) in binder.MemberInfos)
+{
+    var propertyInfo = memberInfo as PropertyInfo;
+    var setter = propertyInfo.ConstructPropertySetter<TEntity, object>();
+    valueSetters.Add(setter);
+}
+```
+
+### `ConstructObjectInitializer`
+
+This is an extension method that should construct an expression for instantiating an object using a specific constructor.
+Usually, it is a good practice to minimize the reflection calls in code. One way of achieving this is throughout expressions (that are constructed and compiled only once for the lifetime of a program).
+This expression method can be easily used with the `IMembersBinder` we described in the previous chapter.
+
+This methods accept one optional parameter called `includeParametersCountValidation`. It indicates whether or not the subsequently constructed expression should include a check to validate the correct count of provided values.
+
+An expression constructed by this extension method can be compiled to a function that accepts an array of values that correspond to the parameters of the extended `ConstructorInfo` instance.
+If any of the parameters is optional and its default value should be used, the corresponding element (from the provided array) must be `null`.
+
+Example:
+
+```C#
+IMembersBinder binder = new MembersBinder<TEntity>(x => x is ConstructorInfo, x => PrepareConstructorKey((ConstructorInfo)x), BindingFlags.Public | BindingFlags.Instance);
+List<Expression<Func<object?[], TEntity>>> objectInitializers = new List<Expression<Func<object?[], TEntity>>>();
+
+foreach (var (_, memberInfo) in binder.MemberInfos)
+{
+    var constructorInfo = memberInfo as ConstructorInfo;
+    var objectInitializer = constructorInfo.ConstructObjectInitializer<TEntity>();
+    objectInitializers.Add(objectInitializer);
+}
+
+static string PrepareConstructorKey(ConstructorInfo constructorInfo)
+{
+    var parameterTypeNames = constructorInfo.GetParameters().Select(p => TypeNames.Get(p.ParameterType));
+    return $"Constructor[{string.Join(", ", parameterTypeNames)}]";
+}
+```
+
+## Generic extensions
+
+### `ExtractGenericParametersSetup`
+
+This method will produce a dictionary where against the name of a generic parameter is stored the actual type associated with that parameter according to some external configuration.
+This method should be used whenever each generic parameter is uniquely identified with a certain attribute.
+All entries within the external configuration map should have as a key the attribute type and as a value the type that should be substituted for a generic parameter decorated with the corresponding attribute.
+
+If there are none or multiple attributes for a generic parameter, this method will throw an exception.
+If the external configuration is missing some attribute type, an exception will be thrown as well.
+
+Example:
+
+```C#
+public class MyType<[KeyType] TKey, [ValueType] TValue> {}
+
+IDictionary<Type, Type> typesMap = new Dictionary<Type, Type> { { typeof(KeyTypeAttribute), typeof(int) }, { typeof(ValueTypeAttribute), typeof(string) } };
+
+/// should return { "TKey": typeof(int), "TValue": typeof(string) }
+IDictionary<string, Type> genericParametersSetup = ExtractGenericParametersSetup(typeof(MyType<,>), typesMap);
+```
+
+### `MakeGenericType`
+
+Use this method to make the extended type generic using a parameters setup.
+
+Example:
+
+```C#
+public class MyType<[KeyType] TKey, [ValueType] TValue> {}
+
+IDictionary<Type, Type> typesMap = new Dictionary<Type, Type> { { typeof(KeyTypeAttribute), typeof(int) }, { typeof(ValueTypeAttribute), typeof(string) } };
+IDictionary<string, Type> genericParametersSetup = ExtractGenericParametersSetup(typeof(MyType<,>), typesMap);
+Type genericType = typeof(MyType<,>).MakeGenericType(genericParametersSetup);
+```

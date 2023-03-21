@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
 
         <PackageId>TryAtSoftware.Extensions.Reflection</PackageId>
-        <Version>1.1.1-alpha.2</Version>
+        <Version>1.1.1-alpha.3</Version>
         <Authors>Tony Troeff</Authors>
         <RepositoryUrl>https://github.com/TryAtSoftware/Extensions</RepositoryUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -14,11 +14,16 @@
         <Description>This is an internal package used to make work with reflection cleaner and easier than ever before.</Description>
         <Copyright>Copyright (c) Tony Troeff</Copyright>
         <PackageTags>tryatsoftware extensions reflection</PackageTags>
+        <PackageReadmeFile>TryAtSoftware.Extensions.Reflection.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="SonarAnalyzer.CSharp" Version="8.51.0.59060" PrivateAssets="all" />
         <PackageReference Include="TryAtSoftware.Extensions.Collections" Version="1.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\TryAtSoftware.Extensions.Reflection.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>

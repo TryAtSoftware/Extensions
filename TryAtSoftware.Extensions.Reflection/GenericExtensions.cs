@@ -3,6 +3,8 @@ namespace TryAtSoftware.Extensions.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 /// <summary>
 /// A static class containing standard extension methods that are useful when working with reflection over generic types or methods.
@@ -36,7 +38,7 @@ public static class GenericExtensions
 
         foreach (var genericArgument in type.GetGenericArguments())
         {
-            var attributes = genericArgument.CustomAttributes.ToArray();
+            var attributes = genericArgument.CustomAttributes.Where(x => !IsCompilerGenerated(x.AttributeType)).ToArray();
             if (attributes.Length > 1) throw new InvalidOperationException($"There are more than one attributes defined for a generic parameter [{genericArgument.Name}] of the automatically registered component of type {TypeNames.Get(type)}");
             if (attributes.Length == 0) throw new InvalidOperationException($"Generic parameter could not be resolved for automatically registered component of type {TypeNames.Get(type)}.");
 
@@ -80,4 +82,6 @@ public static class GenericExtensions
         var genericDefinition = type.GetGenericTypeDefinition();
         return genericDefinition.MakeGenericType(genericTypes.ToArray());
     }
+
+    private static bool IsCompilerGenerated(MemberInfo type) => type.GetCustomAttribute<CompilerGeneratedAttribute>() is not null;
 }

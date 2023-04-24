@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using TryAtSoftware.Extensions.Reflection.Tests.Models;
+using TryAtSoftware.Extensions.Reflection.Tests.Models.Specialized;
 using Xunit;
 
 public class GenericExtensionsTests
@@ -17,7 +18,7 @@ public class GenericExtensionsTests
     [Fact]
     public void ExtractGenericParametersSetupShouldHandleNullTypesMap()
     {
-        var type = typeof(GenericType<,>);
+        var type = typeof(PlainGenericType<,>);
         Assert.Throws<ArgumentNullException>(() => type.ExtractGenericParametersSetup(null!));
     }
 
@@ -42,7 +43,7 @@ public class GenericExtensionsTests
     [Fact]
     public void ExtractGenericParametersShouldHandleMissingEntryInTheTypesMap()
     {
-        var type = typeof(GenericType<,>);
+        var type = typeof(PlainGenericType<,>);
         var typesMap = PrepareTypesMap();
         typesMap.Remove(typeof(GenericParameter2Attribute));
 
@@ -63,7 +64,7 @@ public class GenericExtensionsTests
     public void ExtractGenericParametersSetupShouldWorkCorrectlyWithGenericTypes()
     {
         var typesMap = PrepareTypesMap();
-        var genericParametersSetup = typeof(GenericType<,>).ExtractGenericParametersSetup(typesMap);
+        var genericParametersSetup = typeof(PlainGenericType<,>).ExtractGenericParametersSetup(typesMap);
         
         Assert.NotNull(genericParametersSetup);
         Assert.NotEmpty(genericParametersSetup);
@@ -74,18 +75,18 @@ public class GenericExtensionsTests
         Assert.True(genericParametersSetup.ContainsKey("T2"));
         Assert.Equal(genericParametersSetup["T2"], typesMap[typeof(GenericParameter2Attribute)]);
     }
-    
+
     [Fact]
     public void MakeGenericTypeShouldHandleNullType()
     {
-        var genericParametersSetup = typeof(GenericType<,>).ExtractGenericParametersSetup(PrepareTypesMap());
+        var genericParametersSetup = typeof(PlainGenericType<,>).ExtractGenericParametersSetup(PrepareTypesMap());
         Assert.Throws<ArgumentNullException>(() => ((Type)null!).MakeGenericType(genericParametersSetup));
     }
     
     [Fact]
     public void MakeGenericTypeShouldHandleNullGenericParametersSetup()
     {
-        var type = typeof(GenericType<,>);
+        var type = typeof(PlainGenericType<,>);
         Assert.Throws<ArgumentNullException>(() => type.MakeGenericType(genericParametersSetup: null!));
     }
     
@@ -102,10 +103,10 @@ public class GenericExtensionsTests
     [Fact]
     public void MakeGenericTypeShouldHandleIncompleteGenericParametersSetup()
     {
-        var genericParametersSetup = typeof(GenericType<,>).ExtractGenericParametersSetup(PrepareTypesMap());
+        var genericParametersSetup = typeof(PlainGenericType<,>).ExtractGenericParametersSetup(PrepareTypesMap());
         genericParametersSetup.Remove("T1");
 
-        var builtGenericType = typeof(GenericType<,>).MakeGenericType(genericParametersSetup);
+        var builtGenericType = typeof(PlainGenericType<,>).MakeGenericType(genericParametersSetup);
         Assert.NotNull(builtGenericType);
         Assert.True(builtGenericType.IsConstructedGenericType);
 
@@ -121,8 +122,8 @@ public class GenericExtensionsTests
     [Fact]
     public void MakeGenericTypeShouldWorkCorrectlyWithGenericTypes()
     {
-        var genericParametersSetup = typeof(GenericType<,>).ExtractGenericParametersSetup(PrepareTypesMap());
-        var builtGenericType = typeof(GenericType<,>).MakeGenericType(genericParametersSetup);
+        var genericParametersSetup = typeof(PlainGenericType<,>).ExtractGenericParametersSetup(PrepareTypesMap());
+        var builtGenericType = typeof(PlainGenericType<,>).MakeGenericType(genericParametersSetup);
 
         Assert.NotNull(builtGenericType);
         Assert.True(builtGenericType.IsConstructedGenericType);
@@ -166,25 +167,33 @@ public class GenericExtensionsTests
     {
     }
     
-#pragma warning disable S2326
-    private class GenericType<[GenericParameter1] T1, [GenericParameter2] T2>
+    private class PlainGenericType<[GenericParameter1] T1, [GenericParameter2] T2>
     {
+        public required T1 Value1 { get; set; }
+        public required T2 Value2 { get; set; }
     }
     
     private sealed class GenericTypeWithNoDecoratedParameters<T1, T2>
     {
+        public required T1 Value1 { get; set; }
+        public required T2 Value2 { get; set; }
     }
     
     private sealed class GenericTypeWithMultipleDecoratedParameters<[GenericParameter1, GenericParameter2] T1, T2>
     {
+        public required T1 Value1 { get; set; }
+        public required T2 Value2 { get; set; }
     }
     
     private sealed class ComplexGenericType<[GenericParameter1] T1, [GenericParameter2] T2> : IGenericExtensionsTestHelperInterface<List<KeyValuePair<T1, T2>>>
     {
+        public required T1 Value1 { get; set; }
+        public required T2 Value2 { get; set; }
+        public List<KeyValuePair<T1, T2>> Value { get; } = new ();
     }
     
     private interface IGenericExtensionsTestHelperInterface<T>
     {
+        T Value { get; }
     }
-#pragma warning restore S2326
 }

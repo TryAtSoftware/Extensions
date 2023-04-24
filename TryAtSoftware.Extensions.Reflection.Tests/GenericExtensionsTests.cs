@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using TryAtSoftware.Extensions.Reflection.Tests.Models;
-using TryAtSoftware.Extensions.Reflection.Tests.Models.Specialized;
 using Xunit;
 
 public class GenericExtensionsTests

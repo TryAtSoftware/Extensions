@@ -51,7 +51,7 @@ Example:
 IMembersBinder binder = new MembersBinder<TEntity>(IsValidMember, BindingFlags.Public | BindingFlags.Instance);
 
 // Equivalent to:
-// IMembersBinder = new MembersBinder(typeof(TEntity), IsValidMember, BindingFlags.Public | BindingFlags.Instance);
+// IMembersBinder binder = new MembersBinder(typeof(TEntity), IsValidMember, BindingFlags.Public | BindingFlags.Instance);
 
 static bool IsValidMember(MemberInfo memberInfo)
     => memberInfo switch
@@ -71,6 +71,26 @@ The default implementations of the `IMembersBinder` method overcome this and wil
 That being said, it is obvious that the `ReflectedType` in this case may not equal the `Type` of the `IMembersBinder` instance.
 
 
+## `IHierarchyScanner`
+
+This is an interface defining the structure of a component responsible for scanning type hierarchies.
+A common application of this interface and its corresponding implementing types is to scan a type hierarchy for a given attribute.
+
+It is a common practice to decorate methods or properties with attributes in order to model some kind of behavior related to them.
+But it often becomes inconvenient to use the same attribute(s) over and over again for all methods or properties within a given class or assembly. 
+A better solution would be to define the attribute(s) at a higher level.
+And this is where the `IHierarchyScanner` may be used - it can **scan** for attributes throughout the type hierarchy, allowing for effortless implementation, management and control.
+
+The default implementation would **scan** the requested member and its type but this can be easily extend to include the assembly as well (if the attribute is inheritable, base types and overriden methods will be included as well).
+The result set should always be ordered hierarchically!
+
+Example:
+
+```C#
+IHierarchyScanner hierarchyScanner = new HierarchyScanner();
+IReadOnlyCollection<MyAttribute> attributes = hierarchyScanner.ScanForAttribute<MyAttribute>(memberInfo));
+```
+
 ## Expression extensions
 
 ### `ConstructPropertyAccessor`
@@ -83,7 +103,7 @@ Conversions are also handled, e.g. a common use case is to retrieve the values o
 Example:
 
 ```C#
-IMembersBinder binder = new MembersBinder<TEntity>(x => x is PropertyInfo { CanRead: true}, BindingFlags.Public | BindingFlags.Instance);
+IMembersBinder binder = new MembersBinder<TEntity>(x => x is PropertyInfo { CanRead: true }, BindingFlags.Public | BindingFlags.Instance);
 List<Expression<Func<TEntity, object>>> valueAccessors = new List<Expression<Func<TEntity, object>>>();
 
 foreach (var (_, memberInfo) in binder.MemberInfos)

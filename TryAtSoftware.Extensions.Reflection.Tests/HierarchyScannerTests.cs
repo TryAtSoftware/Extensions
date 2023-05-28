@@ -8,8 +8,10 @@ public class HierarchyScannerTests
     [Theory]
     [InlineData(typeof(ClassA), nameof(ClassA.Method), 1)]
     [InlineData(typeof(ClassB), nameof(ClassB.Method), 2)]
-    [InlineData(typeof(ClassC), nameof(ClassC.Method), 3)]
-    [InlineData(typeof(ClassD), nameof(ClassD.Method), 4)]
+    [InlineData(typeof(ClassC), nameof(ClassC.Method), 1)]
+    [InlineData(typeof(ClassD), nameof(ClassD.Method), 3)]
+    [InlineData(typeof(ClassE), nameof(ClassE.Method), 4)]
+    [InlineData(typeof(ClassF), nameof(ClassF.Method), 3)]
     public void MethodAttributeShouldBeSuccessfullyScanned(Type type, string methodName, int expectedId)
     {
         var decoratedMethod = type.GetMethod(methodName);
@@ -42,13 +44,22 @@ file class ClassB : ClassA
     public override void Method() => throw new NotImplementedException();
 }
 
+file class ClassC : ClassA
+{
+    public override void Method() => throw new NotImplementedException();
+}
+
 [Id(Id = 3)]
-file class ClassC
+file class ClassD
 {
     public void Method() => throw new NotImplementedException();
 }
 
 [Id(Id = 4)]
-file class ClassD : ClassC
+file class ClassE : ClassD
+{
+}
+
+file class ClassF : ClassD
 {
 }

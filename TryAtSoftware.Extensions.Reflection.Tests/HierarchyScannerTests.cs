@@ -1,6 +1,7 @@
 ﻿namespace TryAtSoftware.Extensions.Reflection.Tests;
 
 using System;
+using TryAtSoftware.Extensions.Reflection.Interfaces;
 using Xunit;
 
 public class HierarchyScannerTests
@@ -18,7 +19,7 @@ public class HierarchyScannerTests
         Assert.NotNull(decoratedMethod);
 
         var hierarchyScanner = new HierarchyScanner();
-        var scannedAttributes = hierarchyScanner.Scan<IdAttribute>(decoratedMethod);
+        var scannedAttributes = hierarchyScanner.ScanForAttribute<IdAttribute>(decoratedMethod);
 
         var attribute = Assert.Single(scannedAttributes);
         Assert.NotNull(attribute);

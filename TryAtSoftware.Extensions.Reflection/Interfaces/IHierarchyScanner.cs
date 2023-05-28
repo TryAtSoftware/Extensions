@@ -18,6 +18,6 @@ public interface IHierarchyScanner
     /// <param name="memberInfo">The <see cref="MemberInfo"/> whose hierarchy should be scanned.</param>
     /// <typeparam name="TAttribute">The concrete attribute type to look for.</typeparam>
     /// <returns>Returns a read-only collection containing all found attribute instances in a hierarchical order.</returns>
-    IReadOnlyCollection<TAttribute> Scan<TAttribute>(MemberInfo memberInfo)
+    IReadOnlyCollection<TAttribute> ScanForAttribute<TAttribute>(MemberInfo memberInfo)
         where TAttribute : Attribute;
 }

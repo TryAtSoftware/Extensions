@@ -12,7 +12,7 @@ using TryAtSoftware.Extensions.Reflection.Interfaces;
 public class HierarchyScanner : IHierarchyScanner
 {
     /// <inheritdoc />
-    public IReadOnlyCollection<TAttribute> Scan<TAttribute>(MemberInfo memberInfo)
+    public IReadOnlyCollection<TAttribute> ScanForAttribute<TAttribute>(MemberInfo memberInfo)
         where TAttribute : Attribute
     {
         if (memberInfo is null) throw new ArgumentNullException(nameof(memberInfo));

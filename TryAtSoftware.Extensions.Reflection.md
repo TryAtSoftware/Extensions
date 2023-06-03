@@ -88,7 +88,7 @@ Example:
 
 ```C#
 IHierarchyScanner hierarchyScanner = new HierarchyScanner();
-IReadOnlyCollection<MyAttribute> attributes = hierarchyScanner.ScanForAttribute<MyAttribute>(memberInfo));
+IReadOnlyCollection<MyAttribute> attributes = hierarchyScanner.ScanForAttribute<MyAttribute>(memberInfo);
 ```
 
 ## Expression extensions

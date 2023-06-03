@@ -88,6 +88,21 @@ public static class ExpressionsExtensions
     /// Use this method in order to construct an <see cref="Expression"/> for instantiation an object of type <typeparamref name="T"/> using the requested <paramref name="constructorInfo"/>.
     /// </summary>
     /// <param name="constructorInfo">The <see cref="ConstructorInfo"/> describing the constructor that should be used during the instantiation process.</param>
+    /// <typeparam name="T">The type of object to be instantiated (should be equal to the reflected type of the extended <paramref name="constructorInfo"/>).</typeparam>
+    /// <remarks>
+    /// An expression constructed by this extension method can be compiled to a function that accepts an array of values that correspond to the parameters of the extended <paramref name="constructorInfo"/>.
+    /// If any of the parameters is optional and its default value should be used, the corresponding element (from the provided array) must be <c>null</c>.
+    /// </remarks>
+    /// <returns>Returns a subsequently built expression for constructing a new instance of type <typeparamref name="T"/>.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if the provided <paramref name="constructorInfo"/> is null.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the <see cref="MemberInfo.ReflectedType"/> of the provided <paramref name="constructorInfo"/> does not match <typeparamref name="T"/>.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the provided <paramref name="constructorInfo"/> is a constructor of an abstract class.</exception>
+    public static Expression<Func<object?[], T>> ConstructObjectInitializer<T>(this ConstructorInfo constructorInfo) => constructorInfo.ConstructObjectInitializer<T>(includeParametersCountValidation: false);
+
+    /// <summary>
+    /// Use this method in order to construct an <see cref="Expression"/> for instantiation an object of type <typeparamref name="T"/> using the requested <paramref name="constructorInfo"/>.
+    /// </summary>
+    /// <param name="constructorInfo">The <see cref="ConstructorInfo"/> describing the constructor that should be used during the instantiation process.</param>
     /// <param name="includeParametersCountValidation">A boolean indicating whether or not the subsequently constructed expression should include a check to validate the correct count of provided values.</param>
     /// <typeparam name="T">The type of object to be instantiated (should be equal to the reflected type of the extended <paramref name="constructorInfo"/>).</typeparam>
     /// <remarks>
@@ -98,7 +113,7 @@ public static class ExpressionsExtensions
     /// <exception cref="ArgumentNullException">Thrown if the provided <paramref name="constructorInfo"/> is null.</exception>
     /// <exception cref="InvalidOperationException">Thrown if the <see cref="MemberInfo.ReflectedType"/> of the provided <paramref name="constructorInfo"/> does not match <typeparamref name="T"/>.</exception>
     /// <exception cref="InvalidOperationException">Thrown if the provided <paramref name="constructorInfo"/> is a constructor of an abstract class.</exception>
-    public static Expression<Func<object?[], T>> ConstructObjectInitializer<T>(this ConstructorInfo constructorInfo, bool includeParametersCountValidation = false)
+    public static Expression<Func<object?[], T>> ConstructObjectInitializer<T>(this ConstructorInfo constructorInfo, bool includeParametersCountValidation)
     {
         if (constructorInfo is null) throw new ArgumentNullException(nameof(constructorInfo));
         ValidateCorrectReflectedType(constructorInfo, typeof(T));

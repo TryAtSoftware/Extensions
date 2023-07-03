@@ -15,11 +15,8 @@ public static class AssemblyExtensions
         LoadReferencedAssemblies(assembly, new HashSet<string>(), options ?? new LoadReferencedAssembliesOptions());
     }
 
-    private static void LoadReferencedAssemblies(this Assembly assembly, HashSet<string> iteratedAssemblies, LoadReferencedAssembliesOptions options)
+    private static void LoadReferencedAssemblies(this Assembly assembly, ISet<string> iteratedAssemblies, LoadReferencedAssembliesOptions options)
     {
-        if (assembly is null) throw new ArgumentNullException(nameof(assembly));
-        if (iteratedAssemblies is null) throw new ArgumentNullException(nameof(iteratedAssemblies));
-
         foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies().OrEmptyIfNull().IgnoreNullValues())
         {
             var currentAssemblyName = referencedAssemblyName.ToString();

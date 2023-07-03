@@ -19,8 +19,47 @@ public class AssemblyExtensionsTests
     {
         var firstLevel = new Assembly[RandomizationHelper.RandomInteger(3, 10)];
         var secondLevel = new Assembly[firstLevel.Length][];
-
         var assemblyLoaderMock = new Mock<IAssemblyLoader>();
+
+        var rootAssembly = PopulateHierarchyOfAssemblies(firstLevel, secondLevel, assemblyLoaderMock);
+
+        var options = new LoadReferencedAssembliesOptions { Loader = assemblyLoaderMock.Object };
+        rootAssembly.LoadReferencedAssemblies(options);
+
+        for (var i = 0; i < firstLevel.Length; i++)
+        {
+            VerifyLoadInvocation(assemblyLoaderMock, firstLevel[i]);
+            for (var j = 0; j < secondLevel[i].Length; j++) VerifyLoadInvocation(assemblyLoaderMock, secondLevel[i][j]);
+        }
+        assemblyLoaderMock.VerifyNoOtherCalls();
+    }
+    
+    [Fact]
+    public void ReferencedAssembliesShouldBeLoadedCorrectlyWithAppliedFilter()
+    {
+        var firstLevel = new Assembly[RandomizationHelper.RandomInteger(3, 10)];
+        var secondLevel = new Assembly[firstLevel.Length][];
+        var assemblyLoaderMock = new Mock<IAssemblyLoader>();
+
+        var rootAssembly = PopulateHierarchyOfAssemblies(firstLevel, secondLevel, assemblyLoaderMock);
+
+        var randomBlockIndex = RandomizationHelper.RandomInteger(0, firstLevel.Length);
+        var randomBlockName = firstLevel[randomBlockIndex].GetName();
+        var options = new LoadReferencedAssembliesOptions { Loader = assemblyLoaderMock.Object, RestrictSearchFilter = x => x != randomBlockName };
+        rootAssembly.LoadReferencedAssemblies(options);
+
+        for (var i = 0; i < firstLevel.Length; i++)
+        {
+            if (i == randomBlockIndex) continue;
+
+            VerifyLoadInvocation(assemblyLoaderMock, firstLevel[i]);
+            for (var j = 0; j < secondLevel[i].Length; j++) VerifyLoadInvocation(assemblyLoaderMock, secondLevel[i][j]);
+        }
+        assemblyLoaderMock.VerifyNoOtherCalls();
+    }
+
+    private static Assembly PopulateHierarchyOfAssemblies(Assembly[] firstLevel, Assembly[][] secondLevel, Mock<IAssemblyLoader> assemblyLoaderMock)
+    {
         for (var i = 0; i < firstLevel.Length; i++)
         {
             secondLevel[i] = new Assembly[RandomizationHelper.RandomInteger(2, 5)];
@@ -37,15 +76,7 @@ public class AssemblyExtensionsTests
         var rootAssembly = PrepareAssemblyMock("Root", firstLevel);
         SetupLoadInvocation(assemblyLoaderMock, rootAssembly);
 
-        var options = new LoadReferencedAssembliesOptions { Loader = assemblyLoaderMock.Object };
-        rootAssembly.LoadReferencedAssemblies(options);
-
-        for (var i = 0; i < firstLevel.Length; i++)
-        {
-            VerifyLoadInvocation(assemblyLoaderMock, firstLevel[i]);
-            for (var j = 0; j < secondLevel[i].Length; j++) VerifyLoadInvocation(assemblyLoaderMock, secondLevel[i][j]);
-        }
-        assemblyLoaderMock.VerifyNoOtherCalls();
+        return rootAssembly;
     }
 
     private static Assembly PrepareAssemblyMock(string name, Assembly[] referencedAssemblies)

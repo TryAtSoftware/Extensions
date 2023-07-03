@@ -4,16 +4,18 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using TryAtSoftware.Extensions.Collections;
+using TryAtSoftware.Extensions.Reflection.Options;
 
 public static class AssemblyExtensions
 {
-    public static void LoadReferencedAssemblies(this Assembly assembly, Func<AssemblyName, bool>? restrictSearchFilter = null)
+    public static void LoadReferencedAssemblies(this Assembly assembly, LoadReferencedAssembliesOptions? options = null)
     {
         if (assembly is null) throw new ArgumentNullException(nameof(assembly));
-        LoadReferencedAssemblies(assembly, new HashSet<string>(), restrictSearchFilter);
+        
+        LoadReferencedAssemblies(assembly, new HashSet<string>(), options ?? new LoadReferencedAssembliesOptions());
     }
 
-    private static void LoadReferencedAssemblies(this Assembly assembly, HashSet<string> iteratedAssemblies, Func<AssemblyName, bool>? restrictSearchFilter)
+    private static void LoadReferencedAssemblies(this Assembly assembly, HashSet<string> iteratedAssemblies, LoadReferencedAssembliesOptions options)
     {
         if (assembly is null) throw new ArgumentNullException(nameof(assembly));
         if (iteratedAssemblies is null) throw new ArgumentNullException(nameof(iteratedAssemblies));
@@ -21,10 +23,10 @@ public static class AssemblyExtensions
         foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies().OrEmptyIfNull().IgnoreNullValues())
         {
             var currentAssemblyName = referencedAssemblyName.ToString();
-            if (!iteratedAssemblies.Add(currentAssemblyName) || (restrictSearchFilter is not null && !restrictSearchFilter(referencedAssemblyName))) continue;
+            if (!iteratedAssemblies.Add(currentAssemblyName) || (options.RestrictSearchFilter is not null && !options.RestrictSearchFilter(referencedAssemblyName))) continue;
 
-            var referencedAssembly = Assembly.Load(referencedAssemblyName);
-            LoadReferencedAssemblies(referencedAssembly, iteratedAssemblies, restrictSearchFilter);
+            var referencedAssembly = options.Loader.Load(referencedAssemblyName);
+            if (referencedAssembly is not null) LoadReferencedAssemblies(referencedAssembly, iteratedAssemblies, options);
         }
     }
 }

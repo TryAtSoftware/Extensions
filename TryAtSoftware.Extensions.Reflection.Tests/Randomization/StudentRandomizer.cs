@@ -9,11 +9,11 @@ public class StudentRandomizer : ComplexRandomizer<Student>
     public StudentRandomizer()
         : base(new GeneralInstanceBuilder<Student>())
     {
-        this.AddRandomizationRule(x => x.FirstName, new StringRandomizer());
-        this.AddRandomizationRule(x => x.MiddleName, new StringRandomizer());
-        this.AddRandomizationRule(x => x.LastName, new StringRandomizer());
-        this.AddRandomizationRule(x => x.Age, new NumberRandomizer());
+        this.Randomize(x => x.FirstName, new StringRandomizer());
+        this.Randomize(x => x.MiddleName, new StringRandomizer());
+        this.Randomize(x => x.LastName, new StringRandomizer());
+        this.Randomize(x => x.Age, new AgeRandomizer());
 
-        this.AddRandomizationRule(x => x.School, new StringRandomizer());
+        this.Randomize(x => x.School, new StringRandomizer());
     }
 }

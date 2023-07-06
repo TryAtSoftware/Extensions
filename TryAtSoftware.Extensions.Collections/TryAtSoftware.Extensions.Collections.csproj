@@ -14,10 +14,15 @@
         <Description>This is an internal package used to make work with collections cleaner and easier than ever before.</Description>
         <Copyright>Copyright (c) Tony Troeff</Copyright>
         <PackageTags>tryatsoftware extensions collections</PackageTags>
+        <PackageReadmeFile>TryAtSoftware.Extensions.Collections.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="SonarAnalyzer.CSharp" Version="8.51.0.59060" PrivateAssets="all" />
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="9.4.0.72892" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\TryAtSoftware.Extensions.Collections.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>

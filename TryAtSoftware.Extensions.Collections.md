@@ -17,6 +17,19 @@
 
 # Getting started
 
+## Installing the package
+
+In order to use this library, you need to install the corresponding NuGet package beforehand.
+The simplest way to do this is to either use the `NuGet package manager`, or the `dotnet CLI`.
+
+Using the `NuGet package manager` console within Visual Studio, you can install the package using the following command:
+
+> Install-Package TryAtSoftware.Extensions.Collections
+
+Or using the `dotnet CLI` from a terminal window:
+
+> dotnet add package TryAtSoftware.Extensions.Collections
+
 ## Collections
 
 ### `OrEmptyIfNull`

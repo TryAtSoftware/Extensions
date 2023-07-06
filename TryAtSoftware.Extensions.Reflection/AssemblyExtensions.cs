@@ -12,7 +12,7 @@ using TryAtSoftware.Extensions.Reflection.Options;
 public static class AssemblyExtensions
 {
     /// <summary>
-    /// Use this method to recursively load referenced assemblies, starting from the extended <paramref name="assembly"/>. 
+    /// Use this method to recursively load referenced assemblies, starting from the extended <paramref name="assembly"/>.
     /// </summary>
     /// <param name="assembly">The extended <see cref="Assembly"/> instance.</param>
     /// <param name="options">The options used to refine the process of loading referenced assemblies. If not provided, a default <see cref="LoadReferencedAssembliesOptions"/> instance will be used.</param>

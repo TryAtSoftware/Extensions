@@ -23,7 +23,7 @@ public class LoadReferencedAssembliesOptions
 
     /// <summary>
     /// Gets or sets an optional filter function used to control which assemblies should be loaded.
-    /// If the filter determines that a given assembly should not be loaded, none of the assemblies it references (including the referenced assemblies of the referenced assemblies, and so on) will be loaded as well.
+    /// If the filter determines that a given assembly should not be loaded, this serves as a terminating case for the recursion, and thus none of the assemblies it references (directly or transitively) will be loaded.
     /// This property is nullable, meaning it can be assigned a value or left as <c>null</c> if no filtering is required.
     /// </summary>
     public Func<AssemblyName, bool>? RestrictSearchFilter { get; set; }

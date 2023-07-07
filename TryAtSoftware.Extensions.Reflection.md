@@ -83,7 +83,6 @@ It is known that whenever the `.GetMembers()` method is invoked for an interface
 The default implementations of the `IMembersBinder` method overcome this and will include members from all of the extended interfaces by recursively retrieving all of them.
 That being said, it is obvious that the `ReflectedType` in this case may not equal the `Type` of the `IMembersBinder` instance.
 
-
 ## `IHierarchyScanner`
 
 This is an interface defining the structure of a component responsible for scanning type hierarchies.
@@ -102,6 +101,31 @@ Example:
 ```C#
 IHierarchyScanner hierarchyScanner = new HierarchyScanner();
 IReadOnlyCollection<MyAttribute> attributes = hierarchyScanner.ScanForAttribute<MyAttribute>(memberInfo);
+```
+
+## Assembly extensions
+
+### `LoadReferencedAssemblies`
+
+This is an extension method that should be used to to recursively load referenced assemblies, starting from the extended `Assembly` instance.
+A common use case is to discovered types via reflection from assemblies that are not yet loaded within the application domain.
+
+Additionally, a `LoadReferencedAssembliesOptions` instance can be provided to refine process of loading referenced assemblies.
+It exposes two configurable parameters:
+- `Loader` - An `IAssemblyLoader` instance controlling how exactly the referenced assemblies will be loaded.
+- `RestrictSearchFilter` - A filter defining which assemblies should be loaded.
+  If the filter determines that a given assembly should not be loaded, this serves as a terminating case for the recursion, and thus none of the assemblies it references (directly or transitively) will be loaded.
+
+
+Example:
+
+```C#
+LoadReferencedAssembliesOptions options = new LoadReferencedAssembliesOptions
+{
+    RestrictSearchFilter = (assemblyName) => assemblyName.FullName.StartsWith("Common.Assembly.Name.Prefix")
+};
+
+Assembly.GetExecutingAssembly().LoadReferencedAssemblies(options);
 ```
 
 ## Expression extensions

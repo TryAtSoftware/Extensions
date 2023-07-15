@@ -8,19 +8,31 @@ using TryAtSoftware.Extensions.DependencyInjection.Interfaces;
 using TryAtSoftware.Extensions.DependencyInjection.Standard.Attributes;
 using TryAtSoftware.Extensions.Reflection.Interfaces;
 
-public class StandardServiceRegistrar : IServiceRegistrar
+/// <summary>
+/// An implementation of the <see cref="IServiceRegistrar"/> interface responsible for registering services into the built-in dependency injection container.
+/// </summary>
+public class ServiceRegistrar : IServiceRegistrar
 {
-    public StandardServiceRegistrar(IServiceCollection services, IHierarchyScanner hierarchyScanner, Func<Type, Type>? transformation)
+    private readonly IServiceCollection _services;
+    private readonly IHierarchyScanner _hierarchyScanner;
+    private readonly Func<Type, Type>? _transformation;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ServiceRegistrar"/> class.
+    /// </summary>
+    /// <param name="serviceCollection">An <see cref="IServiceCollection"/> instance where the services will be automatically registered.</param>
+    /// <param name="hierarchyScanner">An <see cref="IHierarchyScanner"/> instance used to scan for <see cref="ServiceConfigurationAttribute"/> and extract any additional configuration during the automatic registration of the services.</param>
+    /// <param name="transformation">A function that should apply some transformation to the service types, e.g. resolve generic parameters, make a pointer type, etc. This is an optional parameter.</param>
+    /// <exception cref="ArgumentNullException">Thrown if the provided <paramref name="serviceCollection"/> is null.</exception>
+    /// <exception cref="ArgumentNullException">Thrown if the provided <paramref name="hierarchyScanner"/> is null.</exception>
+    public ServiceRegistrar(IServiceCollection serviceCollection, IHierarchyScanner hierarchyScanner, Func<Type, Type>? transformation = null)
     {
-        this.Services = services ?? throw new ArgumentNullException(nameof(services));
-        this.HierarchyScanner = hierarchyScanner ?? throw new ArgumentNullException(nameof(hierarchyScanner));
-        this.Transformation = transformation;
+        this._services = serviceCollection ?? throw new ArgumentNullException(nameof(serviceCollection));
+        this._hierarchyScanner = hierarchyScanner ?? throw new ArgumentNullException(nameof(hierarchyScanner));
+        this._transformation = transformation;
     }
 
-    public IServiceCollection Services { get; }
-    public IHierarchyScanner HierarchyScanner { get; }
-    public Func<Type, Type>? Transformation { get; }
-
+    /// <inheritdoc />
     public void Register(Type type)
     {
         if (type is null) throw new ArgumentNullException(nameof(type));
@@ -33,21 +45,21 @@ public class StandardServiceRegistrar : IServiceRegistrar
         foreach (var interfaceType in implementedInterfaces)
         {
             var serviceDescriptor = new ServiceDescriptor(interfaceType, implementationType, lifetime);
-            this.Services.Add(serviceDescriptor);
+            this._services.Add(serviceDescriptor);
         }
     }
 
     private Type Transform(Type type)
     {
-        if (this.Transformation is null) return type;
+        if (this._transformation is null) return type;
 
-        var transformedType = this.Transformation(type);
+        var transformedType = this._transformation(type);
         return transformedType ?? throw new InvalidOperationException("Type is null after applying transformation.");
     }
 
     private ServiceLifetime ExtractLifetime(MemberInfo type)
     {
-        var lifetimeAttributes = this.HierarchyScanner.ScanForAttribute<ServiceConfigurationAttribute>(type);
+        var lifetimeAttributes = this._hierarchyScanner.ScanForAttribute<ServiceConfigurationAttribute>(type);
         return lifetimeAttributes.LastOrDefault()?.Lifetime ?? ServiceLifetime.Scoped;
     }
 }

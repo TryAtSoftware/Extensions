@@ -42,11 +42,15 @@ public class ServiceRegistrar : IServiceRegistrar
         var implementedInterfaces = implementationType.GetInterfaces().Select(this.Transform);
 
         var lifetime = this.ExtractLifetime(type);
-        foreach (var interfaceType in implementedInterfaces)
-        {
-            var serviceDescriptor = new ServiceDescriptor(interfaceType, implementationType, lifetime);
-            this._services.Add(serviceDescriptor);
-        }
+        
+        this.RegisterService(implementationType, implementationType, lifetime);
+        foreach (var interfaceType in implementedInterfaces) this.RegisterService(interfaceType, implementationType, lifetime);
+    }
+
+    private void RegisterService(Type interfaceType, Type implementationType, ServiceLifetime lifetime)
+    {
+        var serviceDescriptor = new ServiceDescriptor(interfaceType, implementationType, lifetime);
+        this._services.Add(serviceDescriptor);
     }
 
     private Type Transform(Type type)

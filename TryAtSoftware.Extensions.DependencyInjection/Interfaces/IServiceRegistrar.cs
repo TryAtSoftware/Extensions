@@ -1,5 +1,7 @@
 ﻿namespace TryAtSoftware.Extensions.DependencyInjection.Interfaces;
 
+using System;
+
 /// <summary>
 /// An interface defining the structure of a component responsible for registering services into a dependency injection container.
 /// </summary>

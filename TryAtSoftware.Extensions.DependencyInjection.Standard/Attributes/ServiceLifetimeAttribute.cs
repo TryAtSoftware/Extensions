@@ -1,5 +1,6 @@
 ﻿namespace TryAtSoftware.Extensions.DependencyInjection.Standard.Attributes;
 
+using System;
 using Microsoft.Extensions.DependencyInjection;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]

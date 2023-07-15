@@ -6,9 +6,9 @@ using TryAtSoftware.Extensions.DependencyInjection.Interfaces;
 using TryAtSoftware.Extensions.DependencyInjection.Standard.Attributes;
 using TryAtSoftware.Extensions.Reflection.Interfaces;
 
-public abstract class BaseServiceRegistrar : IServiceRegistrar
+public class StandardServiceRegistrar : IServiceRegistrar
 {
-    protected BaseServiceRegistrar(IServiceCollection services, IHierarchyScanner hierarchyScanner, Func<Type, Type>? transformation)
+    public StandardServiceRegistrar(IServiceCollection services, IHierarchyScanner hierarchyScanner, Func<Type, Type>? transformation)
     {
         this.Services = services ?? throw new ArgumentNullException(nameof(services));
         this.HierarchyScanner = hierarchyScanner ?? throw new ArgumentNullException(nameof(hierarchyScanner));
@@ -19,11 +19,10 @@ public abstract class BaseServiceRegistrar : IServiceRegistrar
     public IHierarchyScanner HierarchyScanner { get; }
     public Func<Type, Type>? Transformation { get; }
 
-
     public void Register(Type type)
     {
         if (type is null) throw new ArgumentNullException(nameof(type));
-        if (!type.IsClass || type.IsAbstract) throw new InvalidOperationException("Only non-abstract classes can be registered into a DI container.");
+        if (!type.IsClass || type.IsAbstract) throw new InvalidOperationException("Only non-abstract classes can be registered into a dependency injection container.");
 
         var implementationType = this.Transform(type);
         var implementedInterfaces = implementationType.GetInterfaces().Select(this.Transform);

@@ -10,8 +10,8 @@ using Xunit;
 
 public class DependencyInjectionTests
 {
-    [Fact]
-    public void AutomaticRegistrationOfServicesShouldBeExecutedSuccessfully()
+    [Theory, MemberData(nameof(GetRegisterServiceOptionsData))]
+    public void AutomaticRegistrationOfServicesShouldBeExecutedSuccessfully(RegisterServiceOptions? options)
     {
         var assemblies = new Assembly[RandomizationHelper.RandomInteger(2, 10)];
         var services = new Type[assemblies.Length][];
@@ -35,14 +35,14 @@ public class DependencyInjectionTests
         registrarMock.Setup(x => x.Register(It.IsAny<Type>(), It.IsAny<RegisterServiceOptions>()));
 
         var registrarInstance = registrarMock.Object;
-        assemblies.AutoRegisterServices(registrarInstance);
+        assemblies.AutoRegisterServices(registrarInstance, options);
 
         for (var i = 0; i < services.Length; i++)
         {
             for (var j = 0; j < services[i].Length; j++)
             {
                 var serviceType = services[i][j];
-                registrarMock.Verify(x => x.Register(serviceType, It.IsAny<RegisterServiceOptions>()), Times.Once);
+                registrarMock.Verify(x => x.Register(serviceType, options), Times.Once);
             }
         }
         
@@ -54,6 +54,12 @@ public class DependencyInjectionTests
     {
         var assemblies = new [] { MockAssembly(Array.Empty<Type>()) };
         Assert.Throws<ArgumentNullException>(() => assemblies.AutoRegisterServices(serviceRegistrar: null!));
+    }
+
+    public static IEnumerable<object?[]> GetRegisterServiceOptionsData()
+    {
+        yield return new object?[] { null };
+        yield return new object?[] { new RegisterServiceOptions() };
     }
 
     private static Assembly MockAssembly(Type[] exportedTypes)

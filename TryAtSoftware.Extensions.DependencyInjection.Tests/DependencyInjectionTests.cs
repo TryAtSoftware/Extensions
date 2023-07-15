@@ -10,7 +10,7 @@ using Xunit;
 public class DependencyInjectionTests
 {
     [Fact]
-    public void Test1()
+    public void AutomaticRegistrationOfServicesShouldBeExecutedSuccessfully()
     {
         var assemblies = new Assembly[RandomizationHelper.RandomInteger(2, 10)];
         var services = new Type[assemblies.Length][];
@@ -48,10 +48,17 @@ public class DependencyInjectionTests
         registrarMock.VerifyNoOtherCalls();
     }
 
-    private static Assembly MockAssembly(Type[] types)
+    [Fact]
+    public void AutoRegisterServicesShouldThrowIfNullRegistrarIsProvided()
+    {
+        var assemblies = new [] { MockAssembly(Array.Empty<Type>()) };
+        Assert.Throws<ArgumentNullException>(() => assemblies.AutoRegisterServices(serviceRegistrar: null!));
+    }
+
+    private static Assembly MockAssembly(Type[] exportedTypes)
     {
         var assemblyMock = new Mock<Assembly>();
-        assemblyMock.Setup(x => x.GetExportedTypes()).Returns(types);
+        assemblyMock.Setup(x => x.GetExportedTypes()).Returns(exportedTypes);
         return assemblyMock.Object;
     }
     

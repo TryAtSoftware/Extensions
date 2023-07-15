@@ -4,6 +4,7 @@ using System.Reflection;
 using Moq;
 using TryAtSoftware.Extensions.DependencyInjection.Attributes;
 using TryAtSoftware.Extensions.DependencyInjection.Interfaces;
+using TryAtSoftware.Extensions.DependencyInjection.Options;
 using TryAtSoftware.Randomizer.Core.Helpers;
 using Xunit;
 
@@ -31,7 +32,7 @@ public class DependencyInjectionTests
         }
 
         var registrarMock = new Mock<IServiceRegistrar>();
-        registrarMock.Setup(x => x.Register(It.IsAny<Type>()));
+        registrarMock.Setup(x => x.Register(It.IsAny<Type>(), It.IsAny<RegisterServiceOptions>()));
 
         var registrarInstance = registrarMock.Object;
         assemblies.AutoRegisterServices(registrarInstance);
@@ -41,7 +42,7 @@ public class DependencyInjectionTests
             for (var j = 0; j < services[i].Length; j++)
             {
                 var serviceType = services[i][j];
-                registrarMock.Verify(x => x.Register(serviceType), Times.Once);
+                registrarMock.Verify(x => x.Register(serviceType, It.IsAny<RegisterServiceOptions>()), Times.Once);
             }
         }
         

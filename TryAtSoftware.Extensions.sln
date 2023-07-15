@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TryAtSoftware.Extensions.Re
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TryAtSoftware.Extensions.DependencyInjection", "TryAtSoftware.Extensions.DependencyInjection\TryAtSoftware.Extensions.DependencyInjection.csproj", "{7ED7C188-F4B9-4720-804F-4A0344181BF3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TryAtSoftware.Extensions.DependencyInjection.Standard", "TryAtSoftware.Extensions.DependencyInjection.Standard\TryAtSoftware.Extensions.DependencyInjection.Standard.csproj", "{DA892FF9-6223-445A-9D02-6A7FD7C85A87}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{7ED7C188-F4B9-4720-804F-4A0344181BF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7ED7C188-F4B9-4720-804F-4A0344181BF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7ED7C188-F4B9-4720-804F-4A0344181BF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA892FF9-6223-445A-9D02-6A7FD7C85A87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA892FF9-6223-445A-9D02-6A7FD7C85A87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA892FF9-6223-445A-9D02-6A7FD7C85A87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA892FF9-6223-445A-9D02-6A7FD7C85A87}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -70,6 +76,7 @@ Global
 		{3F006C6B-F1F5-4BE3-BE77-B1EDFF543FB7} = {822D4C14-1451-4298-B70E-15371356DEE8}
 		{4016D103-D98F-460F-9B8C-48CCF00093C6} = {822D4C14-1451-4298-B70E-15371356DEE8}
 		{7ED7C188-F4B9-4720-804F-4A0344181BF3} = {8A6745E1-B4E9-44AF-ACB1-5A0555529E4E}
+		{DA892FF9-6223-445A-9D02-6A7FD7C85A87} = {8A6745E1-B4E9-44AF-ACB1-5A0555529E4E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A800355A-5404-4D60-A68F-8EE651EED6E6}

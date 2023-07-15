@@ -7,11 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="TryAtSoftware.Extensions.Collections" Version="1.0.0" />
+      <ProjectReference Include="..\TryAtSoftware.Extensions.DependencyInjection\TryAtSoftware.Extensions.DependencyInjection.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\TryAtSoftware.Extensions.Reflection\TryAtSoftware.Extensions.Reflection.csproj" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.1.1" />
     </ItemGroup>
 
 </Project>

@@ -47,7 +47,7 @@ public class StandardServiceRegistrar : IServiceRegistrar
 
     private ServiceLifetime ExtractLifetime(MemberInfo type)
     {
-        var lifetimeAttributes = this.HierarchyScanner.ScanForAttribute<ServiceLifetimeAttribute>(type);
+        var lifetimeAttributes = this.HierarchyScanner.ScanForAttribute<ServiceConfigurationAttribute>(type);
         return lifetimeAttributes.LastOrDefault()?.Lifetime ?? ServiceLifetime.Scoped;
     }
 }

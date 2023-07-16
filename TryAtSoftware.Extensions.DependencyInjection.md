@@ -14,3 +14,18 @@
 # About us
 
 `Try At Software` is a software development company based in Bulgaria. We are mainly using `dotnet` technologies (`C#`, `ASP.NET Core`, `Entity Framework Core`, etc.) and our main idea is to provide a set of tools that can simplify the majority of work a developer does on a daily basis.
+
+# Getting started
+
+## Installing the package
+
+In order to use this library, you need to install the corresponding NuGet package beforehand.
+The simplest way to do this is to either use the `NuGet package manager`, or the `dotnet CLI`.
+
+Using the `NuGet package manager` console within Visual Studio, you can install the package using the following command:
+
+> Install-Package TryAtSoftware.Extensions.DependencyInjection
+
+Or using the `dotnet CLI` from a terminal window:
+
+> dotnet add package TryAtSoftware.Extensions.DependencyInjection

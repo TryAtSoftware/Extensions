@@ -29,3 +29,45 @@ Using the `NuGet package manager` console within Visual Studio, you can install 
 Or using the `dotnet CLI` from a terminal window:
 
 > dotnet add package TryAtSoftware.Extensions.DependencyInjection
+
+## Registering services
+
+The `TryAtSoftware.Extensions.DependencyInjection` library **supports** automatic registration of services into a given dependency injection container.
+This can be realized throughout the `AutoRegisterServices` extension method.
+It will locate all classes decorated with the `AutomaticallyRegisteredService` attribute and register them as services using a concrete implementation of the [`IServiceRegistrar`](#iserviceregistrar) interface.
+
+### Use cases
+
+#### Register services from all assemblies
+
+```C#
+IServiceRegistrar serviceRegistrar = PrepareServiceRegistrar();
+Assembly[] allAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+allAssemblies.AutoRegisterServices(serviceRegistrar);
+```
+It is important to note that the `AppDomain.CurrentDomain.GetAssemblies()` invocation will return only those assemblies that are already loaded for the current domain.
+If this cannot be guaranteed, the assemblies that contain classes that are expected to be registered automatically, should be loaded explicitly.
+
+This problem can be solved easily if the assembly extension methods provided by `TryAtSoftware.Extensions.Reflection` are used.
+For more information, you can refer to the [official documentation](https://github.com/TryAtSoftware/Extensions/blob/main/TryAtSoftware.Extensions.Reflection.md#assembly-extensions).
+
+```C#
+// It is recommended to use a `RestrictSearchFilter` in order to load only what is necessary.
+var options = new LoadReferencedAssembliesOptions { RestrictSearchFilter = x => x.FullName.StartsWith("My.Awesome.Prefix")};
+Assembly.GetExecutingAssembly().LoadReferencedAssemblies(options);
+
+IServiceRegistrar serviceRegistrar = PrepareServiceRegistrar();
+Assembly[] allAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+allAssemblies.AutoRegisterServices(serviceRegistrar);
+```
+
+#### Resolve generic parameters
+
+TODO
+
+### `IServiceRegistrar`
+
+This is an interface defining the structure of a component responsible for registering services into a dependency injection container.
+
+The officially supported libraries providing implementations of this interface will be listed at the home page of the [`TryAtSoftware.Extensions`](https://github.com/TryAtSoftware/Extensions) repository.

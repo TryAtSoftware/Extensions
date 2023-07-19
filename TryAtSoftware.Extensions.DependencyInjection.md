@@ -32,9 +32,24 @@ Or using the `dotnet CLI` from a terminal window:
 
 ## Registering services
 
-The `TryAtSoftware.Extensions.DependencyInjection` library **supports** automatic registration of services into a given dependency injection container.
+The `TryAtSoftware.Extensions.DependencyInjection` library **supports** automatic registration of services into a dependency injection container.
 This can be realized throughout the `AutoRegisterServices` extension method.
 It will locate all classes decorated with the `AutomaticallyRegisteredService` attribute and register them as services using a concrete implementation of the [`IServiceRegistrar`](#iserviceregistrar) interface.
+
+### Service configuration
+
+As mentioned in the previous paragraph, there is an attribute used to decorate all services.
+It implies that the decorated class should be treated as a component that is expected to be registered automatically into the dependency injection container.
+
+```C#
+[AutomaticallyRegisteredService]
+public class EmailSender : IEmailSender
+{
+    // Here goes the implementation of the email sender... 
+}
+```
+
+> Each concrete implementation of the [`IServiceRegistrar`](#iserviceregistrar) interface may propose its own alternative (platform-specific) configuration options and mechanisms.
 
 ### Use cases
 
@@ -49,8 +64,7 @@ allAssemblies.AutoRegisterServices(serviceRegistrar);
 It is important to note that the `AppDomain.CurrentDomain.GetAssemblies()` invocation will return only those assemblies that are already loaded for the current domain.
 If this cannot be guaranteed, the assemblies that contain classes that are expected to be registered automatically, should be loaded explicitly.
 
-This problem can be solved easily if the assembly extension methods provided by `TryAtSoftware.Extensions.Reflection` are used.
-For more information, you can refer to the [official documentation](https://github.com/TryAtSoftware/Extensions/blob/main/TryAtSoftware.Extensions.Reflection.md#assembly-extensions).
+This problem can be solved easily if the assembly extension methods provided by `TryAtSoftware.Extensions.Reflection` are used (for more information, you can refer to the [official documentation](https://github.com/TryAtSoftware/Extensions/blob/main/TryAtSoftware.Extensions.Reflection.md#assembly-extensions)).
 
 ```C#
 // It is recommended to use a `RestrictSearchFilter` in order to load only what is necessary.
@@ -64,10 +78,13 @@ allAssemblies.AutoRegisterServices(serviceRegistrar);
 
 #### Resolve generic parameters
 
-TODO
+A key feature for the automatic registration of services is the ability to resolve generic type parameters.
+This is a responsibility of each `IServiceRegistrar` implementation, however, all officially supported service registrars use the generic extension methods provided by `TryAtSoftware.Extensions.Reflection` (for more information you can refer to the [official documentation](https://github.com/TryAtSoftware/Extensions/blob/main/TryAtSoftware.Extensions.Reflection.md#generic-extensions)).
+
+TODO: Example
 
 ### `IServiceRegistrar`
 
 This is an interface defining the structure of a component responsible for registering services into a dependency injection container.
 
-The officially supported libraries providing implementations of this interface will be listed at the home page of the [`TryAtSoftware.Extensions`](https://github.com/TryAtSoftware/Extensions) repository.
+The officially supported libraries providing implementations for this interface will be listed at the home page of the [`TryAtSoftware.Extensions`](https://github.com/TryAtSoftware/Extensions) repository.

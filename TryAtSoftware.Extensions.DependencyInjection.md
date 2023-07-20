@@ -62,7 +62,7 @@ Assembly[] allAssemblies = AppDomain.CurrentDomain.GetAssemblies();
 allAssemblies.AutoRegisterServices(serviceRegistrar);
 ```
 It is important to note that the `AppDomain.CurrentDomain.GetAssemblies()` invocation will return only those assemblies that are already loaded for the current domain.
-If this cannot be guaranteed, the assemblies that contain classes that are expected to be registered automatically, should be loaded explicitly.
+If some of the assemblies containing services that are expected to be registered automatically are not returned, they should be loaded explicitly.
 
 This problem can be solved easily if the assembly extension methods provided by `TryAtSoftware.Extensions.Reflection` are used (for more information, you can refer to the [official documentation](https://github.com/TryAtSoftware/Extensions/blob/main/TryAtSoftware.Extensions.Reflection.md#assembly-extensions)).
 

@@ -6,37 +6,59 @@ using TryAtSoftware.Extensions.Collections.Interfaces;
 
 public class FluidDictionary<TKey> : IFluidDictionary<TKey>
 {
-    private Dictionary<TKey, object> _dictionary;
+    private readonly Dictionary<TKey, object> _dictionary;
 
+    /// <summary>
+    /// constructor
+    /// </summary>
     public FluidDictionary()
     {
-        _dictionary = new Dictionary<TKey, object>();
+        this._dictionary = new Dictionary<TKey, object>();
     }
 
-    public bool Set<T>(TKey key, T value)
+    /// <summary>
+    /// Setting a value against a particular key
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public bool Set<T>(TKey key, T value) 
     {
         if (key == null)
             throw new ArgumentNullException(nameof(key));
 
-        _dictionary[key] = value;
+        this._dictionary[key] = value;
         return true;
     }
-
+    /// <summary>
+    /// Fetching a value using key
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
     public bool TryGetValue<T>(TKey key, out T value)
     {
-        if (_dictionary.TryGetValue(key, out var objValue) && objValue is T)
+        if (this._dictionary.TryGetValue(key, out var objValue) && objValue is T)
         {
             value = (T)objValue;
             return true;
         }
 
-        value = default(T);
+        value = default;
         return false;
     }
-
+    /// <summary>
+    /// Fetch the value or default
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="key"></param>
+    /// <returns></returns>
     public T GetValueOrDefault<T>(TKey key)
     {
-        if (_dictionary.TryGetValue(key, out var objValue))
+        if (this._dictionary.TryGetValue(key, out var objValue))
         {
             if (objValue is T typedValue)
             {
@@ -44,12 +66,19 @@ public class FluidDictionary<TKey> : IFluidDictionary<TKey>
             }
         }
 
-        return default(T);
+        return default;
     }
-
+    /// <summary>
+    /// Handling the exception for GetRequiredValue
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    /// <exception cref="KeyNotFoundException"></exception>
+    /// <exception cref="InvalidCastException"></exception>
     public T GetRequiredValue<T>(TKey key)
     {
-        if (!_dictionary.TryGetValue(key, out var objValue))
+        if (!this._dictionary.TryGetValue(key, out var objValue))
         {
             throw new KeyNotFoundException($"Key '{key}' not found in the dictionary.");
         }
@@ -62,13 +91,18 @@ public class FluidDictionary<TKey> : IFluidDictionary<TKey>
         return (T)objValue;
     }
 
-    public IEnumerable<TKey> Keys => _dictionary.Keys;
-
+    public IEnumerable<TKey> Keys => this._dictionary.Keys;
+    /// <summary>
+    /// Removing value from dictionary object using key
+    /// </summary>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
     public bool Remove(TKey key)
     {
         if (key == null)
             throw new ArgumentNullException(nameof(key));
 
-        return _dictionary.Remove(key);
+        return this._dictionary.Remove(key);
     }
 }

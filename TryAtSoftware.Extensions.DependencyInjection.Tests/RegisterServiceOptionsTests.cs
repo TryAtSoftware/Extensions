@@ -18,5 +18,8 @@ public class RegisterServiceOptionsTests
         var genericTypesMap = new Dictionary<Type, Type>();
         var options = new RegisterServiceOptions { GenericTypesMap = genericTypesMap };
         Assert.Same(genericTypesMap, options.GenericTypesMap);
+
+        options.GenericTypesMap = null;
+        Assert.Null(options.GenericTypesMap);
     }
 }

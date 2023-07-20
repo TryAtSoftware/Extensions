@@ -10,7 +10,7 @@ using Xunit;
 public static class TypeNamesTests
 {
     [Fact]
-    public static void ExceptionShouldBeThrownIfTheProvidedTypeWasNull() => Assert.Throws<ArgumentNullException>(() => TypeNames.Get(null));
+    public static void ExceptionShouldBeThrownIfTheProvidedTypeWasNull() => Assert.Throws<ArgumentNullException>(() => TypeNames.Get(null!));
 
     [Theory]
     [MemberData(nameof(GetTestData))]

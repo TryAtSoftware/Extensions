@@ -49,8 +49,12 @@ public class MemberInfoExtensionsTests
     {
         public string field = "This is a field";
 
+#pragma warning disable CA1822
         public string Property => "This is a property";
+#pragma warning restore CA1822
 
+#pragma warning disable CA1822
         public string Method() => "This is a method";
+#pragma warning restore CA1822
     }
 }

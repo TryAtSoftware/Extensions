@@ -73,6 +73,7 @@ Assembly.GetExecutingAssembly().LoadReferencedAssemblies(options);
 
 IServiceRegistrar serviceRegistrar = PrepareServiceRegistrar();
 Assembly[] allAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+
 allAssemblies.AutoRegisterServices(serviceRegistrar);
 ```
 
@@ -81,7 +82,25 @@ allAssemblies.AutoRegisterServices(serviceRegistrar);
 A key feature for the automatic registration of services is the ability to resolve generic type parameters.
 This is a responsibility of each `IServiceRegistrar` implementation, however, all officially supported service registrars use the generic extension methods provided by `TryAtSoftware.Extensions.Reflection` (for more information you can refer to the [official documentation](https://github.com/TryAtSoftware/Extensions/blob/main/TryAtSoftware.Extensions.Reflection.md#generic-extensions)).
 
-TODO: Example
+The service configuration needs to be extended by decorating every generic type parameter with a custom attribute.
+
+```C#
+[AttributeUsage(AttributeTargets.GenericParameter)]
+public class KeyTypeAttribute : Attribute {}
+
+public class StorageService<[KeyType] TKey> : IStorageService<TKey> {}
+```
+
+Having this setup, the only other thing that needs to be done, is to indicate how a generic type parameter decorated with a given attribute should be resolved.
+For this purpose, we can extend the `AutoRegisterServices` invocation by providing an additional `RegisterServiceOptions` instance (`GenericTypesMap` is the related property).
+
+```C#
+IServiceRegistrar serviceRegistrar = PrepareServiceRegistrar();
+Assembly[] allAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+RegisterServiceOptions registrationOptions = new RegisterServiceOptions { GenericTypesMap = new Dictionary<Type, Type> { [typeof(KeyTypeAttribute)] = typeof(Guid) } };
+allAssemblies.AutoRegisterServices(serviceRegistrar, registrationOptions);
+```
 
 ### `IServiceRegistrar`
 

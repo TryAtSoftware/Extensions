@@ -1,64 +1,64 @@
 namespace TryAtSoftware.Extensions.Collections;
+
 using System;
 using System.Collections.Generic;
-using System.Text;
 using TryAtSoftware.Extensions.Collections.Interfaces;
 
 public class FluidDictionary<TKey> : IFluidDictionary<TKey>
 {
-    private readonly Dictionary<TKey, object> _dictionary;
+    private Dictionary<TKey, object> dictionary;
 
-    /// <summary>
-    /// constructor
-    /// </summary>
     public FluidDictionary()
     {
-        this._dictionary = new Dictionary<TKey, object>();
+        dictionary = new Dictionary<TKey, object>();
     }
 
     /// <summary>
-    /// Setting a value against a particular key
+    /// Sets the value of type T associated with the specified key in the dictionary.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="key"></param>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>
-    public bool Set<T>(TKey key, T value) 
+    /// <typeparam name="T">The type of the value to set.</typeparam>
+    /// <param name="key">The key to set the value for.</param>
+    /// <param name="value">The value to set.</param>
+    /// <returns>True if the value is successfully set, false otherwise.</returns>
+    public bool Set<T>(TKey key, T value)
     {
         if (key == null)
             throw new ArgumentNullException(nameof(key));
 
-        this._dictionary[key] = value;
+        dictionary[key] = value;
         return true;
     }
+
     /// <summary>
-    /// Fetching a value using key
+    /// Attempts to get the value associated with the specified key in the dictionary.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="key"></param>
-    /// <param name="value"></param>
-    /// <returns></returns>
+    /// <typeparam name="T">The type of the value to retrieve.</typeparam>
+    /// <param name="key">The key whose value to get.</param>
+    /// <param name="value">When this method returns, contains the value associated with the specified key,
+    /// if the key is found; otherwise, the default value for the type T.</param>
+    /// <returns>True if the key is found and the value is of type T, false otherwise.</returns>
     public bool TryGetValue<T>(TKey key, out T value)
     {
-        if (this._dictionary.TryGetValue(key, out var objValue) && objValue is T)
+        if (dictionary.TryGetValue(key, out var objValue) && objValue is T)
         {
             value = (T)objValue;
             return true;
         }
 
-        value = default;
+        value = default(T);
         return false;
     }
+
     /// <summary>
-    /// Fetch the value or default
+    /// Gets the value associated with the specified key in the dictionary.
+    /// If the key is not found or the value is not of type T, returns the default value of type T.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="key"></param>
-    /// <returns></returns>
+    /// <typeparam name="T">The type of the value to retrieve.</typeparam>
+    /// <param name="key">The key whose value to get.</param>
+    /// <returns>The value associated with the specified key, or the default value of type T if the key is not found or the value is not of type T.</returns>
     public T GetValueOrDefault<T>(TKey key)
     {
-        if (this._dictionary.TryGetValue(key, out var objValue))
+        if (dictionary.TryGetValue(key, out var objValue))
         {
             if (objValue is T typedValue)
             {
@@ -66,19 +66,21 @@ public class FluidDictionary<TKey> : IFluidDictionary<TKey>
             }
         }
 
-        return default;
+        return default(T);
     }
+
     /// <summary>
-    /// Handling the exception for GetRequiredValue
+    /// Gets the value associated with the specified key in the dictionary.
+    /// If the key is not found or the value is not of type T, throws an exception.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="key"></param>
-    /// <returns></returns>
-    /// <exception cref="KeyNotFoundException"></exception>
-    /// <exception cref="InvalidCastException"></exception>
+    /// <typeparam name="T">The type of the value to retrieve.</typeparam>
+    /// <param name="key">The key whose value to get.</param>
+    /// <returns>The value associated with the specified key.</returns>
+    /// <exception cref="KeyNotFoundException">Thrown when the key is not found in the dictionary.</exception>
+    /// <exception cref="InvalidCastException">Thrown when the value associated with the key is not of type T.</exception>
     public T GetRequiredValue<T>(TKey key)
     {
-        if (!this._dictionary.TryGetValue(key, out var objValue))
+        if (!dictionary.TryGetValue(key, out var objValue))
         {
             throw new KeyNotFoundException($"Key '{key}' not found in the dictionary.");
         }
@@ -91,18 +93,21 @@ public class FluidDictionary<TKey> : IFluidDictionary<TKey>
         return (T)objValue;
     }
 
-    public IEnumerable<TKey> Keys => this._dictionary.Keys;
     /// <summary>
-    /// Removing value from dictionary object using key
+    /// Gets an enumeration of keys in the dictionary.
     /// </summary>
-    /// <param name="key"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>
+    public IEnumerable<TKey> Keys => dictionary.Keys;
+
+    /// <summary>
+    /// Removes the value associated with the specified key from the dictionary.
+    /// </summary>
+    /// <param name="key">The key whose value to remove.</param>
+    /// <returns>True if the value is successfully removed; otherwise, false.</returns>
     public bool Remove(TKey key)
     {
         if (key == null)
             throw new ArgumentNullException(nameof(key));
 
-        return this._dictionary.Remove(key);
+        return dictionary.Remove(key);
     }
 }

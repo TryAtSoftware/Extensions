@@ -4,6 +4,17 @@
         <TargetFramework>netstandard2.1</TargetFramework>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
+
+        <PackageId>TryAtSoftware.Extensions.DependencyInjection.Standard</PackageId>
+        <Version>1.1.2-alpha.1</Version>
+        <Authors>Tony Troeff</Authors>
+        <RepositoryUrl>https://github.com/TryAtSoftware/Extensions</RepositoryUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <Description>This is an internal package that extends TryAtSoftware.Extensions.DependencyInjection and operates with the built-in dependency injection mechanisms.</Description>
+        <Copyright>Copyright (c) Tony Troeff</Copyright>
+        <PackageTags>tryatsoftware extensions di ioc</PackageTags>
+        <PackageReadmeFile>TryAtSoftware.Extensions.DependencyInjection.Standard.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -13,6 +24,10 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
       <PackageReference Include="TryAtSoftware.Extensions.DependencyInjection" Version="1.1.2-alpha.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\TryAtSoftware.Extensions.DependencyInjection.Standard.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>

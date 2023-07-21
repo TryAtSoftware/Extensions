@@ -29,3 +29,17 @@ Using the `NuGet package manager` console within Visual Studio, you can install 
 Or using the `dotnet CLI` from a terminal window:
 
 > dotnet add package TryAtSoftware.Extensions.DependencyInjection.Standard
+
+## Registering services
+
+Basic understanding of the concepts introduced by [`TryAtSoftware.Extensions.DependencyInjection`](https://github.com/TryAtSoftware/Extensions/blob/main/TryAtSoftware.Extensions.DependencyInjection.md#registering-services) is required.
+This package implements the presented ideas for the built-in dependency injection mechanisms.
+
+### Service configuration
+
+TODO
+
+# Helpful Links
+
+For a better understanding of the way the built-in dependency injection mechanisms work, you can refer to the [official documentation](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection).
+Here are some more links pointing to the corresponding packages - [Microsoft.Extensions.DependencyInjection.Abstractions](https://www.nuget.org/packages/Microsoft.Extensions.DependencyInjection.Abstractions) and [Microsoft.Extensions.DependencyInjection](https://www.nuget.org/packages/Microsoft.Extensions.DependencyInjection).

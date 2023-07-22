@@ -14,24 +14,32 @@ jobs:
       NUGET_SOURCE: https://api.nuget.org/v3/index.json
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 7.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore --configuration "${{ env.CONFIGURATION }}"
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-    - name: Pack 'Collection extensions'
-      run: dotnet pack --no-build --configuration "${{ env.CONFIGURATION }}" ./TryAtSoftware.Extensions.Collections/TryAtSoftware.Extensions.Collections.csproj -o "${{ env.PACKAGES_DIRECTORY }}"
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.x
 
-    - name: Pack 'Reflection extensions'
-      run: dotnet pack --no-build --configuration "${{ env.CONFIGURATION }}" ./TryAtSoftware.Extensions.Reflection/TryAtSoftware.Extensions.Reflection.csproj -o "${{ env.PACKAGES_DIRECTORY }}"
+      - name: Restore dependencies
+        run: dotnet restore
 
-    - name: Pack 'Dependency injection extensions'
-      run: dotnet pack --no-build --configuration "${{ env.CONFIGURATION }}" ./TryAtSoftware.Extensions.DependencyInjection/TryAtSoftware.Extensions.DependencyInjection.csproj -o "${{ env.PACKAGES_DIRECTORY }}"
+      - name: Build
+        run: dotnet build --no-restore --configuration "${{ env.CONFIGURATION }}"
 
-    - name: Publish all packages
-      run: dotnet nuget push "${{ env.PACKAGES_DIRECTORY }}/*.nupkg" --source "${{ env.NUGET_SOURCE }}" --api-key "${{ env.NUGET_KEY }}" --skip-duplicate
+      - name: Pack 'Collection extensions'
+        run: dotnet pack --no-build --configuration "${{ env.CONFIGURATION }}" ./TryAtSoftware.Extensions.Collections/TryAtSoftware.Extensions.Collections.csproj -o "${{ env.PACKAGES_DIRECTORY }}"
+
+      - name: Pack 'Reflection extensions'
+        run: dotnet pack --no-build --configuration "${{ env.CONFIGURATION }}" ./TryAtSoftware.Extensions.Reflection/TryAtSoftware.Extensions.Reflection.csproj -o "${{ env.PACKAGES_DIRECTORY }}"
+
+      - name: Pack 'Dependency injection extensions'
+        run: dotnet pack --no-build --configuration "${{ env.CONFIGURATION }}" ./TryAtSoftware.Extensions.DependencyInjection/TryAtSoftware.Extensions.DependencyInjection.csproj -o "${{ env.PACKAGES_DIRECTORY }}"
+
+      - name: Pack 'Dependency injection extensions (Standard)'
+        run: dotnet pack --no-build --configuration "${{ env.CONFIGURATION }}" ./TryAtSoftware.Extensions.DependencyInjection.Standard/TryAtSoftware.Extensions.DependencyInjection.Standard.csproj -o "${{ env.PACKAGES_DIRECTORY }}"
+
+      - name: Publish all packages
+        run: dotnet nuget push "${{ env.PACKAGES_DIRECTORY }}/*.nupkg" --source "${{ env.NUGET_SOURCE }}" --api-key "${{ env.NUGET_KEY }}" --skip-duplicate

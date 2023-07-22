@@ -74,8 +74,10 @@ Its only constructor accepts two parameters:
 - An [`IHierarchyScanner`](https://github.com/TryAtSoftware/Extensions/blob/main/TryAtSoftware.Extensions.Reflection.md#ihierarchyscanner) instance used to scan for the `ServiceConfiguration` attribute described above.
 You can use this parameter if you need to customize the way configuration attributes are discovered.
 
+> This `IServiceRegistrar` implementation realizes all generally applicable [use cases](https://github.com/TryAtSoftware/Extensions/blob/main/TryAtSoftware.Extensions.DependencyInjection.md#use-cases).
+
 The registration process for any service involves the following steps:
-1. Resolve generic parameters. _This is a fundamental [use case](https://github.com/TryAtSoftware/Extensions/blob/main/TryAtSoftware.Extensions.DependencyInjection.md#resolve-generic-parameters) for `TryAtSoftware.Extensions.DependencyInjection`._
+1. Resolve generic parameters.
 2. Discover additional configurations _(using the hierarchy scanner)_.
 3. Register the service _(within the service collection)_.
    - At least one service descriptor will **always** be registered. It will have its `ServiceType` and `ImplementationType` set to the type of the automatically registered service.

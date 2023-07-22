@@ -37,9 +37,38 @@ This package implements the presented ideas for the built-in dependency injectio
 
 ### Service configuration
 
-TODO
+This package extends the configuration mechanisms introduced by `TryAtSoftware.Extensions.DependencyInjection` and goes a step further by defining its own set of configuration options modeling the parameters (or behavior) applied to the registration process when operating with the built-in dependency injection container.
+
+One of the most important characteristics for services registered in the built-in dependency injection container is their **lifetime**.
+So it looks like this parameter should be easily configurable when the corresponding services are automatically registered.
+
+In the context of `TryAtSoftware.Extensions.DependencyInjection.Standard`, this can be achieved by decorating the service with the `ServiceConfiguration` attribute.
+It accepts a single required parameter - the `ServiceLifetime`.
+
+> As noted before, this package does not alter the configuration mechanisms introduced by `TryAtSoftware.Extensions.DependencyInjection` - it extends them.
+> Because of this, it is required to decorate your services with both the `AutomaticallyRegisteredService` and `ServiceConfiguration` attributes if additional configurations are required.
+
+```C#
+[AutomaticallyRegisteredService, ServiceConfiguration(ServiceLifetime.Transient)]
+public class EmailSender : IEmailSender
+{
+    // Here goes the implementation of the email sender... 
+}
+```
+
+If a service should be registered automatically, but there are no explicit configurations, it will be registered as **scoped** service by default.
+
+```C#
+[AutomaticallyRegisteredService] // There are no explicit configurations => the lifetime of this service will be scoped.
+public class EmailSender : IEmailSender
+{
+    // Here goes the implementation of the email sender... 
+}
+```
 
 # Helpful Links
+
+For a better understanding of the ideas implemented by this package, you can refer to the [official documentation](https://github.com/TryAtSoftware/Extensions/blob/main/TryAtSoftware.Extensions.DependencyInjection.md) of `TryAtSoftware.Extensions.DependencyInjection`.
 
 For a better understanding of the way the built-in dependency injection mechanisms work, you can refer to the [official documentation](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection).
 Here are some more links pointing to the corresponding packages - [Microsoft.Extensions.DependencyInjection.Abstractions](https://www.nuget.org/packages/Microsoft.Extensions.DependencyInjection.Abstractions) and [Microsoft.Extensions.DependencyInjection](https://www.nuget.org/packages/Microsoft.Extensions.DependencyInjection).

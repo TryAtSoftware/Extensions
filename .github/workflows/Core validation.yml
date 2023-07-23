@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SONAR_ARGS: ${{ github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name && format('/d:sonar.token="{0}"', secrets.SONAR_TOKEN) }}
       CONFIGURATION: Release
 
     steps:
@@ -50,8 +51,8 @@ jobs:
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         run: dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
 
-      - name: Start anonymous analyzation with SonarCloud
-        run: ./.sonar/scanner/dotnet-sonarscanner begin /k:"TryAtSoftware_Extensions" /o:"tryatsoftware" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.host.url="https://sonarcloud.io"
+      - name: Start analyzation with SonarCloud
+        run: ./.sonar/scanner/dotnet-sonarscanner begin /k:"TryAtSoftware_Extensions" /o:"tryatsoftware" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.host.url="https://sonarcloud.io" ${{ env.SONAR_ARGS }}
 
       - name: Restore dependencies
         run: dotnet restore
@@ -60,5 +61,5 @@ jobs:
       - name: Test the solution
         run: dotnet test --no-build --configuration "${{ env.CONFIGURATION }}" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
-      - name: Finalize anonymous analyzation with SonarCloud
-        run: ./.sonar/scanner/dotnet-sonarscanner end
+      - name: Finalize analyzation with SonarCloud
+        run: ./.sonar/scanner/dotnet-sonarscanner end ${{ env.SONAR_ARGS }}

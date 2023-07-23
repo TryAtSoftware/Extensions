@@ -3,6 +3,7 @@ name: Accept PR
 on:
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   check_pr:

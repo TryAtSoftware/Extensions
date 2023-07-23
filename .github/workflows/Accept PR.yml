@@ -1,0 +1,14 @@
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  label_pr:
+    name: Label the PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract required information
+        run: echo "extracting info..."
+    
+      - name: Set appropriate labels
+        run: echo "setting labels..."

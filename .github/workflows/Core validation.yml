@@ -3,14 +3,17 @@ name: CI
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Accept PR"]
+    types:
+      - completed
 
 jobs:
-  build:
-    name: CI
+  build_test_analyze:
+    name: Build, test and analyze code quality
     runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success')
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

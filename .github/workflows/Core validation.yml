@@ -7,15 +7,11 @@ on:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  pull-requests: read
-
 jobs:
   build:
     name: CI
     runs-on: ubuntu-latest
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       SONAR_ARGS: ${{ github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name && format('/d:sonar.token="{0}"', secrets.SONAR_TOKEN) || ''}}
       CONFIGURATION: Release
 

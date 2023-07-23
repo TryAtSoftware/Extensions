@@ -89,7 +89,7 @@ IHierarchyScanner hierarchyScanner = new HierarchyScanner();
 IServiceRegistrar registrar = new ServiceRegistrar(serviceCollection, hierarchyScanner);
 
 Assembly[] allAssemblies = AppDomain.CurrentDomain.GetAssemblies();
-allAssemblies.AutoRegisterServices(serviceRegistrar);
+allAssemblies.AutoRegisterServices(registrar);
 ```
 
 # Helpful Links

@@ -25,6 +25,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\TryAtSoftware.Extensions.Collections\TryAtSoftware.Extensions.Collections.csproj" />
+      <ProjectReference Include="..\TryAtSoftware.Extensions.Reflection.Tests\TryAtSoftware.Extensions.Reflection.Tests.csproj" />
     </ItemGroup>
 
 </Project>

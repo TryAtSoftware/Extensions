@@ -22,12 +22,13 @@ public class FluidDictionary<TKey> : IFluidDictionary<TKey>
     /// <returns>True if the value is successfully set, false otherwise.</returns>
     public bool Set<T>(TKey key, T value)
     {
-        if (key == null)
+        if (key is null)
             throw new ArgumentNullException(nameof(key));
 
         dictionary[key] = value;
         return true;
     }
+
 
     /// <summary>
     /// Attempts to get the value associated with the specified key in the dictionary.
@@ -39,13 +40,13 @@ public class FluidDictionary<TKey> : IFluidDictionary<TKey>
     /// <returns>True if the key is found and the value is of type T, false otherwise.</returns>
     public bool TryGetValue<T>(TKey key, out T value)
     {
-        if (dictionary.TryGetValue(key, out var objValue) && objValue is T)
+        if (dictionary.TryGetValue(key, out var objValue) && objValue is T typedValue)
         {
-            value = (T)objValue;
+            value = typedValue;
             return true;
         }
 
-        value = default(T);
+        value = default;
         return false;
     }
 
@@ -85,12 +86,12 @@ public class FluidDictionary<TKey> : IFluidDictionary<TKey>
             throw new KeyNotFoundException($"Key '{key}' not found in the dictionary.");
         }
 
-        if (!(objValue is T))
+        if (objValue is not T typedValue)
         {
             throw new InvalidCastException($"Value for key '{key}' is not of type '{typeof(T).Name}'.");
         }
 
-        return (T)objValue;
+        return typedValue;
     }
 
     /// <summary>
@@ -105,7 +106,7 @@ public class FluidDictionary<TKey> : IFluidDictionary<TKey>
     /// <returns>True if the value is successfully removed; otherwise, false.</returns>
     public bool Remove(TKey key)
     {
-        if (key == null)
+        if (key is null)
             throw new ArgumentNullException(nameof(key));
 
         return dictionary.Remove(key);

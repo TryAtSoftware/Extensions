@@ -4,6 +4,7 @@ namespace TryAtSoftware.Extensions.Collections.Tests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TryAtSoftware.Extensions.Reflection.Tests.Randomization;
 using Xunit;
 
 public class FluidDictionaryTests
@@ -13,14 +14,16 @@ public class FluidDictionaryTests
     {
         // Arrange
         var dictionary = new FluidDictionary<string>();
-        dictionary.Set("key1", 42);
+        var ageRandomizer = new AgeRandomizer();
+        var randomValue = ageRandomizer.PrepareRandomValue();
+        dictionary.Set("key1", randomValue);
 
         // Act
         bool success = dictionary.TryGetValue("key1", out int value);
 
         // Assert
         Assert.True(success);
-        Assert.Equal(42, value);
+        Assert.Equal(randomValue, value);
     }
 
     [Fact]

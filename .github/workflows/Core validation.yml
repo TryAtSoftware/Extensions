@@ -55,8 +55,10 @@ jobs:
 
       - name: Restore dependencies
         run: dotnet restore
+
       - name: Build the solution
         run: dotnet build --no-restore --configuration "${{ env.CONFIGURATION }}"
+
       - name: Test the solution
         run: dotnet test --no-build --configuration "${{ env.CONFIGURATION }}" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 

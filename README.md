@@ -20,3 +20,5 @@
 This repository contains the source code of two libraries that are part of the `TryAtSoftware.Extensions` suite:
 - [`TryAtSoftware.Extensions.Collections`](./TryAtSoftware.Extensions.Collections.md) - a library containing extension methods that should simplify some common operations with collections.
 - [`TryAtSoftware.Extensions.Reflection`](./TryAtSoftware.Extensions.Reflection.md) - a library containing extension methods and utility components that should simplify (and optimize) some common operations with reflection.
+- [`TryAtSoftware.Extensions.DependencyInjection`](./TryAtSoftware.Extensions.DependencyInjection.md) - a library containing extension methods and utility components that should simplify some common operations with dependency injection.
+- [`TryAtSoftware.Extensions.DependencyInjection.Standard`](./TryAtSoftware.Extensions.DependencyInjection.Standard.md) - a library that extends `TryAtSoftware.Extensions.DependencyInjection` and operates with the built-in dependency injection mechanisms.

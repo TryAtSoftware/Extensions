@@ -19,12 +19,13 @@ public class FluidDictionaryTests
         dictionary.Set("key1", randomValue);
 
         // Act
-        bool success = dictionary.TryGetValue("key1", out int value);
+        var success = dictionary.TryGetValue("key1", out object value);
 
         // Assert
         Assert.True(success);
-        Assert.Equal(randomValue, value);
+        Assert.Equal(randomValue, value); // Ensure that the retrieved value is the same as the one we set.
     }
+
 
     [Fact]
     public void GetRequiredValue_KeyNotFound()

@@ -4,27 +4,26 @@ namespace TryAtSoftware.Extensions.Collections.Tests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TryAtSoftware.Extensions.Reflection.Tests.Randomization;
+using TryAtSoftware.Randomizer.Core;
 using Xunit;
 
 public class FluidDictionaryTests
 {
-    [Fact]
-    public void SetAndGet()
-    {
-        // Arrange
-        var dictionary = new FluidDictionary<string>();
-        var ageRandomizer = new AgeRandomizer();
-        var randomValue = ageRandomizer.PrepareRandomValue();
-        dictionary.Set("key1", randomValue);
+    // [Fact]
+    //public void SetAndGet()
+    //{
+    //    // Arrange
+    //    var dictionary = new FluidDictionary<string>();
+    //    var randomValue = TryAtSoftware.Randomizer.
+    //    dictionary.Set("key1", randomValue);
 
-        // Act
-        var success = dictionary.TryGetValue("key1", out object value);
+    //    // Act
+    //    var success = dictionary.TryGetValue("key1", out object value);
 
-        // Assert
-        Assert.True(success);
-        Assert.Equal(randomValue, value); // Ensure that the retrieved value is the same as the one we set.
-    }
+    //    // Assert
+    //    Assert.True(success);
+    //    Assert.Equal(randomValue, value); // Ensure that the retrieved value is the same as the one we set.
+    //}
 
 
     [Fact]

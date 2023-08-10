@@ -7,8 +7,9 @@ public class Bitmask
 {
     private const int BitsPerElement = 64;
     private readonly List<long> _segments;
-    
+
     public int Count { get; }
+    public int SegmentsCount => this._segments.Count;
     public bool IsZero { get; }
     public bool IsOne { get; }
 
@@ -16,7 +17,7 @@ public class Bitmask
     {
         var requiredSegmentsCount = Math.DivRem(count, BitsPerElement, out var remainder);
         if (remainder != 0) requiredSegmentsCount++;
-        
+
         this._segments = new List<long>(capacity: requiredSegmentsCount);
 
         var filler = 0;
@@ -38,10 +39,9 @@ public class Bitmask
     private (int SegmentIndex, int BitIndex) Locate(int position)
     {
         if (position < 0) throw new ArgumentOutOfRangeException(nameof(position), "Bit position must be a non-negative number.");
+        if (position >= this.Count) throw new ArgumentOutOfRangeException(nameof(position), "Bit position must be less than the total number of bits.");
 
         var segmentIndex = Math.DivRem(position, BitsPerElement, out var bitIndex);
-        if (segmentIndex >= this._segments.Count) throw new ArgumentOutOfRangeException(nameof(position), "Bit position must be less than the number of total bits.");
-
         return (segmentIndex, bitIndex);
     }
 }

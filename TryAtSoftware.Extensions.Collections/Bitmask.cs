@@ -13,7 +13,7 @@ public class Bitmask
 
     public Bitmask(int count, bool initializeWithZeros)
     {
-        var remainder = Math.DivRem(count, BitsPerElement, out var requiredSegmentsCount);
+        var requiredSegmentsCount = Math.DivRem(count, BitsPerElement, out var remainder);
         if (remainder != 0) requiredSegmentsCount++;
         
         this._segments = new List<long>(capacity: requiredSegmentsCount);
@@ -37,7 +37,7 @@ public class Bitmask
     {
         if (position < 0) throw new ArgumentOutOfRangeException(nameof(position), "Bit position must be a non-negative number.");
 
-        var bitIndex = Math.DivRem(position, BitsPerElement, out var segmentIndex);
+        var segmentIndex = Math.DivRem(position, BitsPerElement, out var bitIndex);
         if (segmentIndex >= this._segments.Count) throw new ArgumentOutOfRangeException(nameof(position), "Bit position must be less than the number of total bits.");
 
         return (segmentIndex, bitIndex);

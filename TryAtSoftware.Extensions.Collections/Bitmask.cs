@@ -48,15 +48,34 @@ public class Bitmask
         return this._segments[index];
     }
 
-    public static Bitmask operator &(Bitmask a, Bitmask b)
+    public static Bitmask operator &(Bitmask a, Bitmask b) => ExecuteBitwiseOperation(a, b, (x, y) => x & y);
+
+    public static Bitmask operator |(Bitmask a, Bitmask b) => ExecuteBitwiseOperation(a, b, (x, y) => x | y);
+
+    public static Bitmask operator ^(Bitmask a, Bitmask b) => ExecuteBitwiseOperation(a, b, (x, y) => x ^ y);
+
+    public static Bitmask operator ~(Bitmask a)
     {
+        if (a is null) throw new ArgumentNullException(nameof(a));
+
+        var result = new Bitmask(a.Count, initializeWithZeros: true);
+        for (var i = 0; i < a.SegmentsCount; i++) result.SetSegment(i, ~a.GetSegment(i));
+
+        return result;
+    }
+
+    private static Bitmask ExecuteBitwiseOperation(Bitmask a, Bitmask b, Func<long, long, long> operation)
+    {
+        if (a is null) throw new ArgumentNullException(nameof(a));
+        if (b is null) throw new ArgumentNullException(nameof(b));
+        
         var result = new Bitmask(count: Math.Max(a.Count, b.Count), initializeWithZeros: false);
         for (var i = 0; i < result._segments.Count; i++)
         {
             var segment = result.GetSegment(i);
 
-            if (i < a.SegmentsCount) segment &= a.GetSegment(i);
-            if (i < b.SegmentsCount) segment &= b.GetSegment(i);
+            if (i < a.SegmentsCount) segment = operation(segment, a.GetSegment(i));
+            if (i < b.SegmentsCount) segment = operation(segment, b.GetSegment(i));
 
             result.SetSegment(i, segment);
         }

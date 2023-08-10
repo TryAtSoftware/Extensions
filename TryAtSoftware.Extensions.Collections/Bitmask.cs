@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 
-public class BitMask
+public class Bitmask
 {
     private const int BitsPerElement = 64;
     private readonly List<long> _segments;
@@ -11,7 +11,7 @@ public class BitMask
     public bool IsZero { get; }
     public bool IsOne { get; }
 
-    public BitMask(int count, bool initializeWithZeros)
+    public Bitmask(int count, bool initializeWithZeros)
     {
         var remainder = Math.DivRem(count, BitsPerElement, out var requiredSegmentsCount);
         if (remainder != 0) requiredSegmentsCount++;

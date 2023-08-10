@@ -8,6 +8,7 @@ public class Bitmask
     private const int BitsPerElement = 64;
     private readonly List<long> _segments;
     
+    public int Count { get; }
     public bool IsZero { get; }
     public bool IsOne { get; }
 
@@ -23,6 +24,7 @@ public class Bitmask
 
         for (var i = 0; i < requiredSegmentsCount; i++) this._segments.Add(filler);
 
+        this.Count = count;
         this.IsZero = initializeWithZeros;
         this.IsOne = !initializeWithZeros;
     }

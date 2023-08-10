@@ -11,6 +11,7 @@ public class BitmaskTests
         var randomCount = RandomizationHelper.RandomInteger(100, 1000);
         var bitmask = new Bitmask(randomCount, initializeWithZeros: true);
         
+        Assert.Equal(randomCount, bitmask.Count);
         Assert.True(bitmask.IsZero);
         Assert.False(bitmask.IsOne);
         for (var i = 0; i < randomCount; i++) Assert.False(bitmask.IsSet(i));
@@ -22,6 +23,7 @@ public class BitmaskTests
         var randomCount = RandomizationHelper.RandomInteger(100, 1000);
         var bitmask = new Bitmask(randomCount, initializeWithZeros: false);
         
+        Assert.Equal(randomCount, bitmask.Count);
         Assert.False(bitmask.IsZero);
         Assert.True(bitmask.IsOne);
         for (var i = 0; i < randomCount; i++) Assert.True(bitmask.IsSet(i));

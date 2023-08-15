@@ -37,18 +37,18 @@ public class BitmaskTests
     [Fact]
     public void SegmentShouldBeModifiedSuccessfully()
     {
-        var segmentsCount = RandomizationHelper.RandomInteger(10, 100);
-        var randomSegments = new ulong[segmentsCount];
-        var bitmask = new Bitmask(segmentsCount * Bitmask.BitsPerSegment, initializeWithZeros: true);
-
-        for (var i = 0; i < segmentsCount; i++)
-        {
-            randomSegments[i] = RandomizationHelper.RandomUnsignedLongInteger();
-            bitmask.SetSegment(i, randomSegments[i]);
-        }
-        
-        for (var i = 0; i < segmentsCount; i++) Assert.Equal(randomSegments[i], bitmask.GetSegment(i));
+        var (segments, bitmask) = GenerateBitmask();
+        for (var i = 0; i < segments.Length; i++) Assert.Equal(segments[i], bitmask.GetSegment(i));
     }
+
+    [Fact]
+    public void BitwiseAndShouldBeExecutedSuccessfully() => AssertCorrectBitwiseOperation((a, b) => a & b, (a, b) => a & b);
+
+    [Fact]
+    public void BitwiseOrShouldBeExecutedSuccessfully() => AssertCorrectBitwiseOperation((a, b) => a | b, (a, b) => a | b);
+
+    [Fact]
+    public void BitwiseXorShouldBeExecutedSuccessfully() => AssertCorrectBitwiseOperation((a, b) => a ^ b, (a, b) => a ^ b);
 
     [Fact]
     public void BitPositionShouldBeValidated()
@@ -83,9 +83,43 @@ public class BitmaskTests
         Assert.Throws<ArgumentOutOfRangeException>(() => bitmask.SetSegment(bitmask.SegmentsCount + RandomizationHelper.RandomInteger(1, 100), 0));
     }
 
+    private static (ulong[] Segments, Bitmask Bitmask) GenerateBitmask(int? length = null)
+    {
+        var segmentsCount = length ?? RandomizationHelper.RandomInteger(10, 100);
+        var randomSegments = new ulong[segmentsCount];
+        var bitmask = new Bitmask(segmentsCount * Bitmask.BitsPerSegment, initializeWithZeros: true);
+
+        for (var i = 0; i < segmentsCount; i++)
+        {
+            randomSegments[i] = RandomizationHelper.RandomUnsignedLongInteger();
+            bitmask.SetSegment(i, randomSegments[i]);
+        }
+
+        return (randomSegments, bitmask);
+    }
+
+    private static void AssertCorrectBitwiseOperation(Func<Bitmask, Bitmask, Bitmask> compute, Func<ulong, ulong, ulong> getExpectedSegment)
+    {
+        var segmentsLength = RandomizationHelper.RandomInteger(10, 100);
+        var bitmaskLength = segmentsLength * Bitmask.BitsPerSegment - RandomizationHelper.RandomInteger(0, Bitmask.BitsPerSegment);
+
+        var (segments1, bitmask1) = GenerateBitmask(bitmaskLength);
+        var (segments2, bitmask2) = GenerateBitmask(bitmaskLength);
+        var result = compute(bitmask1, bitmask2);
+
+        var expected = new Bitmask(bitmaskLength, initializeWithZeros: false);
+        for (var i = 0; i < segmentsLength; i++)
+        {
+            var expectedSegment = getExpectedSegment(segments1[i], segments2[i]);
+            expected.SetSegment(i, expectedSegment);
+        }
+
+        for (var i = 0; i < bitmaskLength; i++) Assert.Equal(expected.IsSet(i), result.IsSet(i));
+    }
+
     private static void AssertDimensions(Bitmask bitmask, int randomCount)
     {
-        Assert.Equal(Math.Ceiling(randomCount / (double) Bitmask.BitsPerSegment), bitmask.SegmentsCount);
+        Assert.Equal(Math.Ceiling(randomCount / (double)Bitmask.BitsPerSegment), bitmask.SegmentsCount);
         Assert.Equal(randomCount, bitmask.Count);
     }
 }

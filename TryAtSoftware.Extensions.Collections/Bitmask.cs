@@ -76,15 +76,10 @@ public class Bitmask
         var result = new Bitmask(count: Math.Max(a.Count, b.Count), initializeWithZeros: false);
         for (var i = 0; i < result._segments.Count; i++)
         {
-            ulong segment;
+            var left = i < a.SegmentsCount ? a.GetSegment(i) : 0;
+            var right = i < b.SegmentsCount ? b.GetSegment(i) : 0;
 
-            bool hasMoreSegmentsInA = i < a.SegmentsCount, hasMoreSegmentsInB = i < b.SegmentsCount;
-            if (hasMoreSegmentsInA && hasMoreSegmentsInB) segment = operation(a.GetSegment(i), b.GetSegment(i));
-            else if (hasMoreSegmentsInA) segment = a.GetSegment(i);
-            else if (hasMoreSegmentsInB) segment = b.GetSegment(i);
-            else segment = 0;
-
-            result.SetSegment(i, segment);
+            result.SetSegment(i, operation(left, right));
         }
 
         return result;

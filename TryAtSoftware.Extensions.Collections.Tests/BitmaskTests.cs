@@ -51,6 +51,15 @@ public class BitmaskTests
     public void BitwiseXorShouldBeExecutedSuccessfully() => AssertCorrectBitwiseOperation((a, b) => a ^ b, (a, b) => a ^ b);
 
     [Fact]
+    public void BitwiseNegateShouldBeExecutedSuccessfully()
+    {
+        var (_, bitmask) = GenerateBitmask();
+        var result = ~bitmask;
+
+        for (var i = 0; i < bitmask.Count; i++) Assert.NotEqual(bitmask.IsSet(i), result.IsSet(i));
+    }
+
+    [Fact]
     public void BitPositionShouldBeValidated()
     {
         var randomCount = RandomizationHelper.RandomInteger(100, 1000);
@@ -85,11 +94,11 @@ public class BitmaskTests
 
     private static (ulong[] Segments, Bitmask Bitmask) GenerateBitmask(int? length = null)
     {
-        var segmentsCount = length ?? RandomizationHelper.RandomInteger(10, 100);
-        var randomSegments = new ulong[segmentsCount];
-        var bitmask = new Bitmask(segmentsCount * Bitmask.BitsPerSegment, initializeWithZeros: true);
+        var bitsCount = length ?? RandomizationHelper.RandomInteger(10, 100);
+        var bitmask = new Bitmask(bitsCount * Bitmask.BitsPerSegment, initializeWithZeros: true);
+        var randomSegments = new ulong[bitmask.SegmentsCount];
 
-        for (var i = 0; i < segmentsCount; i++)
+        for (var i = 0; i < bitmask.SegmentsCount; i++)
         {
             randomSegments[i] = RandomizationHelper.RandomUnsignedLongInteger();
             bitmask.SetSegment(i, randomSegments[i]);

@@ -17,7 +17,7 @@ public class BitmaskTests
         Assert.False(bitmask.IsOne);
         for (var i = 0; i < randomCount; i++) Assert.False(bitmask.IsSet(i));
 
-        for (var i = 0; i < bitmask.SegmentsCount; i++) Assert.Equal(0, bitmask.GetSegment(i));
+        for (var i = 0; i < bitmask.SegmentsCount; i++) Assert.Equal(0UL, bitmask.GetSegment(i));
     }
 
     [Fact]
@@ -31,19 +31,19 @@ public class BitmaskTests
         Assert.True(bitmask.IsOne);
         for (var i = 0; i < randomCount; i++) Assert.True(bitmask.IsSet(i));
 
-        for (var i = 0; i < bitmask.SegmentsCount; i++) Assert.Equal(~0, bitmask.GetSegment(i));
+        for (var i = 0; i < bitmask.SegmentsCount; i++) Assert.Equal(~0UL, bitmask.GetSegment(i));
     }
 
     [Fact]
     public void SegmentShouldBeModifiedSuccessfully()
     {
         var segmentsCount = RandomizationHelper.RandomInteger(10, 100);
-        var randomSegments = new long[segmentsCount];
+        var randomSegments = new ulong[segmentsCount];
         var bitmask = new Bitmask(segmentsCount * Bitmask.BitsPerSegment, initializeWithZeros: true);
 
         for (var i = 0; i < segmentsCount; i++)
         {
-            randomSegments[i] = RandomizationHelper.RandomLongInteger();
+            randomSegments[i] = RandomizationHelper.RandomUnsignedLongInteger();
             bitmask.SetSegment(i, randomSegments[i]);
         }
         

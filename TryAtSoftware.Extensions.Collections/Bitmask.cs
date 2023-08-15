@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class Bitmask
 {
     public const int BitsPerSegment = 64;
-    private readonly List<long> _segments;
+    private readonly List<ulong> _segments;
 
     public int Count { get; }
     public int SegmentsCount => this._segments.Count;
@@ -18,9 +18,9 @@ public class Bitmask
         var requiredSegmentsCount = Math.DivRem(count, BitsPerSegment, out var remainder);
         if (remainder != 0) requiredSegmentsCount++;
 
-        this._segments = new List<long>(capacity: requiredSegmentsCount);
+        this._segments = new List<ulong>(capacity: requiredSegmentsCount);
 
-        var filler = 0;
+        var filler = 0UL;
         if (!initializeWithZeros) filler = ~filler;
 
         for (var i = 0; i < requiredSegmentsCount; i++) this._segments.Add(filler);
@@ -33,26 +33,26 @@ public class Bitmask
     public bool IsSet(int position)
     {
         var (segmentIndex, bitIndex) = this.Locate(position);
-        return (this._segments[segmentIndex] & (1 << bitIndex)) != 0;
+        return (this._segments[segmentIndex] & (1UL << bitIndex)) != 0;
     }
 
-    public void SetSegment(int index, long value)
+    public void SetSegment(int index, ulong value)
     {
         this.ValidateSegmentIndex(index);
         this._segments[index] = value;
     }
 
-    public long GetSegment(int index)
+    public ulong GetSegment(int index)
     {
         this.ValidateSegmentIndex(index);
         return this._segments[index];
     }
 
-    public static Bitmask operator &(Bitmask a, Bitmask b) => ExecuteBitwiseOperation(a, b, (x, y) => x & y);
+    public static Bitmask operator &(Bitmask a, Bitmask b) => ExecuteBitwiseOperation(a, b, BitwiseAnd);
 
-    public static Bitmask operator |(Bitmask a, Bitmask b) => ExecuteBitwiseOperation(a, b, (x, y) => x | y);
+    public static Bitmask operator |(Bitmask a, Bitmask b) => ExecuteBitwiseOperation(a, b, BitwiseOr);
 
-    public static Bitmask operator ^(Bitmask a, Bitmask b) => ExecuteBitwiseOperation(a, b, (x, y) => x ^ y);
+    public static Bitmask operator ^(Bitmask a, Bitmask b) => ExecuteBitwiseOperation(a, b, BitwiseXor);
 
     public static Bitmask operator ~(Bitmask a)
     {
@@ -64,7 +64,11 @@ public class Bitmask
         return result;
     }
 
-    private static Bitmask ExecuteBitwiseOperation(Bitmask a, Bitmask b, Func<long, long, long> operation)
+    private static ulong BitwiseAnd(ulong a, ulong b) => a & b;
+    private static ulong BitwiseOr(ulong a, ulong b) => a | b;
+    private static ulong BitwiseXor(ulong a, ulong b) => a ^ b;
+
+    private static Bitmask ExecuteBitwiseOperation(Bitmask a, Bitmask b, Func<ulong, ulong, ulong> operation)
     {
         if (a is null) throw new ArgumentNullException(nameof(a));
         if (b is null) throw new ArgumentNullException(nameof(b));

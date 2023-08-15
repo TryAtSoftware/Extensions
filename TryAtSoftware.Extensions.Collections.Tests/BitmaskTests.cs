@@ -43,13 +43,7 @@ public class BitmaskTests
 
         for (var i = 0; i < segmentsCount; i++)
         {
-            // This is a temporary solution until TryAtSoftware.Randomizer exposes methods to randomize numbers of various types.
-            for (var j = 0; j < 4; j++)
-            {
-                randomSegments[i] = (randomSegments[i] << 16);
-                randomSegments[i] |= (uint)RandomizationHelper.RandomInteger(0, short.MaxValue + 1);
-            }
-            
+            randomSegments[i] = RandomizationHelper.RandomLongInteger();
             bitmask.SetSegment(i, randomSegments[i]);
         }
         

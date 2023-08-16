@@ -53,7 +53,7 @@ jobs:
         run: dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
 
       - name: Start analyzation with SonarCloud
-        run: ./.sonar/scanner/dotnet-sonarscanner begin /k:"TryAtSoftware_Extensions" /o:"tryatsoftware" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.host.url="https://sonarcloud.io" ${{ env.SONAR_ARGS }}
+        run: ./.sonar/scanner/dotnet-sonarscanner begin /k:"TryAtSoftware_Extensions" /o:"tryatsoftware" /d:sonar.cs.opencover.reportsPaths="**/*.opencover.xml" /d:sonar.host.url="https://sonarcloud.io" ${{ env.SONAR_ARGS }}
 
       - name: Restore dependencies
         run: dotnet restore

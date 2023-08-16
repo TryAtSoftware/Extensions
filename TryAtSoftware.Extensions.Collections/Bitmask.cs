@@ -11,14 +11,14 @@ public class Bitmask
     public const int BitsPerSegment = 64;
     private readonly List<ulong> _segments;
 
-    public int Count { get; }
+    public int Length { get; }
     public int SegmentsCount => this._segments.Count;
     public bool IsZero { get; }
     public bool IsOne { get; }
 
-    public Bitmask(int count, bool initializeWithZeros)
+    public Bitmask(int length, bool initializeWithZeros)
     {
-        var requiredSegmentsCount = Math.DivRem(count, BitsPerSegment, out var remainder);
+        var requiredSegmentsCount = Math.DivRem(length, BitsPerSegment, out var remainder);
         if (remainder != 0) requiredSegmentsCount++;
 
         this._segments = new List<ulong>(capacity: requiredSegmentsCount);
@@ -28,7 +28,7 @@ public class Bitmask
 
         for (var i = 0; i < requiredSegmentsCount; i++) this._segments.Add(filler);
 
-        this.Count = count;
+        this.Length = length;
         this.IsZero = initializeWithZeros;
         this.IsOne = !initializeWithZeros;
     }
@@ -61,7 +61,7 @@ public class Bitmask
     {
         if (a is null) throw new ArgumentNullException(nameof(a));
 
-        var result = new Bitmask(a.Count, initializeWithZeros: true);
+        var result = new Bitmask(a.Length, initializeWithZeros: true);
         for (var i = 0; i < a.SegmentsCount; i++) result.SetSegment(i, ~a.GetSegment(i));
 
         return result;
@@ -76,7 +76,7 @@ public class Bitmask
         if (a is null) throw new ArgumentNullException(nameof(a));
         if (b is null) throw new ArgumentNullException(nameof(b));
 
-        var result = new Bitmask(count: Math.Max(a.Count, b.Count), initializeWithZeros: false);
+        var result = new Bitmask(length: Math.Max(a.Length, b.Length), initializeWithZeros: false);
         for (var i = 0; i < result._segments.Count; i++)
         {
             var left = i < a.SegmentsCount ? a.GetSegment(i) : 0;
@@ -91,7 +91,7 @@ public class Bitmask
     private (int SegmentIndex, int BitIndex) Locate(int position)
     {
         if (position < 0) throw new ArgumentOutOfRangeException(nameof(position), "Bit position must be a non-negative number.");
-        if (position >= this.Count) throw new ArgumentOutOfRangeException(nameof(position), "Bit position must be less than the total number of bits.");
+        if (position >= this.Length) throw new ArgumentOutOfRangeException(nameof(position), "Bit position must be less than the total number of bits.");
 
         var segmentIndex = Math.DivRem(position, BitsPerSegment, out var bitIndex);
         return (segmentIndex, bitIndex);

@@ -12,8 +12,8 @@ public class Bitmask
 {
     private const ulong ZeroSegment = 0;
     private const ulong OneSegment = ~ZeroSegment;
+    private const int BitsPerSegment = 64;
 
-    public const int BitsPerSegment = 64;
     private readonly List<ulong> _segments;
     private readonly ulong _lastSegmentMask = OneSegment;
 

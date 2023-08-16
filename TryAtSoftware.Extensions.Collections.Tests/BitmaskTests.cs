@@ -45,19 +45,46 @@ public class BitmaskTests
     public void BitwiseAndShouldBeExecutedSuccessfully() => AssertCorrectBitwiseOperation((a, b) => a & b, (a, b) => a & b);
 
     [Fact]
+    public void BitwiseAndShouldValidateItsArguments()
+    {
+        var (_, bitmask) = GenerateBitmask();
+        Assert.Throws<ArgumentNullException>(() => bitmask & null!);
+        Assert.Throws<ArgumentNullException>(() => null! & bitmask);
+    }
+    
+    [Fact]
     public void BitwiseOrShouldBeExecutedSuccessfully() => AssertCorrectBitwiseOperation((a, b) => a | b, (a, b) => a | b);
 
+    [Fact]
+    public void BitwiseOrShouldValidateItsArguments()
+    {
+        var (_, bitmask) = GenerateBitmask();
+        Assert.Throws<ArgumentNullException>(() => bitmask | null!);
+        Assert.Throws<ArgumentNullException>(() => null! | bitmask);
+    }
+    
     [Fact]
     public void BitwiseXorShouldBeExecutedSuccessfully() => AssertCorrectBitwiseOperation((a, b) => a ^ b, (a, b) => a ^ b);
 
     [Fact]
-    public void BitwiseNegateShouldBeExecutedSuccessfully()
+    public void BitwiseXorShouldValidateItsArguments()
+    {
+        var (_, bitmask) = GenerateBitmask();
+        Assert.Throws<ArgumentNullException>(() => bitmask ^ null!);
+        Assert.Throws<ArgumentNullException>(() => null! ^ bitmask);
+    }
+
+    [Fact]
+    public void BitwiseNotShouldBeExecutedSuccessfully()
     {
         var (_, bitmask) = GenerateBitmask();
         var result = ~bitmask;
 
         for (var i = 0; i < bitmask.Count; i++) Assert.NotEqual(bitmask.IsSet(i), result.IsSet(i));
     }
+
+    [Fact]
+    public void BitwiseNotShouldValidateItsArguments() => Assert.Throws<ArgumentNullException>(() => ~(Bitmask)null!);
 
     [Fact]
     public void BitPositionShouldBeValidated()

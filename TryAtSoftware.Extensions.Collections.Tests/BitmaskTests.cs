@@ -147,6 +147,16 @@ public class BitmaskTests
         }
     }
 
+    [Fact]
+    public void ToStringShouldReturnCorrectBitmaskRepresentation()
+    {
+        var bitmask = GenerateBitmask();
+        var stringRepresentation = bitmask.ToString();
+        Assert.Equal(bitmask.Length, stringRepresentation.Length);
+
+        for (var i = 0; i < bitmask.Length; i++) Assert.Equal(bitmask.IsSet(i) ? '1' : '0', stringRepresentation[i]);
+    }
+
     private static Bitmask InstantiateBitmask(bool initializeWithZeros = true) => InstantiateBitmask(RandomBitmaskLength(), initializeWithZeros);
 
     private static Bitmask InstantiateBitmask(int length, bool initializeWithZeros = true)

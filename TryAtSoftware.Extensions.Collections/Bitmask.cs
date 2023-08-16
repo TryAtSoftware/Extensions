@@ -2,11 +2,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Numerics;
 
 public class Bitmask
 #if NET7_0_OR_GREATER
-    : IBitwiseOperators<Bitmask, Bitmask, Bitmask>
+    : System.Numerics.IBitwiseOperators<Bitmask, Bitmask, Bitmask>
 #endif
 {
     public const int BitsPerSegment = 64;

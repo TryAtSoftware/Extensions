@@ -2,8 +2,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 public class Bitmask
+#if NET7_0_OR_GREATER
+    : IBitwiseOperators<Bitmask, Bitmask, Bitmask>
+#endif
 {
     public const int BitsPerSegment = 64;
     private readonly List<ulong> _segments;
@@ -72,7 +76,7 @@ public class Bitmask
     {
         if (a is null) throw new ArgumentNullException(nameof(a));
         if (b is null) throw new ArgumentNullException(nameof(b));
-        
+
         var result = new Bitmask(count: Math.Max(a.Count, b.Count), initializeWithZeros: false);
         for (var i = 0; i < result._segments.Count; i++)
         {

@@ -136,6 +136,19 @@ public class BitmaskTests
     [Fact]
     public void FindLeastSignificantNonZeroBitShouldWorkCorrectlyInGeneral()
     {
+        var bitmask = InstantiateBitmask(initializeWithZeros: false);
+        for (var i = bitmask.Length - 1; i >= 0; i--)
+        {
+            var result = bitmask.FindLeastSignificantNonZeroBit();
+            Assert.Equal(i, result);
+
+            bitmask.Unset(i);
+        }
+    }
+
+    [Fact]
+    public void FindLeastSignificantNonZeroBitShouldWorkCorrectlyWithRandomBitmask()
+    {
         for (var i = 0; i < 100; i++)
         {
             var bitmask = GenerateBitmask();

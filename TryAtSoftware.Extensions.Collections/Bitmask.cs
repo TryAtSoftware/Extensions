@@ -2,35 +2,53 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
+using TryAtSoftware.Extensions.Collections.Internal;
 
 public class Bitmask
 #if NET7_0_OR_GREATER
     : System.Numerics.IBitwiseOperators<Bitmask, Bitmask, Bitmask>
 #endif
 {
+    private const ulong ZeroSegment = 0;
+    private const ulong OneSegment = ~ZeroSegment;
+
     public const int BitsPerSegment = 64;
     private readonly List<ulong> _segments;
+    private readonly ulong _lastSegmentMask = OneSegment;
 
     public int Length { get; }
-    public int SegmentsCount => this._segments.Count;
-    public bool IsZero { get; }
-    public bool IsOne { get; }
+    private int SegmentsCount => this._segments.Count;
 
     public Bitmask(int length, bool initializeWithZeros)
     {
         var requiredSegmentsCount = Math.DivRem(length, BitsPerSegment, out var remainder);
-        if (remainder != 0) requiredSegmentsCount++;
+
+        if (remainder != 0)
+        {
+            requiredSegmentsCount++;
+            this._lastSegmentMask <<= (BitsPerSegment - remainder);
+        }
 
         this._segments = new List<ulong>(capacity: requiredSegmentsCount);
 
-        var filler = 0UL;
-        if (!initializeWithZeros) filler = ~filler;
-
-        for (var i = 0; i < requiredSegmentsCount; i++) this._segments.Add(filler);
-
         this.Length = length;
-        this.IsZero = initializeWithZeros;
-        this.IsOne = !initializeWithZeros;
+
+        var filler = initializeWithZeros ? ZeroSegment : OneSegment;
+        for (var i = 0; i < requiredSegmentsCount; i++) this._segments.Add(filler);
+        this.NormalizeLastSegment();
+    }
+
+    public void Set(int position)
+    {
+        var (segmentIndex, bitIndex) = this.Locate(position);
+        this._segments[segmentIndex] |= (1UL << bitIndex);
+    }
+
+    public void Unset(int position)
+    {
+        var (segmentIndex, bitIndex) = this.Locate(position);
+        this._segments[segmentIndex] &= ~(1UL << bitIndex);
     }
 
     public bool IsSet(int position)
@@ -39,16 +57,25 @@ public class Bitmask
         return (this._segments[segmentIndex] & (1UL << bitIndex)) != 0;
     }
 
-    public void SetSegment(int index, ulong value)
+    public int FindLeastSignificantNonZeroBit()
     {
-        this.ValidateSegmentIndex(index);
-        this._segments[index] = value;
+        for (var i = this._segments.Count - 1; i >= 0; i--)
+        {
+            var currentSegment = this._segments[i];
+            if (currentSegment == ZeroSegment) continue;
+
+            return (this._segments.Count - (i + 1)) * BitsPerSegment + Bits.TrailingZeroCount(currentSegment);
+        }
+
+        return -1;
     }
 
-    public ulong GetSegment(int index)
+    public override string ToString()
     {
-        this.ValidateSegmentIndex(index);
-        return this._segments[index];
+        var sb = new StringBuilder();
+        for (var i = 0; i < this.Length; i++) sb.Append(this.IsSet(i) ? '1' : '0');
+
+        return sb.ToString();
     }
 
     public static Bitmask operator &(Bitmask a, Bitmask b) => ExecuteBitwiseOperation(a, b, BitwiseAnd);
@@ -88,13 +115,27 @@ public class Bitmask
         return result;
     }
 
+    private void SetSegment(int index, ulong value)
+    {
+        this.ValidateSegmentIndex(index);
+
+        this._segments[index] = value;
+        if (index == this.SegmentsCount - 1) this.NormalizeLastSegment();
+    }
+
+    private ulong GetSegment(int index)
+    {
+        this.ValidateSegmentIndex(index);
+        return this._segments[index];
+    }
+
     private (int SegmentIndex, int BitIndex) Locate(int position)
     {
         if (position < 0) throw new ArgumentOutOfRangeException(nameof(position), "Bit position must be a non-negative number.");
         if (position >= this.Length) throw new ArgumentOutOfRangeException(nameof(position), "Bit position must be less than the total number of bits.");
 
         var segmentIndex = Math.DivRem(position, BitsPerSegment, out var bitIndex);
-        return (segmentIndex, bitIndex);
+        return (segmentIndex, BitsPerSegment - (bitIndex + 1));
     }
 
     private void ValidateSegmentIndex(int segmentIndex)
@@ -102,4 +143,6 @@ public class Bitmask
         if (segmentIndex < 0) throw new ArgumentOutOfRangeException(nameof(segmentIndex), "Segment index must be a non-negative number.");
         if (segmentIndex >= this.SegmentsCount) throw new ArgumentOutOfRangeException(nameof(segmentIndex), "Segment index must be less than the total number of segments.");
     }
+
+    private void NormalizeLastSegment() => this._segments[^1] &= this._lastSegmentMask;
 }

@@ -117,17 +117,11 @@ public class Bitmask
 
     private void SetSegment(int index, ulong value)
     {
-        this.ValidateSegmentIndex(index);
-
         this._segments[index] = value;
         if (index == this.SegmentsCount - 1) this.NormalizeLastSegment();
     }
 
-    private ulong GetSegment(int index)
-    {
-        this.ValidateSegmentIndex(index);
-        return this._segments[index];
-    }
+    private ulong GetSegment(int index) => this._segments[index];
 
     private (int SegmentIndex, int BitIndex) Locate(int position)
     {
@@ -136,12 +130,6 @@ public class Bitmask
 
         var segmentIndex = Math.DivRem(position, BitsPerSegment, out var bitIndex);
         return (segmentIndex, BitsPerSegment - (bitIndex + 1));
-    }
-
-    private void ValidateSegmentIndex(int segmentIndex)
-    {
-        if (segmentIndex < 0) throw new ArgumentOutOfRangeException(nameof(segmentIndex), "Segment index must be a non-negative number.");
-        if (segmentIndex >= this.SegmentsCount) throw new ArgumentOutOfRangeException(nameof(segmentIndex), "Segment index must be less than the total number of segments.");
     }
 
     private void NormalizeLastSegment() => this._segments[^1] &= this._lastSegmentMask;

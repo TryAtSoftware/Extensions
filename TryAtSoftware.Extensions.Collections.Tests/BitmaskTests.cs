@@ -3,17 +3,9 @@
 using System;
 using TryAtSoftware.Randomizer.Core.Helpers;
 using Xunit;
-using Xunit.Abstractions;
 
 public class BitmaskTests
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-
-    public BitmaskTests(ITestOutputHelper testOutputHelper)
-    {
-        this._testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
-    }
-
     [Fact]
     public void BitsShouldBeIndexedSuccessfully()
     {
@@ -62,7 +54,7 @@ public class BitmaskTests
         var bitmask = InstantiateBitmask(initializeWithZeros: true);
         for (var i = 0; i < bitmask.Length; i++) Assert.False(bitmask.IsSet(i));
     }
-    
+
     [Fact]
     public void BitmaskShouldBeInitializedSuccessfullyWithOnes()
     {
@@ -72,67 +64,87 @@ public class BitmaskTests
 
     [Fact]
     public void BitwiseAndShouldBeExecutedSuccessfully() => AssertCorrectBitwiseOperation((a, b) => a & b, (a, b) => a & b);
-    
+
     [Fact]
-    public void BitwiseAndShouldBeExecutedSuccessfullyWhenLengthIsDifferent() => AssertCorrectBitwiseOperation((a, b) => a & b, (a, b) => a & b, lengthDifferenceInSegments: RandomizationHelper.RandomInteger(2, 10));
-    
+    public void BitwiseAndShouldBeExecutedSuccessfullyWhenLengthIsDifferent() => AssertCorrectBitwiseOperation((a, b) => a & b, (a, b) => a & b, lengthDifferenceInSegments: RandomBitmaskLength());
+
     [Fact]
     public void BitwiseAndShouldValidateItsArguments()
     {
-        var (_, bitmask) = GenerateBitmask();
+        var bitmask = GenerateBitmask();
         Assert.Throws<ArgumentNullException>(() => bitmask & null!);
         Assert.Throws<ArgumentNullException>(() => null! & bitmask);
     }
-    
+
     [Fact]
     public void BitwiseOrShouldBeExecutedSuccessfully() => AssertCorrectBitwiseOperation((a, b) => a | b, (a, b) => a | b);
-    
+
     [Fact]
-    public void BitwiseOrShouldBeExecutedSuccessfullyWhenLengthIsDifferent() => AssertCorrectBitwiseOperation((a, b) => a | b, (a, b) => a | b, lengthDifferenceInSegments: RandomizationHelper.RandomInteger(2, 10));
-    
+    public void BitwiseOrShouldBeExecutedSuccessfullyWhenLengthIsDifferent() => AssertCorrectBitwiseOperation((a, b) => a | b, (a, b) => a | b, lengthDifferenceInSegments: RandomBitmaskLength());
+
     [Fact]
     public void BitwiseOrShouldValidateItsArguments()
     {
-        var (_, bitmask) = GenerateBitmask();
+        var bitmask = GenerateBitmask();
         Assert.Throws<ArgumentNullException>(() => bitmask | null!);
         Assert.Throws<ArgumentNullException>(() => null! | bitmask);
     }
-    
+
     [Fact]
     public void BitwiseXorShouldBeExecutedSuccessfully() => AssertCorrectBitwiseOperation((a, b) => a ^ b, (a, b) => a ^ b);
-    
+
     [Fact]
-    public void BitwiseXorShouldBeExecutedSuccessfullyWhenLengthIsDifferent() => AssertCorrectBitwiseOperation((a, b) => a ^ b, (a, b) => a ^ b, lengthDifferenceInSegments: RandomizationHelper.RandomInteger(2, 10));
-    
+    public void BitwiseXorShouldBeExecutedSuccessfullyWhenLengthIsDifferent() => AssertCorrectBitwiseOperation((a, b) => a ^ b, (a, b) => a ^ b, lengthDifferenceInSegments: RandomBitmaskLength());
+
     [Fact]
     public void BitwiseXorShouldValidateItsArguments()
     {
-        var (_, bitmask) = GenerateBitmask();
+        var bitmask = GenerateBitmask();
         Assert.Throws<ArgumentNullException>(() => bitmask ^ null!);
         Assert.Throws<ArgumentNullException>(() => null! ^ bitmask);
     }
-    
+
     [Fact]
     public void BitwiseNotShouldBeExecutedSuccessfully()
     {
-        var (_, bitmask) = GenerateBitmask();
+        var bitmask = GenerateBitmask();
         var result = ~bitmask;
 
         for (var i = 0; i < bitmask.Length; i++) Assert.NotEqual(bitmask.IsSet(i), result.IsSet(i));
     }
-    
+
     [Fact]
     public void BitwiseNotShouldValidateItsArguments() => Assert.Throws<ArgumentNullException>(() => ~(Bitmask)null!);
-    
+
     [Fact]
     public void BitPositionShouldBeValidated()
     {
-        var randomCount = RandomizationHelper.RandomInteger(100, 1000);
-        var bitmask = new Bitmask(randomCount, initializeWithZeros: true);
-    
+        var bitmask = InstantiateBitmask();
+
         Assert.Throws<ArgumentOutOfRangeException>(() => bitmask.IsSet(-1 * RandomizationHelper.RandomInteger(1, 100)));
-        Assert.Throws<ArgumentOutOfRangeException>(() => bitmask.IsSet(randomCount));
-        Assert.Throws<ArgumentOutOfRangeException>(() => bitmask.IsSet(randomCount + RandomizationHelper.RandomInteger(1, 100)));
+        Assert.Throws<ArgumentOutOfRangeException>(() => bitmask.IsSet(bitmask.Length));
+        Assert.Throws<ArgumentOutOfRangeException>(() => bitmask.IsSet(bitmask.Length + RandomizationHelper.RandomInteger(1, 100)));
+    }
+
+    [Fact]
+    public void FindLeastSignificantNonZeroBitShouldWorkCorrectlyWithZeroBitmask()
+    {
+        var bitmask = InstantiateBitmask();
+        Assert.Equal(-1, bitmask.FindLeastSignificantNonZeroBit());
+    }
+
+    [Fact]
+    public void FindLeastSignificantNonZeroBitShouldWorkCorrectlyInGeneral()
+    {
+        for (var i = 0; i < 100; i++)
+        {
+            var bitmask = GenerateBitmask();
+
+            var result = bitmask.FindLeastSignificantNonZeroBit();
+            Assert.True(bitmask.IsSet(result));
+
+            for (var j = result + 1; j < bitmask.Length; j++) Assert.False(bitmask.IsSet(j));
+        }
     }
 
     private static Bitmask InstantiateBitmask(bool initializeWithZeros = true) => InstantiateBitmask(RandomBitmaskLength(), initializeWithZeros);
@@ -145,42 +157,39 @@ public class BitmaskTests
         return bitmask;
     }
 
-    private static (bool[] Bits, Bitmask Bitmask) GenerateBitmask(int? length = null)
+    private static Bitmask GenerateBitmask(int? length = null)
     {
         var bitsCount = length ?? RandomBitmaskLength();
         var bitmask = new Bitmask(bitsCount, initializeWithZeros: true);
-        var randomBits = new bool[bitsCount];
-    
+
         for (var i = 0; i < bitsCount; i++)
-        {
-            randomBits[i] = RandomizationHelper.RandomProbability();
-            if (randomBits[i]) bitmask.Set(i);
-        }
-    
-        return (randomBits, bitmask);
+            if (RandomizationHelper.RandomProbability())
+                bitmask.Set(i);
+
+        return bitmask;
     }
-    
+
     private static void AssertCorrectBitwiseOperation(Func<Bitmask, Bitmask, Bitmask> compute, Func<bool, bool, bool> getExpectedBit, int lengthDifferenceInSegments = 0)
     {
         var baseBitmaskLength = RandomBitmaskLength();
         var totalBitmaskLength = baseBitmaskLength + lengthDifferenceInSegments;
-    
-        var (bits1, bitmask1) = GenerateBitmask(baseBitmaskLength);
-        var (bits2, bitmask2) = GenerateBitmask(totalBitmaskLength);
-    
+
+        var bitmask1 = GenerateBitmask(baseBitmaskLength);
+        var bitmask2 = GenerateBitmask(totalBitmaskLength);
+
         var expected = new Bitmask(totalBitmaskLength, initializeWithZeros: true);
         for (var i = 0; i < totalBitmaskLength; i++)
         {
-            var expectedBit = getExpectedBit(i < baseBitmaskLength && bits1[i], bits2[i]);
+            var expectedBit = getExpectedBit(i < baseBitmaskLength && bitmask1.IsSet(i), bitmask2.IsSet(i));
             if (expectedBit) expected.Set(i);
         }
-    
+
         var results = new[] { compute(bitmask1, bitmask2), compute(bitmask2, bitmask1) };
         foreach (var result in results)
         {
             Assert.NotNull(result);
             Assert.Equal(totalBitmaskLength, result.Length);
-            
+
             for (var i = 0; i < totalBitmaskLength; i++)
                 Assert.Equal(expected.IsSet(i), result.IsSet(i));
         }

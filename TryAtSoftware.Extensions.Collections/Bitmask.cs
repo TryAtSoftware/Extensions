@@ -64,7 +64,7 @@ public class Bitmask
             var currentSegment = this._segments[i];
             if (currentSegment == ZeroSegment) continue;
 
-            return (this._segments.Count - (i + 1)) * BitsPerSegment + Bits.TrailingZeroCount(currentSegment);
+            return (i * BitsPerSegment + BitsPerSegment - (Bits.TrailingZeroCount(currentSegment) + 1));
         }
 
         return -1;

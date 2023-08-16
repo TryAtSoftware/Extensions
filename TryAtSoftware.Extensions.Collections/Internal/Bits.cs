@@ -19,8 +19,14 @@ internal static class Bits
     {
         var lo = (uint)value;
 
-        if (lo == 0) return 32 + TrailingZeroCount((uint)(value >> 32));
-        return TrailingZeroCount(lo);
+        var additive = 0;
+        if (lo == 0)
+        {
+            additive += 32;
+            lo = (uint)(value >> 32);
+        }
+
+        return additive + TrailingZeroCount(lo);
     }
     
     public static int TrailingZeroCount(uint value)

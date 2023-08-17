@@ -1,0 +1,189 @@
+﻿namespace TryAtSoftware.Extensions.Collections;
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+using TryAtSoftware.Extensions.Collections.Internal;
+
+/// <summary>
+/// Class representing a bitmask (sequence of bits that can be optimally manipulated).
+/// </summary>
+public class Bitmask
+#if NET7_0_OR_GREATER
+    : System.Numerics.IBitwiseOperators<Bitmask, Bitmask, Bitmask>
+#endif
+{
+    private const ulong ZeroSegment = 0;
+    private const ulong OneSegment = ~ZeroSegment;
+    private const int BitsPerSegment = 64;
+
+    private readonly List<ulong> _segments;
+    private readonly ulong _lastSegmentMask = OneSegment;
+
+    /// <summary>
+    /// Gets the length of this bitmask.
+    /// </summary>
+    public int Length { get; }
+
+    private int SegmentsCount => this._segments.Count;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Bitmask"/> class.
+    /// </summary>
+    /// <param name="length">The length of the bitmask.</param>
+    /// <param name="initializeWithZeros">A value indicating whether this bitmask should be filled with zeros or ones initially.</param>
+    public Bitmask(int length, bool initializeWithZeros)
+    {
+        var requiredSegmentsCount = Math.DivRem(length, BitsPerSegment, out var remainder);
+
+        if (remainder != 0)
+        {
+            requiredSegmentsCount++;
+            this._lastSegmentMask <<= (BitsPerSegment - remainder);
+        }
+
+        this._segments = new List<ulong>(capacity: requiredSegmentsCount);
+
+        this.Length = length;
+
+        var filler = initializeWithZeros ? ZeroSegment : OneSegment;
+        for (var i = 0; i < requiredSegmentsCount; i++) this._segments.Add(filler);
+        this.NormalizeLastSegment();
+    }
+
+    /// <summary>
+    /// Use this method to set the bit at the requested position.
+    /// </summary>
+    /// <param name="position">The position of the bit that should be set.</param>
+    public void Set(int position)
+    {
+        var (segmentIndex, bitIndex) = this.Locate(position);
+        this._segments[segmentIndex] |= (1UL << bitIndex);
+    }
+
+    /// <summary>
+    /// Use this method to unset the bit at the requested position.
+    /// </summary>
+    /// <param name="position">The position of the bit that should be unset.</param>
+    public void Unset(int position)
+    {
+        var (segmentIndex, bitIndex) = this.Locate(position);
+        this._segments[segmentIndex] &= ~(1UL << bitIndex);
+    }
+
+    /// <summary>
+    /// Use this method to check the status of the bit at the requested position.
+    /// </summary>
+    /// <param name="position">The position of the bit whose status should be checked.</param>
+    /// <returns>Returns <c>true</c> if the bit is set. Otherwise, returns <c>false</c>.</returns>
+    public bool IsSet(int position)
+    {
+        var (segmentIndex, bitIndex) = this.Locate(position);
+        return (this._segments[segmentIndex] & (1UL << bitIndex)) != 0;
+    }
+
+    /// <summary>
+    /// Use this method to find the position of the least significant (right-most) bit that is set.
+    /// </summary>
+    /// <returns>Returns the position of the least significant set bit. Returns -1 if there are no set bits.</returns>
+    public int FindLeastSignificantSetBit()
+    {
+        for (var i = this._segments.Count - 1; i >= 0; i--)
+        {
+            var currentSegment = this._segments[i];
+            if (currentSegment == ZeroSegment) continue;
+
+            return (i * BitsPerSegment + BitsPerSegment - (Bits.TrailingZeroCount(currentSegment) + 1));
+        }
+
+        return -1;
+    }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        for (var i = 0; i < this.Length; i++) sb.Append(this.IsSet(i) ? '1' : '0');
+
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// Computes the bitwise-and of two bitmasks.
+    /// </summary>
+    /// <param name="left">The first bitmask.</param>
+    /// <param name="right">The second bitmask.</param>
+    /// <returns>The bitwise-and of <paramref name="left" /> and <paramref name="right" />.</returns>
+    public static Bitmask operator &(Bitmask left, Bitmask right) => ExecuteBitwiseOperation(left, right, BitwiseAnd);
+
+    /// <summary>
+    /// Computes the bitwise-or of two bitmasks.
+    /// </summary>
+    /// <param name="left">The first bitmask.</param>
+    /// <param name="right">The second bitmask.</param>
+    /// <returns>The bitwise-or of <paramref name="left" /> and <paramref name="right" />.</returns>
+    public static Bitmask operator |(Bitmask left, Bitmask right) => ExecuteBitwiseOperation(left, right, BitwiseOr);
+
+    /// <summary>
+    /// Computes the exclusive-or of two bitmasks.
+    /// </summary>
+    /// <param name="left">The first bitmask.</param>
+    /// <param name="right">The second bitmask.</param>
+    /// <returns>The exclusive-or of <paramref name="left" /> and <paramref name="right" />.</returns>
+    public static Bitmask operator ^(Bitmask left, Bitmask right) => ExecuteBitwiseOperation(left, right, BitwiseXor);
+
+    /// <summary>
+    /// Computes the ones-complement representation of a bitmask.
+    /// </summary>
+    /// <param name="bitmask">The bitmask for which to compute its ones-complement.</param>
+    /// <returns>The ones-complement of <paramref name="bitmask" />.</returns>
+    public static Bitmask operator ~(Bitmask bitmask)
+    {
+        if (bitmask is null) throw new ArgumentNullException(nameof(bitmask));
+
+        var result = new Bitmask(bitmask.Length, initializeWithZeros: true);
+        for (var i = 0; i < bitmask.SegmentsCount; i++) result.SetSegment(i, ~bitmask.GetSegment(i));
+
+        return result;
+    }
+
+    private static ulong BitwiseAnd(ulong a, ulong b) => a & b;
+    private static ulong BitwiseOr(ulong a, ulong b) => a | b;
+    private static ulong BitwiseXor(ulong a, ulong b) => a ^ b;
+
+    private static Bitmask ExecuteBitwiseOperation(Bitmask a, Bitmask b, Func<ulong, ulong, ulong> operation)
+    {
+        if (a is null) throw new ArgumentNullException(nameof(a));
+        if (b is null) throw new ArgumentNullException(nameof(b));
+
+        var result = new Bitmask(length: Math.Max(a.Length, b.Length), initializeWithZeros: false);
+        for (var i = 0; i < result._segments.Count; i++)
+        {
+            var left = i < a.SegmentsCount ? a.GetSegment(i) : 0;
+            var right = i < b.SegmentsCount ? b.GetSegment(i) : 0;
+
+            result.SetSegment(i, operation(left, right));
+        }
+
+        return result;
+    }
+
+    private void SetSegment(int index, ulong value)
+    {
+        this._segments[index] = value;
+        if (index == this.SegmentsCount - 1) this.NormalizeLastSegment();
+    }
+
+    private ulong GetSegment(int index) => this._segments[index];
+
+    private (int SegmentIndex, int BitIndex) Locate(int position)
+    {
+        if (position < 0) throw new ArgumentOutOfRangeException(nameof(position), "Bit position must be a non-negative number.");
+        if (position >= this.Length) throw new ArgumentOutOfRangeException(nameof(position), "Bit position must be less than the total number of bits.");
+
+        var segmentIndex = Math.DivRem(position, BitsPerSegment, out var bitIndex);
+        return (segmentIndex, BitsPerSegment - (bitIndex + 1));
+    }
+
+    private void NormalizeLastSegment() => this._segments[^1] &= this._lastSegmentMask;
+}

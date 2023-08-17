@@ -121,9 +121,19 @@ public class BitmaskTests
     {
         var bitmask = InstantiateBitmask();
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => bitmask.IsSet(-1 * RandomizationHelper.RandomInteger(1, 100)));
+        var negativeIndex = -1 * RandomizationHelper.RandomInteger(1, 100);
+        Assert.Throws<ArgumentOutOfRangeException>(() => bitmask.IsSet(negativeIndex));
+        Assert.Throws<ArgumentOutOfRangeException>(() => bitmask.Set(negativeIndex));
+        Assert.Throws<ArgumentOutOfRangeException>(() => bitmask.Unset(negativeIndex));
+
         Assert.Throws<ArgumentOutOfRangeException>(() => bitmask.IsSet(bitmask.Length));
-        Assert.Throws<ArgumentOutOfRangeException>(() => bitmask.IsSet(bitmask.Length + RandomizationHelper.RandomInteger(1, 100)));
+        Assert.Throws<ArgumentOutOfRangeException>(() => bitmask.Set(bitmask.Length));
+        Assert.Throws<ArgumentOutOfRangeException>(() => bitmask.Unset(bitmask.Length));
+
+        var largeIndex = bitmask.Length + RandomizationHelper.RandomInteger(1, 100);
+        Assert.Throws<ArgumentOutOfRangeException>(() => bitmask.IsSet(largeIndex));
+        Assert.Throws<ArgumentOutOfRangeException>(() => bitmask.Set(largeIndex));
+        Assert.Throws<ArgumentOutOfRangeException>(() => bitmask.Unset(largeIndex));
     }
 
     [Fact]

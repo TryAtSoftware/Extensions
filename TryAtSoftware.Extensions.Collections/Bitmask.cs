@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Text;
 using TryAtSoftware.Extensions.Collections.Internal;
 
+/// <summary>
+/// Class representing a bitmask (sequence of bits that can be optimally manipulated).
+/// </summary>
 public class Bitmask
 #if NET7_0_OR_GREATER
     : System.Numerics.IBitwiseOperators<Bitmask, Bitmask, Bitmask>
@@ -17,9 +20,18 @@ public class Bitmask
     private readonly List<ulong> _segments;
     private readonly ulong _lastSegmentMask = OneSegment;
 
+    /// <summary>
+    /// Gets the length of this bitmask.
+    /// </summary>
     public int Length { get; }
+
     private int SegmentsCount => this._segments.Count;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Bitmask"/> class.
+    /// </summary>
+    /// <param name="length">The length of the bitmask.</param>
+    /// <param name="initializeWithZeros">A value indicating whether this bitmask should be filled with zeros or ones initially.</param>
     public Bitmask(int length, bool initializeWithZeros)
     {
         var requiredSegmentsCount = Math.DivRem(length, BitsPerSegment, out var remainder);
@@ -39,25 +51,42 @@ public class Bitmask
         this.NormalizeLastSegment();
     }
 
+    /// <summary>
+    /// Use this method to set the bit at the requested position.
+    /// </summary>
+    /// <param name="position">The position of the bit that should be set.</param>
     public void Set(int position)
     {
         var (segmentIndex, bitIndex) = this.Locate(position);
         this._segments[segmentIndex] |= (1UL << bitIndex);
     }
 
+    /// <summary>
+    /// Use this method to unset the bit at the requested position.
+    /// </summary>
+    /// <param name="position">The position of the bit that should be unset.</param>
     public void Unset(int position)
     {
         var (segmentIndex, bitIndex) = this.Locate(position);
         this._segments[segmentIndex] &= ~(1UL << bitIndex);
     }
 
+    /// <summary>
+    /// Use this method to check the status of the bit at the requested position.
+    /// </summary>
+    /// <param name="position">The position of the bit whose status should be checked.</param>
+    /// <returns>Returns <c>true</c> if the bit is set. Otherwise, returns <c>false</c>.</returns>
     public bool IsSet(int position)
     {
         var (segmentIndex, bitIndex) = this.Locate(position);
         return (this._segments[segmentIndex] & (1UL << bitIndex)) != 0;
     }
 
-    public int FindLeastSignificantNonZeroBit()
+    /// <summary>
+    /// Use this method to find the position of the least significant (right-most) bit that is set.
+    /// </summary>
+    /// <returns>Returns the position of the least significant set bit. Returns -1 if there are no set bits.</returns>
+    public int FindLeastSignificantSetBit()
     {
         for (var i = this._segments.Count - 1; i >= 0; i--)
         {
@@ -70,6 +99,7 @@ public class Bitmask
         return -1;
     }
 
+    /// <inheritdoc />
     public override string ToString()
     {
         var sb = new StringBuilder();
@@ -78,18 +108,41 @@ public class Bitmask
         return sb.ToString();
     }
 
-    public static Bitmask operator &(Bitmask a, Bitmask b) => ExecuteBitwiseOperation(a, b, BitwiseAnd);
+    /// <summary>
+    /// Computes the bitwise-and of two bitmasks.
+    /// </summary>
+    /// <param name="left">The first bitmask.</param>
+    /// <param name="right">The second bitmask.</param>
+    /// <returns>The bitwise-and of <paramref name="left" /> and <paramref name="right" />.</returns>
+    public static Bitmask operator &(Bitmask left, Bitmask right) => ExecuteBitwiseOperation(left, right, BitwiseAnd);
 
-    public static Bitmask operator |(Bitmask a, Bitmask b) => ExecuteBitwiseOperation(a, b, BitwiseOr);
+    /// <summary>
+    /// Computes the bitwise-or of two bitmasks.
+    /// </summary>
+    /// <param name="left">The first bitmask.</param>
+    /// <param name="right">The second bitmask.</param>
+    /// <returns>The bitwise-or of <paramref name="left" /> and <paramref name="right" />.</returns>
+    public static Bitmask operator |(Bitmask left, Bitmask right) => ExecuteBitwiseOperation(left, right, BitwiseOr);
 
-    public static Bitmask operator ^(Bitmask a, Bitmask b) => ExecuteBitwiseOperation(a, b, BitwiseXor);
+    /// <summary>
+    /// Computes the exclusive-or of two bitmasks.
+    /// </summary>
+    /// <param name="left">The first bitmask.</param>
+    /// <param name="right">The second bitmask.</param>
+    /// <returns>The exclusive-or of <paramref name="left" /> and <paramref name="right" />.</returns>
+    public static Bitmask operator ^(Bitmask left, Bitmask right) => ExecuteBitwiseOperation(left, right, BitwiseXor);
 
-    public static Bitmask operator ~(Bitmask a)
+    /// <summary>
+    /// Computes the ones-complement representation of a bitmask.
+    /// </summary>
+    /// <param name="bitmask">The bitmask for which to compute its ones-complement.</param>
+    /// <returns>The ones-complement of <paramref name="bitmask" />.</returns>
+    public static Bitmask operator ~(Bitmask bitmask)
     {
-        if (a is null) throw new ArgumentNullException(nameof(a));
+        if (bitmask is null) throw new ArgumentNullException(nameof(bitmask));
 
-        var result = new Bitmask(a.Length, initializeWithZeros: true);
-        for (var i = 0; i < a.SegmentsCount; i++) result.SetSegment(i, ~a.GetSegment(i));
+        var result = new Bitmask(bitmask.Length, initializeWithZeros: true);
+        for (var i = 0; i < bitmask.SegmentsCount; i++) result.SetSegment(i, ~bitmask.GetSegment(i));
 
         return result;
     }

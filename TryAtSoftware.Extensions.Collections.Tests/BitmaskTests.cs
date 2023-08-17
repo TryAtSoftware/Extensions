@@ -127,19 +127,19 @@ public class BitmaskTests
     }
 
     [Fact]
-    public void FindLeastSignificantNonZeroBitShouldWorkCorrectlyWithZeroBitmask()
+    public void FindLeastSignificantSetBitShouldWorkCorrectlyWithZeroBitmask()
     {
         var bitmask = InstantiateBitmask();
-        Assert.Equal(-1, bitmask.FindLeastSignificantNonZeroBit());
+        Assert.Equal(-1, bitmask.FindLeastSignificantSetBit());
     }
 
     [Fact]
-    public void FindLeastSignificantNonZeroBitShouldWorkCorrectlyInGeneral()
+    public void FindLeastSignificantSetBitShouldWorkCorrectlyInGeneral()
     {
         var bitmask = InstantiateBitmask(initializeWithZeros: false);
         for (var i = bitmask.Length - 1; i >= 0; i--)
         {
-            var result = bitmask.FindLeastSignificantNonZeroBit();
+            var result = bitmask.FindLeastSignificantSetBit();
             Assert.Equal(i, result);
 
             bitmask.Unset(i);
@@ -147,13 +147,13 @@ public class BitmaskTests
     }
 
     [Fact]
-    public void FindLeastSignificantNonZeroBitShouldWorkCorrectlyWithRandomBitmask()
+    public void FindLeastSignificantSetBitShouldWorkCorrectlyWithRandomBitmask()
     {
         for (var i = 0; i < 100; i++)
         {
             var bitmask = GenerateBitmask();
 
-            var result = bitmask.FindLeastSignificantNonZeroBit();
+            var result = bitmask.FindLeastSignificantSetBit();
             Assert.True(bitmask.IsSet(result));
 
             for (var j = result + 1; j < bitmask.Length; j++) Assert.False(bitmask.IsSet(j));

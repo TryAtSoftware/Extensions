@@ -30,7 +30,61 @@ Or using the `dotnet CLI` from a terminal window:
 
 > dotnet add package TryAtSoftware.Extensions.Collections
 
-## Collections
+## Data structures
+
+### Bitmask
+
+This is a specialized data structure designed for efficient manipulation of sequence of bits throughout bitwise operations.
+The proposed implementation can be used to work with bitmasks of various length (especially with long bitmasks).
+
+#### Initialization
+
+The `Bitmask` constructor accepts two parameters - the **length** of the bitmask and a boolean indicating the initial state of all bits - whether they should be set or unset.
+
+```C#
+var bitmaskWithZeros = new Bitmask(8, initializeWithZeros: true); // 00000000
+var bitmaskWithOnes = new Bitmask(8, initializeWithZeros: false); // 11111111
+```
+
+#### Manually setting bits
+
+The `Set` method can be used to set the bit at a given position.
+It accepts a single parameter - the **zero-based** position of the bit that should be set.
+
+```C#
+var bitmask = new Bitmask(8, initializeWithZeros: true); // 00000000
+        
+bitmask.Set(0); // 10000000
+bitmask.Set(3); // 10010000
+
+bitmask.Set(0); // The bit is already set - nothing will be changed.
+
+// Invalid cases - position is out of range
+bitmask.Set(-1); // Exception will be thrown!
+bitmask.Set(8); // Exception will be thrown!
+bitmask.Set(100); // Exception will be thrown!
+```
+
+#### Manually unsetting bits
+
+The `Unset` method can be used to unset the bit at a given position.
+It accepts a single parameter - the **zero-based** position of the bit that should be unset.
+
+```C#
+var bitmask = new Bitmask(8, initializeWithZeros: false); // 11111111
+        
+bitmask.Unset(1); // 10111111
+bitmask.Unset(2); // 10011111
+
+bitmask.Unset(2); // The bit is not set - nothing will be changed.
+
+// Invalid cases - position is out of range
+bitmask.Unset(-1); // Exception will be thrown!
+bitmask.Unset(8); // Exception will be thrown!
+bitmask.Unset(100); // Exception will be thrown!
+```
+
+## Collection extensions
 
 ### `OrEmptyIfNull`
 
@@ -264,7 +318,7 @@ IEnumerable<Guid> identifiers = /* initialization... */;
 IReadOnlyCollection<Guid> readOnlyCollection = identifiers.AsReadOnlyCollection();
 ```
 
-## Dictionaries
+## Dictionary extensions
 
 ### `OrEmptyIfNull`
 

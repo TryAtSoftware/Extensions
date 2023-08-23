@@ -104,6 +104,32 @@ bitmask.IsSet(8); // Exception will be thrown!
 bitmask.IsSet(100); // Exception will be thrown!
 ```
 
+#### Executing bitwise operations
+
+Bitwise operations can be executed by using the corresponding operators.
+_They can come in handy whenever it is required to work over a group of bits collectively, rather than individually._
+The produced result will be a `Bitmask` instance as well.
+
+> For .NET 7 or above the `Bitmask` type implements the `IBitwiseOperators<Bitmask, Bitmask, Bitmask>` interface.
+
+```C#
+Bitmask bitmask1 = new Bitmask(8, initializeWithZeros: true);
+Bitmask bitmask2 = new Bitmask(8, initializeWithZeros: true);
+
+// Set the corresponding bits so the first bitmask looks like this: 11010100
+bitmask1.Set(0); bitmask1.Set(1); bitmask1.Set(3); bitmask1.Set(5);
+
+// Set the corresponding bits so the second bitmask looks like this: 01100101
+bitmask2.Set(1); bitmask2.Set(2); bitmask2.Set(5); bitmask2.Set(7);
+
+Bitmask andResult = bitmask1 & bitmask2; // 01000100
+Bitmask orResult = bitmask1 | bitmask2; // 11110101
+Bitmask xorResult = bitmask1 ^ bitmask2; // 10110001
+
+Bitmask notResult1 = ~bitmask1; // 00101011
+Bitmask notResult2 = ~bitmask2; // 10011010
+```
+
 ## Collection extensions
 
 ### `OrEmptyIfNull`

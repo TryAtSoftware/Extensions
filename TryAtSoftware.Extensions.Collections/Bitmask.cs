@@ -86,39 +86,13 @@ public class Bitmask
     /// Use this method to find the position of the least significant (right-most) bit that is set.
     /// </summary>
     /// <returns>Returns the position of the least significant set bit. Returns -1 if there are no set bits.</returns>
-    public int FindLeastSignificantSetBit()
-    {
-        for (var i = this._segments.Count - 1; i >= 0; i--)
-        {
-            var currentSegment = this._segments[i];
-            if (currentSegment == ZeroSegment) continue;
-
-            return (i * BitsPerSegment + BitsPerSegment - (Bits.TrailingZeroCount(currentSegment) + 1));
-        }
-
-        return -1;
-    }
+    public int FindLeastSignificantSetBit() => this.FindLeastSignificantSetBit(inverse: false);
 
     /// <summary>
     /// Use this method to find the position of the least significant (right-most) bit that is unset.
     /// </summary>
     /// <returns>Returns the position of the least significant unset bit. Returns -1 if there are no set bits.</returns>
-    public int FindLeastSignificantUnsetBit()
-    {
-        for (var i = this._segments.Count - 1; i >= 0; i--)
-        {
-            var currentSegment = this._segments[i];
-
-            var inversedSegment = ~currentSegment;
-            if (i == this._segments.Count - 1) inversedSegment = this.ApplyLastSegmentMask(inversedSegment);
-
-            if (inversedSegment == ZeroSegment) continue;
-
-            return (i * BitsPerSegment + BitsPerSegment - (Bits.TrailingZeroCount(inversedSegment) + 1));
-        }
-
-        return -1;
-    }
+    public int FindLeastSignificantUnsetBit() => this.FindLeastSignificantSetBit(inverse: true);
 
     /// <inheritdoc />
     public override string ToString()
@@ -187,6 +161,25 @@ public class Bitmask
         }
 
         return result;
+    }
+    
+    private int FindLeastSignificantSetBit(bool inverse)
+    {
+        for (var i = this._segments.Count - 1; i >= 0; i--)
+        {
+            var currentSegment = this._segments[i];
+            if (inverse)
+            {
+                currentSegment = ~currentSegment;
+                if (i == this._segments.Count - 1) currentSegment = this.ApplyLastSegmentMask(currentSegment);
+            }
+            
+            if (currentSegment == ZeroSegment) continue;
+
+            return (i * BitsPerSegment + BitsPerSegment - (Bits.TrailingZeroCount(currentSegment) + 1));
+        }
+
+        return -1;
     }
 
     private void SetSegment(int index, ulong value)

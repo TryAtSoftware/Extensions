@@ -30,7 +30,127 @@ Or using the `dotnet CLI` from a terminal window:
 
 > dotnet add package TryAtSoftware.Extensions.Collections
 
-## Collections
+## Data structures
+
+### Bitmask
+
+This is a specialized data structure designed for efficient manipulation of sequence of bits throughout bitwise operations.
+The proposed implementation can be used to work with bitmasks of various length (especially with long bitmasks).
+
+#### Initialization
+
+The `Bitmask` constructor accepts two parameters - the **length** of the bitmask and a boolean indicating the initial state of all bits - whether they should be set or unset.
+
+```C#
+Bitmask bitmaskWithZeros = new Bitmask(8, initializeWithZeros: true); // 00000000
+Bitmask bitmaskWithOnes = new Bitmask(8, initializeWithZeros: false); // 11111111
+```
+
+#### Manually setting bits
+
+The `Set` method can be used to set the bit at a given position.
+It accepts a single parameter - the **zero-based** position of the bit that should be set.
+
+```C#
+Bitmask bitmask = new Bitmask(8, initializeWithZeros: true); // 00000000
+        
+bitmask.Set(0); // 10000000
+bitmask.Set(3); // 10010000
+
+bitmask.Set(0); // The bit is already set - nothing will be changed.
+
+// Invalid cases - position is out of range
+bitmask.Set(-1); // Exception will be thrown!
+bitmask.Set(8); // Exception will be thrown!
+bitmask.Set(100); // Exception will be thrown!
+```
+
+#### Manually unsetting bits
+
+The `Unset` method can be used to unset the bit at a given position.
+It accepts a single parameter - the **zero-based** position of the bit that should be unset.
+
+```C#
+Bitmask bitmask = new Bitmask(8, initializeWithZeros: false); // 11111111
+        
+bitmask.Unset(1); // 10111111
+bitmask.Unset(2); // 10011111
+
+bitmask.Unset(2); // The bit is not set - nothing will be changed.
+
+// Invalid cases - position is out of range
+bitmask.Unset(-1); // Exception will be thrown!
+bitmask.Unset(8); // Exception will be thrown!
+bitmask.Unset(100); // Exception will be thrown!
+```
+
+#### Checking the status of a bit
+
+The `IsSet` method can be used to check the status of a bit at a given position.
+It accepts a single parameter - the **zero-based** position of the bit whose status should be checked.
+
+```C#
+Bitmask bitmask = new Bitmask(8, initializeWithZeros: true);
+        
+// Set the bits at even positions.
+for (int i = 0; i < bitmask.Length; i += 2) bitmask.Set(i);
+
+bool firstBitIsSet = bitmask.IsSet(0); // True
+bool secondBitIsSet = bitmask.IsSet(1); // False
+
+// Invalid cases - position is out of range
+bitmask.IsSet(-1); // Exception will be thrown!
+bitmask.IsSet(8); // Exception will be thrown!
+bitmask.IsSet(100); // Exception will be thrown!
+```
+
+#### Executing bitwise operations
+
+Bitwise operations can be executed by using the corresponding operators.
+_They can come in handy whenever it is required to work over a group of bits collectively, rather than individually._
+The produced result will be a `Bitmask` instance as well.
+
+> For .NET 7 or above the `Bitmask` type implements the `IBitwiseOperators<Bitmask, Bitmask, Bitmask>` interface.
+
+```C#
+Bitmask bitmask1 = new Bitmask(8, initializeWithZeros: true);
+Bitmask bitmask2 = new Bitmask(8, initializeWithZeros: true);
+
+// Set the corresponding bits so the first bitmask looks like this: 11010100
+bitmask1.Set(0); bitmask1.Set(1); bitmask1.Set(3); bitmask1.Set(5);
+
+// Set the corresponding bits so the second bitmask looks like this: 01100101
+bitmask2.Set(1); bitmask2.Set(2); bitmask2.Set(5); bitmask2.Set(7);
+
+Bitmask andResult = bitmask1 & bitmask2; // 01000100
+Bitmask orResult = bitmask1 | bitmask2; // 11110101
+Bitmask xorResult = bitmask1 ^ bitmask2; // 10110001
+
+Bitmask notResult1 = ~bitmask1; // 00101011
+Bitmask notResult2 = ~bitmask2; // 10011010
+```
+
+#### Find the position of the least significant set bit
+
+The `FindLeastSignificantSetBit` method can be used to find the position of the least significant set bit.
+If there are no set bits, the returned value will be `-1`.
+
+```C#
+Bitmask bitmask = new Bitmask(8, initializeWithZeros: true);
+        
+// Set the corresponding bits so the second bitmask looks like this: 01001000
+bitmask.Set(1); bitmask.Set(4);
+
+var position1 = bitmask.FindLeastSignificantSetBit(); // 4
+
+bitmask.Unset(4); // 01000000
+var position2 = bitmask.FindLeastSignificantSetBit(); // 1
+
+bitmask.Unset(1); // 00000000
+var position3 = bitmask.FindLeastSignificantSetBit(); // -1
+```
+
+## Collection extensions
 
 ### `OrEmptyIfNull`
 
@@ -264,7 +384,7 @@ IEnumerable<Guid> identifiers = /* initialization... */;
 IReadOnlyCollection<Guid> readOnlyCollection = identifiers.AsReadOnlyCollection();
 ```
 
-## Dictionaries
+## Dictionary extensions
 
 ### `OrEmptyIfNull`
 

@@ -132,7 +132,7 @@ Bitmask notResult2 = ~bitmask2; // 10011010
 
 #### Find the position of the least significant set bit
 
-The `FindLeastSignificantSetBit` method can be used to find the position of the least significant set bit.
+The `FindLeastSignificantSetBit` method can be used to find the position of the least significant **set** bit.
 If there are no set bits, the returned value will be `-1`.
 
 ```C#
@@ -148,6 +148,26 @@ var position2 = bitmask.FindLeastSignificantSetBit(); // 1
 
 bitmask.Unset(1); // 00000000
 var position3 = bitmask.FindLeastSignificantSetBit(); // -1
+```
+
+#### Find the position of the least significant unset bit
+
+The `FindLeastSignificantUnsetBit` method can be used to find the position of the least significant **unset** bit.
+If there are no unset bits, the returned value will be `-1`.
+
+```C#
+Bitmask bitmask = new Bitmask(8, initializeWithZeros: false);
+
+// Unset the corresponding bits so the second bitmask looks like this: 11101101
+bitmask.Unset(3); bitmask.Unset(6);
+
+var position1 = bitmask.FindLeastSignificantUnsetBit(); // 6
+
+bitmask.Set(6); // 11101111
+var position2 = bitmask.FindLeastSignificantUnsetBit(); // 3
+
+bitmask.Set(3); // 11111111
+var position3 = bitmask.FindLeastSignificantUnsetBit(); // -1
 ```
 
 ## Collection extensions

@@ -87,7 +87,7 @@ bitmask.Unset(100); // Exception will be thrown!
 #### Checking the status of a bit
 
 The `IsSet` method can be used to check the status of a bit at a given position.
-It accepts a single parameter - the **zero-based** position of the bit whose should should be checked.
+It accepts a single parameter - the **zero-based** position of the bit whose status should be checked.
 
 ```C#
 Bitmask bitmask = new Bitmask(8, initializeWithZeros: true);
@@ -134,8 +134,6 @@ Bitmask notResult2 = ~bitmask2; // 10011010
 
 The `FindLeastSignificantSetBit` method can be used to find the position of the least significant set bit.
 If there are no set bits, the returned value will be `-1`.
-
-> When working with short bitmasks (usually represented by `uint` or `ulong` values), some of the methods from the `BitOperations` class can be used.
 
 ```C#
 Bitmask bitmask = new Bitmask(8, initializeWithZeros: true);

@@ -49,7 +49,8 @@ public class ServiceRegistrarTests
     [Theory]
     [InlineData(typeof(Service), ServiceLifetime.Scoped)]
     [InlineData(typeof(TransientService), ServiceLifetime.Transient)]
-    [InlineData(typeof(ScopedService), ServiceLifetime.Scoped)]
+    [InlineData(typeof(ExplicitlyScopedService), ServiceLifetime.Scoped)]
+    [InlineData(typeof(ImplicitlyScopedService), ServiceLifetime.Scoped)]
     [InlineData(typeof(SingletonService), ServiceLifetime.Singleton)]
     public void ServicesShouldBeSuccessfullyRegistered(Type implementationType, ServiceLifetime expectedLifetime)
     {
@@ -119,9 +120,10 @@ public class ServiceRegistrarTests
     private abstract class BaseService : IImplementedInterface1, IImplementedInterface2 {}
 
     private class Service : BaseService {}
-    [ServiceConfiguration(ServiceLifetime.Transient)] private class TransientService : BaseService {}
-    [ServiceConfiguration(ServiceLifetime.Scoped)] private class ScopedService : BaseService {}
-    [ServiceConfiguration(ServiceLifetime.Singleton)] private class SingletonService : BaseService {}
+    [ServiceConfiguration(Lifetime = ServiceLifetime.Transient)] private class TransientService : BaseService {}
+    [ServiceConfiguration(Lifetime = ServiceLifetime.Scoped)] private class ExplicitlyScopedService : BaseService {}
+    [ServiceConfiguration] private class ImplicitlyScopedService : BaseService {}
+    [ServiceConfiguration(Lifetime = ServiceLifetime.Singleton)] private class SingletonService : BaseService {}
     
     [AttributeUsage(AttributeTargets.GenericParameter)] private class KeyTypeAttribute : Attribute {}
     private class GenericService<[KeyType] TKey> : IGenericInterface<TKey> {}

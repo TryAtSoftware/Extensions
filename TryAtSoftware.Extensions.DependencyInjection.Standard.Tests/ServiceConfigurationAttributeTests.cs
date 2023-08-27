@@ -9,7 +9,7 @@ public class ServiceConfigurationAttributeTests
     [Theory, MemberData(nameof(GetServiceLifetimeData))]
     public void ServiceLifetimeShouldBeSetCorrectly(ServiceLifetime lifetime)
     {
-        var attribute = new ServiceConfigurationAttribute(lifetime);
+        var attribute = new ServiceConfigurationAttribute { Lifetime = lifetime };
         Assert.Equal(lifetime, attribute.Lifetime);
     }
 

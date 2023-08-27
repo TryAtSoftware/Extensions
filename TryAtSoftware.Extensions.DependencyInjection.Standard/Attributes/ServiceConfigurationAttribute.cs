@@ -10,16 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 public class ServiceConfigurationAttribute : Attribute
 {
     /// <summary>
-    /// Gets the lifetime of the decorated service.
+    /// Gets or sets the lifetime of the decorated service.
     /// </summary>
-    public ServiceLifetime Lifetime { get; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ServiceConfigurationAttribute"/> class.
-    /// </summary>
-    /// <param name="lifetime">The value that should be set to the <see cref="Lifetime"/> property.</param>
-    public ServiceConfigurationAttribute(ServiceLifetime lifetime)
-    {
-        this.Lifetime = lifetime;
-    }
+    public ServiceLifetime Lifetime { get; set; } = ServiceLifetime.Scoped;
 }

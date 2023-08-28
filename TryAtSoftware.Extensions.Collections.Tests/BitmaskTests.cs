@@ -3,9 +3,17 @@
 using System;
 using TryAtSoftware.Randomizer.Core.Helpers;
 using Xunit;
+using Xunit.Abstractions;
 
 public class BitmaskTests
 {
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public BitmaskTests(ITestOutputHelper testOutputHelper)
+    {
+        this._testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    }
+
     [Fact]
     public void BitsShouldBeIndexedSuccessfully()
     {
@@ -115,6 +123,22 @@ public class BitmaskTests
 
     [Fact]
     public void BitwiseNotShouldValidateItsArguments() => Assert.Throws<ArgumentNullException>(() => ~(Bitmask)null!);
+
+    [Fact]
+    public void LeftShiftShouldWorkCorrectlyWithRandomBitmask()
+    {
+        var bitmask = GenerateBitmask();
+
+        for (var i = 0; i <= bitmask.Length; i++)
+        {
+            this._testOutputHelper.WriteLine($"Rotating {i} positions to the left.");
+            var result = bitmask << i;
+
+            for (var j = 0; j < bitmask.Length - i; j++) Assert.Equal(bitmask.IsSet(i + j), result.IsSet(j));
+            for (var j = 0; j < i; j++) Assert.False(result.IsSet(bitmask.Length - i + j));
+        }
+        
+    }
 
     [Fact]
     public void BitPositionShouldBeValidated()

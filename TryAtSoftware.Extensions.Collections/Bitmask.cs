@@ -10,7 +10,7 @@ using TryAtSoftware.Extensions.Collections.Internal;
 /// </summary>
 public class Bitmask
 #if NET7_0_OR_GREATER
-    : System.Numerics.IBitwiseOperators<Bitmask, Bitmask, Bitmask>
+    : System.Numerics.IBitwiseOperators<Bitmask, Bitmask, Bitmask>, System.Numerics.IShiftOperators<Bitmask, int, Bitmask>
 #endif
 {
     private const ulong ZeroSegment = 0;
@@ -142,6 +142,30 @@ public class Bitmask
         return result;
     }
 
+    public static Bitmask operator <<(Bitmask value, int shiftAmount)
+    {
+        var result = new Bitmask(value.Length, initializeWithZeros: true);
+
+        var segmentsDiff = Math.DivRem(shiftAmount, BitsPerSegment, out shiftAmount);
+
+        var rotation = shiftAmount == 0 ? 0 : BitsPerSegment - shiftAmount;
+        var carryMask = rotation == 0 ? 0 : ~((1UL << rotation) - 1);
+        var carry = 0UL;
+        for (var i = result.SegmentsCount - 1; i >= segmentsDiff; i--)
+        {
+            var segment = value.GetSegment(i);
+            
+            result.SetSegment(i - segmentsDiff, (segment << shiftAmount) | carry);
+            carry = (segment & carryMask) >> rotation;
+        }
+
+        return result;
+    }
+
+    public static Bitmask operator >>(Bitmask value, int shiftAmount) => throw new NotImplementedException();
+
+    public static Bitmask operator >>>(Bitmask value, int shiftAmount) => throw new NotImplementedException();
+
     private static ulong BitwiseAnd(ulong a, ulong b) => a & b;
     private static ulong BitwiseOr(ulong a, ulong b) => a | b;
     private static ulong BitwiseXor(ulong a, ulong b) => a ^ b;
@@ -152,7 +176,7 @@ public class Bitmask
         if (b is null) throw new ArgumentNullException(nameof(b));
 
         var result = new Bitmask(length: Math.Max(a.Length, b.Length), initializeWithZeros: false);
-        for (var i = 0; i < result._segments.Count; i++)
+        for (var i = 0; i < result.SegmentsCount; i++)
         {
             var left = i < a.SegmentsCount ? a.GetSegment(i) : 0;
             var right = i < b.SegmentsCount ? b.GetSegment(i) : 0;
@@ -162,18 +186,18 @@ public class Bitmask
 
         return result;
     }
-    
+
     private int FindLeastSignificantSetBit(bool inverse)
     {
-        for (var i = this._segments.Count - 1; i >= 0; i--)
+        for (var i = this.SegmentsCount - 1; i >= 0; i--)
         {
             var currentSegment = this._segments[i];
             if (inverse)
             {
                 currentSegment = ~currentSegment;
-                if (i == this._segments.Count - 1) currentSegment = this.ApplyLastSegmentMask(currentSegment);
+                if (i == this.SegmentsCount - 1) currentSegment = this.ApplyLastSegmentMask(currentSegment);
             }
-            
+
             if (currentSegment == ZeroSegment) continue;
 
             return (i * BitsPerSegment + BitsPerSegment - (Bits.TrailingZeroCount(currentSegment) + 1));

@@ -137,7 +137,36 @@ public class BitmaskTests
             for (var j = 0; j < bitmask.Length - i; j++) Assert.Equal(bitmask.IsSet(i + j), result.IsSet(j));
             for (var j = 0; j < i; j++) Assert.False(result.IsSet(bitmask.Length - i + j));
         }
-        
+    }
+
+    [Fact]
+    public void ArithmeticRightShiftShouldWorkCorrectlyWithRandomBitmask()
+    {
+        var bitmask = GenerateBitmask();
+
+        for (var i = 0; i <= bitmask.Length; i++)
+        {
+            this._testOutputHelper.WriteLine($"Rotating {i} positions to the right.");
+            var result = bitmask >> i;
+
+            for (var j = 0; j < bitmask.Length - i; j++) Assert.Equal(bitmask.IsSet(j), result.IsSet(i + j));
+            for (var j = 0; j < i; j++) Assert.False(result.IsSet(j));
+        }
+    }
+    
+    [Fact]
+    public void LogicalRightShiftShouldWorkCorrectlyWithRandomBitmask()
+    {
+        var bitmask = GenerateBitmask();
+
+        for (var i = 0; i <= bitmask.Length; i++)
+        {
+            this._testOutputHelper.WriteLine($"Rotating {i} positions to the right.");
+            var result = bitmask >>> i;
+
+            for (var j = 0; j < bitmask.Length - i; j++) Assert.Equal(bitmask.IsSet(j), result.IsSet(i + j));
+            for (var j = 0; j < i; j++) Assert.False(result.IsSet(j));
+        }
     }
 
     [Fact]

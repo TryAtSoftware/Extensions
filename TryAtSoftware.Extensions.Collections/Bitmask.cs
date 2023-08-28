@@ -154,7 +154,7 @@ public class Bitmask
         for (var i = result.SegmentsCount - 1; i >= segmentsDiff; i--)
         {
             var segment = value.GetSegment(i);
-            
+
             result.SetSegment(i - segmentsDiff, (segment << shiftAmount) | carry);
             carry = (segment & carryMask) >> rotation;
         }
@@ -162,9 +162,27 @@ public class Bitmask
         return result;
     }
 
-    public static Bitmask operator >>(Bitmask value, int shiftAmount) => throw new NotImplementedException();
+    public static Bitmask operator >> (Bitmask value, int shiftAmount)
+    {
+        var result = new Bitmask(value.Length, initializeWithZeros: true);
 
-    public static Bitmask operator >>>(Bitmask value, int shiftAmount) => throw new NotImplementedException();
+        var segmentsDiff = Math.DivRem(shiftAmount, BitsPerSegment, out shiftAmount);
+
+        var rotation = shiftAmount == 0 ? 0 : BitsPerSegment - shiftAmount;
+        var carryMask = shiftAmount == 0 ? 0 : (1UL << shiftAmount) - 1;
+        var carry = 0UL;
+        for (var i = 0; i < result.SegmentsCount - segmentsDiff; i++)
+        {
+            var segment = value.GetSegment(i);
+
+            result.SetSegment(i + segmentsDiff, (segment >> shiftAmount) | carry);
+            carry = (segment & carryMask) << rotation;
+        }
+
+        return result;
+    }
+
+    public static Bitmask operator >>> (Bitmask value, int shiftAmount) => value >> shiftAmount;
 
     private static ulong BitwiseAnd(ulong a, ulong b) => a & b;
     private static ulong BitwiseOr(ulong a, ulong b) => a | b;

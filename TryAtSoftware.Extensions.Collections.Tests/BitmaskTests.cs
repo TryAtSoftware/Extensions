@@ -131,6 +131,15 @@ public class BitmaskTests
     }
 
     [Fact]
+    public void LeftShiftShouldValidateItsArguments()
+    {
+        var bitmask = GenerateBitmask();
+        
+        Assert.Throws<ArgumentNullException>(() => (Bitmask)null! << 2);
+        Assert.Throws<ArgumentException>(() => bitmask << -1);
+    }
+
+    [Fact]
     public void ArithmeticRightShiftShouldWorkCorrectlyWithRandomBitmask() => AssertCorrectRightShift((a, b) => a >> b);
 
     [Fact]

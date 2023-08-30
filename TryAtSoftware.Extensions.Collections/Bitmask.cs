@@ -142,8 +142,17 @@ public class Bitmask
         return result;
     }
 
+    /// <summary>
+    /// Shifts the bitmask left by a given amount.
+    /// </summary>
+    /// <param name="value">The bitmask which is shifted left by <paramref name="shiftAmount" />.</param>
+    /// <param name="shiftAmount">The amount by which <paramref name="value" /> is shifted left.</param>
+    /// <returns>The result of shifting <paramref name="value" /> left by <paramref name="shiftAmount" />.</returns>
     public static Bitmask operator <<(Bitmask value, int shiftAmount)
     {
+        if (value is null) throw new ArgumentNullException(nameof(value));
+        if (shiftAmount < 0) throw new ArgumentException("", nameof(value));
+        
         var result = new Bitmask(value.Length, initializeWithZeros: true);
 
         var segmentsDiff = Math.DivRem(shiftAmount, BitsPerSegment, out shiftAmount);

@@ -201,6 +201,13 @@ public class Bitmask
         return result;
     }
 
+    /// <summary>
+    /// Shifts a bitmask right by a given amount.
+    /// </summary>
+    /// <param name="value">The bitmask which is shifted right by <paramref name="shiftAmount" />.</param>
+    /// <param name="shiftAmount">The amount by which <paramref name="value" /> is shifted right.</param>
+    /// <returns>The result of shifting <paramref name="value" /> right by <paramref name="shiftAmount" />.</returns>
+    /// <remarks>There is no difference between the arithmetic or logical right shift.</remarks>
     public static Bitmask operator >>> (Bitmask value, int shiftAmount) => value >> shiftAmount;
 
     private static ulong BitwiseAnd(ulong a, ulong b) => a & b;

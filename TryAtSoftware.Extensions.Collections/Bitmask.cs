@@ -94,6 +94,10 @@ public class Bitmask
     /// <returns>Returns the position of the least significant unset bit. Returns -1 if there are no set bits.</returns>
     public int FindLeastSignificantUnsetBit() => this.FindLeastSignificantSetBit(inverse: true);
 
+    public int FindMostSignificantSetBit() => this.FindMostSignificantSetBit(inverse: false);
+
+    public int FindMostSignificantUnsetBit() => this.FindMostSignificantSetBit(inverse: true);
+
     /// <inheritdoc />
     public override string ToString()
     {
@@ -245,6 +249,25 @@ public class Bitmask
             if (currentSegment == ZeroSegment) continue;
 
             return (i * BitsPerSegment + BitsPerSegment - (Bits.TrailingZeroCount(currentSegment) + 1));
+        }
+
+        return -1;
+    }
+
+    private int FindMostSignificantSetBit(bool inverse)
+    {
+        for (var i = 0; i < this.SegmentsCount; i++)
+        {
+            var currentSegment = this._segments[i];
+            if (inverse)
+            {
+                currentSegment = ~currentSegment;
+                if (i == this.SegmentsCount - 1) currentSegment = this.ApplyLastSegmentMask(currentSegment);
+            }
+
+            if (currentSegment == ZeroSegment) continue;
+
+            return (i * BitsPerSegment + Bits.LeadingZeroCount(currentSegment));
         }
 
         return -1;

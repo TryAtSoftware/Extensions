@@ -3,17 +3,9 @@
 using System;
 using TryAtSoftware.Randomizer.Core.Helpers;
 using Xunit;
-using Xunit.Abstractions;
 
 public class BitmaskTests
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-
-    public BitmaskTests(ITestOutputHelper testOutputHelper)
-    {
-        this._testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
-    }
-
     [Fact]
     public void BitsShouldBeIndexedSuccessfully()
     {
@@ -131,7 +123,6 @@ public class BitmaskTests
 
         for (var i = 0; i <= bitmask.Length; i++)
         {
-            this._testOutputHelper.WriteLine($"Rotating {i} positions to the left.");
             var result = bitmask << i;
 
             for (var j = 0; j < bitmask.Length - i; j++) Assert.Equal(bitmask.IsSet(i + j), result.IsSet(j));
@@ -140,34 +131,10 @@ public class BitmaskTests
     }
 
     [Fact]
-    public void ArithmeticRightShiftShouldWorkCorrectlyWithRandomBitmask()
-    {
-        var bitmask = GenerateBitmask();
+    public void ArithmeticRightShiftShouldWorkCorrectlyWithRandomBitmask() => AssertCorrectRightShift((a, b) => a >> b);
 
-        for (var i = 0; i <= bitmask.Length; i++)
-        {
-            this._testOutputHelper.WriteLine($"Rotating {i} positions to the right.");
-            var result = bitmask >> i;
-
-            for (var j = 0; j < bitmask.Length - i; j++) Assert.Equal(bitmask.IsSet(j), result.IsSet(i + j));
-            for (var j = 0; j < i; j++) Assert.False(result.IsSet(j));
-        }
-    }
-    
     [Fact]
-    public void LogicalRightShiftShouldWorkCorrectlyWithRandomBitmask()
-    {
-        var bitmask = GenerateBitmask();
-
-        for (var i = 0; i <= bitmask.Length; i++)
-        {
-            this._testOutputHelper.WriteLine($"Rotating {i} positions to the right.");
-            var result = bitmask >>> i;
-
-            for (var j = 0; j < bitmask.Length - i; j++) Assert.Equal(bitmask.IsSet(j), result.IsSet(i + j));
-            for (var j = 0; j < i; j++) Assert.False(result.IsSet(j));
-        }
-    }
+    public void LogicalRightShiftShouldWorkCorrectlyWithRandomBitmask() => AssertCorrectRightShift((a, b) => a >>> b);
 
     [Fact]
     public void BitPositionShouldBeValidated()
@@ -312,6 +279,19 @@ public class BitmaskTests
 
             for (var i = 0; i < totalBitmaskLength; i++)
                 Assert.Equal(expected.IsSet(i), result.IsSet(i));
+        }
+    }
+
+    private static void AssertCorrectRightShift(Func<Bitmask, int, Bitmask> compute)
+    {
+        var bitmask = GenerateBitmask();
+
+        for (var i = 0; i <= bitmask.Length; i++)
+        {
+            var result = compute(bitmask, i);
+
+            for (var j = 0; j < bitmask.Length - i; j++) Assert.Equal(bitmask.IsSet(j), result.IsSet(i + j));
+            for (var j = 0; j < i; j++) Assert.False(result.IsSet(j));
         }
     }
 

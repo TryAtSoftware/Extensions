@@ -69,8 +69,7 @@ public class ServiceRegistrar : IServiceRegistrar
         if (!string.IsNullOrWhiteSpace(key)) serviceDescriptor = new ServiceDescriptor(interfaceType, key, implementationType, lifetime);
 #endif
 
-        if (serviceDescriptor is null) serviceDescriptor = new ServiceDescriptor(interfaceType, implementationType, lifetime);
-
+        serviceDescriptor ??= new ServiceDescriptor(interfaceType, implementationType, lifetime);
         this._services.Add(serviceDescriptor);
     }
 

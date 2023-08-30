@@ -199,4 +199,7 @@ dotnet_style_qualification_for_field = true:warning
 dotnet_style_qualification_for_method = true:warning
 dotnet_style_qualification_for_property = true:warning
 dotnet_style_require_accessibility_modifiers = for_non_interface_members:suggestion
-file_header_template = 
+
+# CA1510: Use 'ArgumentNullException.ThrowIfNull' instead of explicitly throwing a new exception instance
+# This is suppressed because in .NET Standard 2.1 this construct is not available.
+dotnet_diagnostic.CA1510.severity = none

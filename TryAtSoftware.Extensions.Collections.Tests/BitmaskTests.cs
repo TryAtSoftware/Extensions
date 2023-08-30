@@ -117,6 +117,46 @@ public class BitmaskTests
     public void BitwiseNotShouldValidateItsArguments() => Assert.Throws<ArgumentNullException>(() => ~(Bitmask)null!);
 
     [Fact]
+    public void LeftShiftShouldWorkCorrectlyWithRandomBitmask()
+    {
+        var bitmask = GenerateBitmask();
+
+        for (var i = 0; i <= bitmask.Length; i++)
+        {
+            var result = bitmask << i;
+
+            for (var j = 0; j < bitmask.Length - i; j++) Assert.Equal(bitmask.IsSet(i + j), result.IsSet(j));
+            for (var j = 0; j < i; j++) Assert.False(result.IsSet(bitmask.Length - i + j));
+        }
+    }
+
+    [Fact]
+    public void LeftShiftShouldValidateItsArguments()
+    {
+        var bitmask = GenerateBitmask();
+        
+        Assert.Throws<ArgumentNullException>(() => (Bitmask)null! << 2);
+        Assert.Throws<ArgumentException>(() => bitmask << -1);
+    }
+
+    [Fact]
+    public void ArithmeticRightShiftShouldWorkCorrectlyWithRandomBitmask() => AssertCorrectRightShift((a, b) => a >> b);
+
+    [Fact]
+    public void LogicalRightShiftShouldWorkCorrectlyWithRandomBitmask() => AssertCorrectRightShift((a, b) => a >>> b);
+
+    [Fact]
+    public void RightShiftShouldValidateItsArguments()
+    {
+        var bitmask = GenerateBitmask();
+        
+        Assert.Throws<ArgumentNullException>(() => (Bitmask)null! >> 2);
+        Assert.Throws<ArgumentNullException>(() => (Bitmask)null! >>> 2);
+        Assert.Throws<ArgumentException>(() => bitmask >> -1);
+        Assert.Throws<ArgumentException>(() => bitmask >>> -1);
+    }
+
+    [Fact]
     public void BitPositionShouldBeValidated()
     {
         var bitmask = InstantiateBitmask();
@@ -259,6 +299,19 @@ public class BitmaskTests
 
             for (var i = 0; i < totalBitmaskLength; i++)
                 Assert.Equal(expected.IsSet(i), result.IsSet(i));
+        }
+    }
+
+    private static void AssertCorrectRightShift(Func<Bitmask, int, Bitmask> compute)
+    {
+        var bitmask = GenerateBitmask();
+
+        for (var i = 0; i <= bitmask.Length; i++)
+        {
+            var result = compute(bitmask, i);
+
+            for (var j = 0; j < bitmask.Length - i; j++) Assert.Equal(bitmask.IsSet(j), result.IsSet(i + j));
+            for (var j = 0; j < i; j++) Assert.False(result.IsSet(j));
         }
     }
 

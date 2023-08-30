@@ -150,7 +150,9 @@ public class BitmaskTests
     {
         var bitmask = GenerateBitmask();
         
+        Assert.Throws<ArgumentNullException>(() => (Bitmask)null! >> 2);
         Assert.Throws<ArgumentNullException>(() => (Bitmask)null! >>> 2);
+        Assert.Throws<ArgumentException>(() => bitmask >> -1);
         Assert.Throws<ArgumentException>(() => bitmask >>> -1);
     }
 

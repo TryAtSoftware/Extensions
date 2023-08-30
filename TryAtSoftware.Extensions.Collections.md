@@ -110,7 +110,7 @@ Bitwise operations can be executed by using the corresponding operators.
 _They can come in handy whenever it is required to work over a group of bits collectively, rather than individually._
 The produced result will be a `Bitmask` instance as well.
 
-> For .NET 7 or above the `Bitmask` type implements the `IBitwiseOperators<Bitmask, Bitmask, Bitmask>` interface.
+> For .NET 7 or above the `Bitmask` type implements the `IBitwiseOperators<Bitmask, Bitmask, Bitmask>` and `IShiftOperators<Bitmask, int, Bitmask>` interfaces.
 
 ```C#
 Bitmask bitmask1 = new Bitmask(8, initializeWithZeros: true);
@@ -125,6 +125,10 @@ bitmask2.Set(1); bitmask2.Set(2); bitmask2.Set(5); bitmask2.Set(7);
 Bitmask andResult = bitmask1 & bitmask2; // 01000100
 Bitmask orResult = bitmask1 | bitmask2; // 11110101
 Bitmask xorResult = bitmask1 ^ bitmask2; // 10110001
+
+Bitmask leftShiftResult = bitmask1 << 3; // 10100000
+Bitmask rightShiftResult = bitmask2 >> 2; // 00011001
+// NOTE: Arithmetic and logical right shifts are equivalent.
 
 Bitmask notResult1 = ~bitmask1; // 00101011
 Bitmask notResult2 = ~bitmask2; // 10011010

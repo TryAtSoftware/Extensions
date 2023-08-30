@@ -10,7 +10,7 @@ using TryAtSoftware.Extensions.Collections.Internal;
 /// </summary>
 public class Bitmask
 #if NET7_0_OR_GREATER
-    : System.Numerics.IBitwiseOperators<Bitmask, Bitmask, Bitmask>
+    : System.Numerics.IBitwiseOperators<Bitmask, Bitmask, Bitmask>, System.Numerics.IShiftOperators<Bitmask, int, Bitmask>
 #endif
 {
     private const ulong ZeroSegment = 0;
@@ -142,6 +142,74 @@ public class Bitmask
         return result;
     }
 
+    /// <summary>
+    /// Shifts the bitmask left by a given amount.
+    /// </summary>
+    /// <param name="value">The bitmask which is shifted left by <paramref name="shiftAmount" />.</param>
+    /// <param name="shiftAmount">The amount by which <paramref name="value" /> is shifted left.</param>
+    /// <returns>The result of shifting <paramref name="value" /> left by <paramref name="shiftAmount" />.</returns>
+    public static Bitmask operator <<(Bitmask value, int shiftAmount)
+    {
+        if (value is null) throw new ArgumentNullException(nameof(value));
+        if (shiftAmount < 0) throw new ArgumentException("The shift amount must be a non-negative number.", nameof(shiftAmount));
+        
+        var result = new Bitmask(value.Length, initializeWithZeros: true);
+
+        var segmentsDiff = Math.DivRem(shiftAmount, BitsPerSegment, out shiftAmount);
+
+        var rotation = shiftAmount == 0 ? 0 : BitsPerSegment - shiftAmount;
+        var carryMask = rotation == 0 ? 0 : ~((1UL << rotation) - 1);
+        var carry = 0UL;
+        for (var i = result.SegmentsCount - 1; i >= segmentsDiff; i--)
+        {
+            var segment = value.GetSegment(i);
+
+            result.SetSegment(i - segmentsDiff, (segment << shiftAmount) | carry);
+            carry = (segment & carryMask) >> rotation;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Shifts a bitmask right by a given amount.
+    /// </summary>
+    /// <param name="value">The bitmask which is shifted right by <paramref name="shiftAmount" />.</param>
+    /// <param name="shiftAmount">The amount by which <paramref name="value" /> is shifted right.</param>
+    /// <returns>The result of shifting <paramref name="value" /> right by <paramref name="shiftAmount" />.</returns>
+    /// <remarks>There is no difference between the arithmetic or logical right shift.</remarks>
+    public static Bitmask operator >> (Bitmask value, int shiftAmount)
+    {
+        if (value is null) throw new ArgumentNullException(nameof(value));
+        if (shiftAmount < 0) throw new ArgumentException("The shift amount must be a non-negative number.", nameof(shiftAmount));
+        
+        var result = new Bitmask(value.Length, initializeWithZeros: true);
+
+        var segmentsDiff = Math.DivRem(shiftAmount, BitsPerSegment, out shiftAmount);
+
+        var rotation = shiftAmount == 0 ? 0 : BitsPerSegment - shiftAmount;
+        var carryMask = shiftAmount == 0 ? 0 : (1UL << shiftAmount) - 1;
+        var carry = 0UL;
+        for (var i = 0; i < result.SegmentsCount - segmentsDiff; i++)
+        {
+            var segment = value.GetSegment(i);
+
+            result.SetSegment(i + segmentsDiff, (segment >> shiftAmount) | carry);
+            carry = (segment & carryMask) << rotation;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Shifts a bitmask right by a given amount.
+    /// </summary>
+    /// <param name="value">The bitmask which is shifted right by <paramref name="shiftAmount" />.</param>
+    /// <param name="shiftAmount">The amount by which <paramref name="value" /> is shifted right.</param>
+    /// <returns>The result of shifting <paramref name="value" /> right by <paramref name="shiftAmount" />.</returns>
+    /// <remarks>There is no difference between the arithmetic or logical right shift.</remarks>
+    public static Bitmask operator >>> (Bitmask value, int shiftAmount) => value >> shiftAmount;
+
     private static ulong BitwiseAnd(ulong a, ulong b) => a & b;
     private static ulong BitwiseOr(ulong a, ulong b) => a | b;
     private static ulong BitwiseXor(ulong a, ulong b) => a ^ b;
@@ -152,7 +220,7 @@ public class Bitmask
         if (b is null) throw new ArgumentNullException(nameof(b));
 
         var result = new Bitmask(length: Math.Max(a.Length, b.Length), initializeWithZeros: false);
-        for (var i = 0; i < result._segments.Count; i++)
+        for (var i = 0; i < result.SegmentsCount; i++)
         {
             var left = i < a.SegmentsCount ? a.GetSegment(i) : 0;
             var right = i < b.SegmentsCount ? b.GetSegment(i) : 0;
@@ -162,18 +230,18 @@ public class Bitmask
 
         return result;
     }
-    
+
     private int FindLeastSignificantSetBit(bool inverse)
     {
-        for (var i = this._segments.Count - 1; i >= 0; i--)
+        for (var i = this.SegmentsCount - 1; i >= 0; i--)
         {
             var currentSegment = this._segments[i];
             if (inverse)
             {
                 currentSegment = ~currentSegment;
-                if (i == this._segments.Count - 1) currentSegment = this.ApplyLastSegmentMask(currentSegment);
+                if (i == this.SegmentsCount - 1) currentSegment = this.ApplyLastSegmentMask(currentSegment);
             }
-            
+
             if (currentSegment == ZeroSegment) continue;
 
             return (i * BitsPerSegment + BitsPerSegment - (Bits.TrailingZeroCount(currentSegment) + 1));

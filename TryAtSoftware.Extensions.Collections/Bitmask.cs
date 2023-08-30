@@ -151,7 +151,7 @@ public class Bitmask
     public static Bitmask operator <<(Bitmask value, int shiftAmount)
     {
         if (value is null) throw new ArgumentNullException(nameof(value));
-        if (shiftAmount < 0) throw new ArgumentException("", nameof(value));
+        if (shiftAmount < 0) throw new ArgumentException("The shift amount must be a non-negative number.", nameof(shiftAmount));
         
         var result = new Bitmask(value.Length, initializeWithZeros: true);
 
@@ -171,8 +171,18 @@ public class Bitmask
         return result;
     }
 
+    /// <summary>
+    /// Shifts a bitmask right by a given amount.
+    /// </summary>
+    /// <param name="value">The bitmask which is shifted right by <paramref name="shiftAmount" />.</param>
+    /// <param name="shiftAmount">The amount by which <paramref name="value" /> is shifted right.</param>
+    /// <returns>The result of shifting <paramref name="value" /> right by <paramref name="shiftAmount" />.</returns>
+    /// <remarks>There is no difference between the arithmetic or logical right shift.</remarks>
     public static Bitmask operator >> (Bitmask value, int shiftAmount)
     {
+        if (value is null) throw new ArgumentNullException(nameof(value));
+        if (shiftAmount < 0) throw new ArgumentException("The shift amount must be a non-negative number.", nameof(shiftAmount));
+        
         var result = new Bitmask(value.Length, initializeWithZeros: true);
 
         var segmentsDiff = Math.DivRem(shiftAmount, BitsPerSegment, out shiftAmount);

@@ -136,7 +136,7 @@ Bitmask notResult2 = ~bitmask2; // 10011010
 
 #### Find the position of the most significant set bit
 
-The `FindMostSignificantSetBit` method can be used to find the position of the most significant **set** bit.
+The `FindMostSignificantSetBit` method can be used to find the position of the most significant _(left-most)_ **set** bit.
 If there are no set bits, the returned value will be `-1`.
 
 ```C#
@@ -156,7 +156,7 @@ var position3 = bitmask.FindMostSignificantSetBit(); // -1
 
 #### Find the position of the most significant unset bit
 
-The `FindMostSignificantUnsetBit` method can be used to find the position of the most significant **unset** bit.
+The `FindMostSignificantUnsetBit` method can be used to find the position of the most significant _(left-most)_ **unset** bit.
 If there are no unset bits, the returned value will be `-1`.
 
 ```C#
@@ -176,7 +176,7 @@ var position3 = bitmask.FindMostSignificantUnsetBit(); // -1
 
 #### Find the position of the least significant set bit
 
-The `FindLeastSignificantSetBit` method can be used to find the position of the least significant **set** bit.
+The `FindLeastSignificantSetBit` method can be used to find the position of the least significant _(right-most)_ **set** bit.
 If there are no set bits, the returned value will be `-1`.
 
 ```C#
@@ -196,7 +196,7 @@ var position3 = bitmask.FindLeastSignificantSetBit(); // -1
 
 #### Find the position of the least significant unset bit
 
-The `FindLeastSignificantUnsetBit` method can be used to find the position of the least significant **unset** bit.
+The `FindLeastSignificantUnsetBit` method can be used to find the position of the least significant _(right-most)_ **unset** bit.
 If there are no unset bits, the returned value will be `-1`.
 
 ```C#

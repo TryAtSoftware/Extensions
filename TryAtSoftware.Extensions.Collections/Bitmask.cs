@@ -91,11 +91,19 @@ public class Bitmask
     /// <summary>
     /// Use this method to find the position of the least significant (right-most) bit that is unset.
     /// </summary>
-    /// <returns>Returns the position of the least significant unset bit. Returns -1 if there are no set bits.</returns>
+    /// <returns>Returns the position of the least significant unset bit. Returns -1 if there are no unset bits.</returns>
     public int FindLeastSignificantUnsetBit() => this.FindLeastSignificantSetBit(inverse: true);
 
+    /// <summary>
+    /// Use this method to find the position of the most significant (left-most) bit that is set.
+    /// </summary>
+    /// <returns>Returns the position of the most significant set bit. Returns -1 if there are no set bits.</returns>
     public int FindMostSignificantSetBit() => this.FindMostSignificantSetBit(inverse: false);
 
+    /// <summary>
+    /// Use this method to find the position of the most significant (left-most) bit that is unset.
+    /// </summary>
+    /// <returns>Returns the position of the most significant unset bit. Returns -1 if there are no unset bits.</returns>
     public int FindMostSignificantUnsetBit() => this.FindMostSignificantSetBit(inverse: true);
 
     /// <inheritdoc />

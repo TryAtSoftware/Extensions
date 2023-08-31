@@ -134,9 +134,49 @@ Bitmask notResult1 = ~bitmask1; // 00101011
 Bitmask notResult2 = ~bitmask2; // 10011010
 ```
 
+#### Find the position of the most significant set bit
+
+The `FindMostSignificantSetBit` method can be used to find the position of the most significant _(left-most)_ **set** bit.
+If there are no set bits, the returned value will be `-1`.
+
+```C#
+Bitmask bitmask = new Bitmask(8, initializeWithZeros: true);
+        
+// Set the corresponding bits so the second bitmask looks like this: 01001000
+bitmask.Set(1); bitmask.Set(4);
+
+var position1 = bitmask.FindMostSignificantSetBit(); // 1
+
+bitmask.Unset(1); // 00001000
+var position2 = bitmask.FindMostSignificantSetBit(); // 4
+
+bitmask.Unset(4); // 00000000
+var position3 = bitmask.FindMostSignificantSetBit(); // -1
+```
+
+#### Find the position of the most significant unset bit
+
+The `FindMostSignificantUnsetBit` method can be used to find the position of the most significant _(left-most)_ **unset** bit.
+If there are no unset bits, the returned value will be `-1`.
+
+```C#
+Bitmask bitmask = new Bitmask(8, initializeWithZeros: false);
+
+// Unset the corresponding bits so the second bitmask looks like this: 11101101
+bitmask.Unset(3); bitmask.Unset(6);
+
+var position1 = bitmask.FindMostSignificantUnsetBit(); // 3
+
+bitmask.Set(3); // 11111101
+var position2 = bitmask.FindMostSignificantUnsetBit(); // 6
+
+bitmask.Set(6); // 11111111
+var position3 = bitmask.FindMostSignificantUnsetBit(); // -1
+```
+
 #### Find the position of the least significant set bit
 
-The `FindLeastSignificantSetBit` method can be used to find the position of the least significant **set** bit.
+The `FindLeastSignificantSetBit` method can be used to find the position of the least significant _(right-most)_ **set** bit.
 If there are no set bits, the returned value will be `-1`.
 
 ```C#
@@ -156,7 +196,7 @@ var position3 = bitmask.FindLeastSignificantSetBit(); // -1
 
 #### Find the position of the least significant unset bit
 
-The `FindLeastSignificantUnsetBit` method can be used to find the position of the least significant **unset** bit.
+The `FindLeastSignificantUnsetBit` method can be used to find the position of the least significant _(right-most)_ **unset** bit.
 If there are no unset bits, the returned value will be `-1`.
 
 ```C#

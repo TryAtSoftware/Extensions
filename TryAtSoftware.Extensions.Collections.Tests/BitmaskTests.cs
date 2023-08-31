@@ -245,6 +245,74 @@ public class BitmaskTests
     }
 
     [Fact]
+    public void FindMostSignificantSetBitShouldWorkCorrectlyWithBitmaskOfZeros()
+    {
+        var bitmask = InstantiateBitmask();
+        Assert.Equal(-1, bitmask.FindMostSignificantSetBit());
+    }
+
+    [Fact]
+    public void FindMostSignificantSetBitShouldWorkCorrectlyInGeneral()
+    {
+        var bitmask = InstantiateBitmask(initializeWithZeros: false);
+        for (var i = 0; i < bitmask.Length; i++)
+        {
+            var result = bitmask.FindMostSignificantSetBit();
+            Assert.Equal(i, result);
+
+            bitmask.Unset(i);
+        }
+    }
+
+    [Fact]
+    public void FindMostSignificantSetBitShouldWorkCorrectlyWithRandomBitmask()
+    {
+        for (var i = 0; i < 100; i++)
+        {
+            var bitmask = GenerateBitmask();
+
+            var result = bitmask.FindMostSignificantSetBit();
+            Assert.True(bitmask.IsSet(result));
+
+            for (var j = 0; j < result; j++) Assert.False(bitmask.IsSet(j));
+        }
+    }
+
+    [Fact]
+    public void FindMostSignificantUnsetBitShouldWorkCorrectlyWithBitmaskOfOnes()
+    {
+        var bitmask = InstantiateBitmask(initializeWithZeros: false);
+        Assert.Equal(-1, bitmask.FindMostSignificantUnsetBit());
+    }
+
+    [Fact]
+    public void FindMostSignificantUnsetBitShouldWorkCorrectlyInGeneral()
+    {
+        var bitmask = InstantiateBitmask(initializeWithZeros: true);
+        for (var i = 0; i < bitmask.Length; i++)
+        {
+            var result = bitmask.FindMostSignificantUnsetBit();
+            Assert.Equal(i, result);
+
+            bitmask.Set(i);
+        }
+    }
+
+    [Fact]
+    public void FindMostSignificantUnsetBitShouldWorkCorrectlyWithRandomBitmask()
+    {
+        for (var i = 0; i < 100; i++)
+        {
+            var bitmask = GenerateBitmask();
+
+            var result = bitmask.FindMostSignificantUnsetBit();
+            Assert.False(bitmask.IsSet(result));
+
+            for (var j = 0; j < result; j++) Assert.True(bitmask.IsSet(j));
+        }
+    }
+
+    [Fact]
     public void ToStringShouldReturnCorrectBitmaskRepresentation()
     {
         var bitmask = GenerateBitmask();

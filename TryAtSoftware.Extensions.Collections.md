@@ -222,6 +222,25 @@ bitmask.Set(3); // 11111111
 var position3 = bitmask.FindLeastSignificantUnsetBit(); // -1
 ```
 
+#### Count the number of set or unset bits
+
+The `CountSetBits` and `CountUnsetBits` methods can be used to count the number of set or unset bits, respectively.
+
+```C#
+Bitmask bitmask = new Bitmask(8, initializeWithZeros: true);
+
+int setBitsCount1 = bitmask.CountSetBits(); // 0
+int unsetBitsCount1 = bitmask.CountUnsetBits(); // 8
+
+bitmask.Set(2); // 00100000
+int setBitsCount2 = bitmask.CountSetBits(); // 1
+int unsetBitsCount2 = bitmask.CountUnsetBits(); // 7
+
+bitmask.Set(3); // 00110000
+int setBitsCount3 = bitmask.CountSetBits(); // 2
+int unsetBitsCount3 = bitmask.CountUnsetBits(); // 6
+```
+
 ## Collection extensions
 
 ### `OrEmptyIfNull`

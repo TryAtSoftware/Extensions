@@ -36,6 +36,18 @@ public class BitmaskTests
     }
 
     [Fact]
+    public void SetAllShouldWorkCorrectlyWithRandomBitmask()
+    {
+        for (var i = 0; i < 100; i++)
+        {
+            var bitmask = GenerateBitmask();
+            bitmask.SetAll();
+            
+            for (var j = 0; j < bitmask.Length; j++) Assert.True(bitmask.IsSet(j));
+        }
+    }
+
+    [Fact]
     public void MultiUnsetShouldWorkCorrectly()
     {
         var bitmask = InstantiateBitmask(initializeWithZeros: false);
@@ -45,6 +57,18 @@ public class BitmaskTests
         {
             bitmask.Unset(randomIndex);
             for (var j = 0; j < bitmask.Length; j++) Assert.Equal(j != randomIndex, bitmask.IsSet(j));
+        }
+    }
+
+    [Fact]
+    public void UnsetAllShouldWorkCorrectlyWithRandomBitmask()
+    {
+        for (var i = 0; i < 100; i++)
+        {
+            var bitmask = GenerateBitmask();
+            bitmask.UnsetAll();
+            
+            for (var j = 0; j < bitmask.Length; j++) Assert.False(bitmask.IsSet(j));
         }
     }
 

@@ -62,6 +62,15 @@ public class Bitmask
     }
 
     /// <summary>
+    /// Use this method to set all bits.
+    /// </summary>
+    public void SetAll()
+    {
+        for (var i = 0; i < this.SegmentsCount; i++)
+            this.SetSegment(i, OneSegment);
+    }
+
+    /// <summary>
     /// Use this method to unset the bit at the requested position.
     /// </summary>
     /// <param name="position">The position of the bit that should be unset.</param>
@@ -69,6 +78,15 @@ public class Bitmask
     {
         var (segmentIndex, bitIndex) = this.Locate(position);
         this._segments[segmentIndex] &= ~(1UL << bitIndex);
+    }
+
+    /// <summary>
+    /// Use this method to unset all bits.
+    /// </summary>
+    public void UnsetAll()
+    {
+        for (var i = 0; i < this.SegmentsCount; i++)
+            this.SetSegment(i, ZeroSegment);
     }
 
     /// <summary>
@@ -80,12 +98,6 @@ public class Bitmask
     {
         var (segmentIndex, bitIndex) = this.Locate(position);
         return (this._segments[segmentIndex] & (1UL << bitIndex)) != 0;
-    }
-
-    public void Clear()
-    {
-        for (var i = 0; i < this.SegmentsCount; i++)
-            this.SetSegment(i, ZeroSegment);
     }
     
     /// <summary>

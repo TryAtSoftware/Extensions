@@ -124,6 +124,22 @@ public class Bitmask
     /// <returns>Returns the position of the most significant unset bit. Returns -1 if there are no unset bits.</returns>
     public int FindMostSignificantUnsetBit() => this.FindMostSignificantSetBit(inverse: true);
 
+    /// <summary>
+    /// Use this method to count the number of set bits.
+    /// </summary>
+    public int CountSetBits()
+    {
+        var ans = 0;
+        for (var i = 0; i < this.SegmentsCount; i++) ans += Bits.CountSetBits(this.GetSegment(i));
+
+        return ans;
+    }
+
+    /// <summary>
+    /// Use this method to count the number of unset bits.
+    /// </summary>
+    public int CountUnsetBits() => this.Length - this.CountSetBits();
+
     /// <inheritdoc />
     public override string ToString()
     {

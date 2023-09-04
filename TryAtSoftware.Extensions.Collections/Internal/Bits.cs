@@ -6,9 +6,13 @@ internal static class Bits
     public static int TrailingZeroCount(ulong segment) => System.Numerics.BitOperations.TrailingZeroCount(segment);
 
     public static int LeadingZeroCount(ulong segment) => System.Numerics.BitOperations.LeadingZeroCount(segment);
+
+    public static int CountSetBits(ulong segment) => System.Numerics.BitOperations.PopCount(segment);
 #else
     private const uint TrailingZeroCountDeBruijnConstant = 0x077CB531U;
     private const uint Log2DeBruijnConstant = 0x07C4ACDDU;
+
+    private static readonly ulong[] _countSetBitsConstants = { 0x_55555555_55555555UL, 0x_33333333_33333333UL, 0x_0F0F0F0F_0F0F0F0FUL, 0x_01010101_01010101UL }; 
 
     private static readonly int[] _trailingZeroCountDeBruijnTable =
     {
@@ -69,6 +73,15 @@ internal static class Bits
         
         var deBruijnIndex = (value * Log2DeBruijnConstant) >> 27;
         return _log2DeBruijnTable[deBruijnIndex];
+    }
+
+    public static int CountSetBits(ulong value)
+    {
+        value -= (value >> 1) & _countSetBitsConstants[0];
+        value = (value & _countSetBitsConstants[1]) + ((value >> 2) & _countSetBitsConstants[1]);
+        value = (((value + (value >> 4)) & _countSetBitsConstants[2]) * _countSetBitsConstants[3]) >> 56;
+
+        return (int)value;
     }
 
     private static (uint Value, int Offset) SplitValueHigh(ulong value)

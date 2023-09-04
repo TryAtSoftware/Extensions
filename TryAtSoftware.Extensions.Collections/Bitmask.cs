@@ -106,6 +106,16 @@ public class Bitmask
     /// <returns>Returns the position of the most significant unset bit. Returns -1 if there are no unset bits.</returns>
     public int FindMostSignificantUnsetBit() => this.FindMostSignificantSetBit(inverse: true);
 
+    public int CountSetBits()
+    {
+        var ans = 0;
+        for (var i = 0; i < this.SegmentsCount; i++) ans += Bits.CountSetBits(this.GetSegment(i));
+
+        return ans;
+    }
+
+    public int CountUnsetBits() => this.Length - this.CountSetBits();
+
     /// <inheritdoc />
     public override string ToString()
     {

@@ -3,9 +3,47 @@
 using System;
 using TryAtSoftware.Randomizer.Core.Helpers;
 using Xunit;
+using Xunit.Abstractions;
 
 public class BitmaskTests
 {
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public BitmaskTests(ITestOutputHelper testOutputHelper)
+    {
+        this._testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    }
+
+    [Fact]
+    public void Test()
+    {
+        Bitmask bitmask1 = new Bitmask(8, initializeWithZeros: true);
+        Bitmask bitmask2 = new Bitmask(8, initializeWithZeros: true);
+        Bitmask bitmask3 = new Bitmask(8, initializeWithZeros: true);
+        Bitmask bitmask4 = new Bitmask(8, initializeWithZeros: true);
+
+        // Set the corresponding bits so the first bitmask looks like this: 11010100
+        bitmask1.Set(0); bitmask1.Set(1); bitmask1.Set(3); bitmask1.Set(5);
+
+        // Set the corresponding bits so the second bitmask looks like this: 01100101
+        bitmask2.Set(1); bitmask2.Set(2); bitmask2.Set(5); bitmask2.Set(7);
+        
+        // Set the corresponding bits so the third bitmask looks like this: 01001011
+        bitmask3.Set(1); bitmask3.Set(4); bitmask3.Set(6); bitmask3.Set(7);
+        
+        // Set the corresponding bits so the fourth bitmask looks like this: 11000010
+        bitmask4.Set(0); bitmask4.Set(1); bitmask4.Set(6);
+
+        bitmask1.InPlaceAnd(bitmask2); // bitmask1: 01000100; bitmask2 remains unchanged
+        bitmask2.InPlaceOr(bitmask3); // bitmask2: 01101111; bitmask3 remains unchanged
+        bitmask3.InPlaceXor(bitmask4); // bitmask3: 10001001; bitmask4 remains unchanged
+        
+        this._testOutputHelper.WriteLine(bitmask1.ToString());
+        this._testOutputHelper.WriteLine(bitmask2.ToString());
+        this._testOutputHelper.WriteLine(bitmask3.ToString());
+        this._testOutputHelper.WriteLine(bitmask4.ToString());
+    }
+
     [Fact]
     public void BitsShouldBeIndexedSuccessfully()
     {
@@ -378,6 +416,36 @@ public class BitmaskTests
             
             Assert.Equal(expected, bitmask.CountUnsetBits());
         }
+    }
+
+    [Fact]
+    public void HasCommonBitsWithShouldValidateItsArguments()
+    {
+        var bitmask = GenerateBitmask();
+        Assert.Throws<ArgumentNullException>(() => bitmask.HasCommonSetBitsWith(null!));
+    }
+
+    [Fact]
+    public void HasCommonBitsWithShouldWorkCorrectlyBitmasksOfSameLength()
+    {
+        var bitmask = GenerateBitmask();
+        var zeroBitmask = new Bitmask(bitmask.Length, initializeWithZeros: true);
+        var oneBitmask = new Bitmask(bitmask.Length, initializeWithZeros: false);
+        
+        Assert.False(bitmask.HasCommonSetBitsWith(~bitmask));
+        Assert.False(bitmask.HasCommonSetBitsWith(zeroBitmask));
+        Assert.True(bitmask.HasCommonSetBitsWith(oneBitmask));
+    }
+
+    [Fact]
+    public void HasCommonBitsWithShouldWorkCorrectlyBitmasksOfDifferentLength()
+    {
+        var bitmask = GenerateBitmask();
+        var zeroBitmask = new Bitmask(RandomBitmaskLength(), initializeWithZeros: true);
+        var oneBitmask = new Bitmask(RandomBitmaskLength(), initializeWithZeros: false);
+        
+        Assert.False(bitmask.HasCommonSetBitsWith(zeroBitmask));
+        Assert.True(bitmask.HasCommonSetBitsWith(oneBitmask));
     }
 
     [Fact]

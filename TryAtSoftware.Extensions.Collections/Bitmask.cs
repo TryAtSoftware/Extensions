@@ -141,6 +141,25 @@ public class Bitmask
     public int CountUnsetBits() => this.Length - this.CountSetBits();
 
     /// <summary>
+    /// Use this method to determine if there exists at least one position for which both bits from the current bitmask instance and from the provided <paramref name="other"/> instance are set. 
+    /// </summary>
+    /// <param name="other">The other <see cref="Bitmask"/> instance.</param>
+    /// <returns>Returns <c>true</c> if there is a position at which the bits from both bitmasks are set. Else, returns <c>false</c>.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if the provided <paramref name="other"/> is <c>null</c>.</exception>
+    public bool HasCommonSetBitsWith(Bitmask other)
+    {
+        if (other is null) throw new ArgumentNullException(nameof(other));
+
+        var minSegmentsCount = Math.Min(this.SegmentsCount, other.SegmentsCount);
+        for (var i = 0; i < minSegmentsCount; i++)
+        {
+            if ((this.GetSegment(i) | other.GetSegment(i)) != ZeroSegment) return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Computes bitwise-and in-place with another two <see cref="Bitmask"/> instance.
     /// </summary>
     /// <param name="other">The other bitmask.</param>

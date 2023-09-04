@@ -51,6 +51,8 @@ Bitmask bitmaskWithOnes = new Bitmask(8, initializeWithZeros: false); // 1111111
 The `Set` method can be used to set the bit at a given position.
 It accepts a single parameter - the **zero-based** position of the bit that should be set.
 
+The `SetAll` method can be used to set all bits.
+
 ```C#
 Bitmask bitmask = new Bitmask(8, initializeWithZeros: true); // 00000000
         
@@ -58,6 +60,8 @@ bitmask.Set(0); // 10000000
 bitmask.Set(3); // 10010000
 
 bitmask.Set(0); // The bit is already set - nothing will be changed.
+
+bitmask.SetAll(); // 11111111
 
 // Invalid cases - position is out of range
 bitmask.Set(-1); // Exception will be thrown!
@@ -70,6 +74,8 @@ bitmask.Set(100); // Exception will be thrown!
 The `Unset` method can be used to unset the bit at a given position.
 It accepts a single parameter - the **zero-based** position of the bit that should be unset.
 
+The `UnsetAll` method can be used to unset all bits.
+
 ```C#
 Bitmask bitmask = new Bitmask(8, initializeWithZeros: false); // 11111111
         
@@ -77,6 +83,8 @@ bitmask.Unset(1); // 10111111
 bitmask.Unset(2); // 10011111
 
 bitmask.Unset(2); // The bit is not set - nothing will be changed.
+
+bitmask.UnsetAll(); // 00000000
 
 // Invalid cases - position is out of range
 bitmask.Unset(-1); // Exception will be thrown!

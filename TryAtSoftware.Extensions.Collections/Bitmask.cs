@@ -152,9 +152,7 @@ public class Bitmask
 
         var minSegmentsCount = Math.Min(this.SegmentsCount, other.SegmentsCount);
         for (var i = 0; i < minSegmentsCount; i++)
-        {
-            if ((this.GetSegment(i) | other.GetSegment(i)) != ZeroSegment) return true;
-        }
+            if ((this.GetSegment(i) & other.GetSegment(i)) != ZeroSegment) return true;
 
         return false;
     }

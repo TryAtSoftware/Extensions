@@ -141,22 +141,22 @@ public class Bitmask
     public int CountUnsetBits() => this.Length - this.CountSetBits();
 
     /// <summary>
-    /// Computes bitwise-and inplace with another two <see cref="Bitmask"/> instance.
+    /// Computes bitwise-and in-place with another two <see cref="Bitmask"/> instance.
     /// </summary>
     /// <param name="other">The other bitmask.</param>
-    public void InplaceAnd(Bitmask other) => this.ExecuteInplaceBitwiseOperation(other, BitwiseAnd);
+    public void InPlaceAnd(Bitmask other) => this.ExecuteInPlaceBitwiseOperation(other, BitwiseAnd);
 
     /// <summary>
-    /// Computes bitwise-or inplace with another two <see cref="Bitmask"/> instance.
+    /// Computes bitwise-or in-place with another two <see cref="Bitmask"/> instance.
     /// </summary>
     /// <param name="other">The other bitmask.</param>
-    public void InplaceOr(Bitmask other) => this.ExecuteInplaceBitwiseOperation(other, BitwiseOr);
+    public void InPlaceOr(Bitmask other) => this.ExecuteInPlaceBitwiseOperation(other, BitwiseOr);
 
     /// <summary>
-    /// Computes exclusive-or inplace with another two <see cref="Bitmask"/> instance.
+    /// Computes exclusive-or in-place with another two <see cref="Bitmask"/> instance.
     /// </summary>
     /// <param name="other">The other bitmask.</param>
-    public void InplaceXor(Bitmask other) => this.ExecuteInplaceBitwiseOperation(other, BitwiseXor);
+    public void InPlaceXor(Bitmask other) => this.ExecuteInPlaceBitwiseOperation(other, BitwiseXor);
 
     /// <inheritdoc />
     public override string ToString()
@@ -295,10 +295,10 @@ public class Bitmask
         return result;
     }
 
-    private void ExecuteInplaceBitwiseOperation(Bitmask other, Func<ulong, ulong, ulong> operation)
+    private void ExecuteInPlaceBitwiseOperation(Bitmask other, Func<ulong, ulong, ulong> operation)
     {
         if (other is null) throw new ArgumentNullException(nameof(other));
-        if (this.Length != other.Length) throw new InvalidOperationException("Both bitmask instances must have the same length in order to execute an inplace bitwise operation.");
+        if (this.Length != other.Length) throw new InvalidOperationException("Both bitmask instances must have the same length in order to execute an in-place bitwise operation.");
         
         for (var i = 0; i < this.SegmentsCount; i++)
         {

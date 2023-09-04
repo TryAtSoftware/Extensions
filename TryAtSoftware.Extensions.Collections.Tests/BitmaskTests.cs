@@ -63,6 +63,18 @@ public class BitmaskTests
     }
 
     [Fact]
+    public void ClearShouldWorkCorrectlyWithRandomBitmask()
+    {
+        for (var i = 0; i < 100; i++)
+        {
+            var bitmask = GenerateBitmask();
+            bitmask.Clear();
+            
+            for (var j = 0; j < bitmask.Length; j++) Assert.False(bitmask.IsSet(j));
+        }
+    }
+
+    [Fact]
     public void BitwiseAndShouldBeExecutedSuccessfully() => AssertCorrectBitwiseOperation((a, b) => a & b, (a, b) => a & b);
 
     [Fact]

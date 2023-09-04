@@ -381,6 +381,36 @@ public class BitmaskTests
     }
 
     [Fact]
+    public void HasCommonBitsWithShouldValidateItsArguments()
+    {
+        var bitmask = GenerateBitmask();
+        Assert.Throws<ArgumentNullException>(() => bitmask.HasCommonSetBitsWith(null!));
+    }
+
+    [Fact]
+    public void HasCommonBitsWithShouldWorkCorrectlyBitmasksOfSameLength()
+    {
+        var bitmask = GenerateBitmask();
+        var zeroBitmask = new Bitmask(bitmask.Length, initializeWithZeros: true);
+        var oneBitmask = new Bitmask(bitmask.Length, initializeWithZeros: false);
+        
+        Assert.False(bitmask.HasCommonSetBitsWith(~bitmask));
+        Assert.False(bitmask.HasCommonSetBitsWith(zeroBitmask));
+        Assert.True(bitmask.HasCommonSetBitsWith(oneBitmask));
+    }
+
+    [Fact]
+    public void HasCommonBitsWithShouldWorkCorrectlyBitmasksOfDifferentLength()
+    {
+        var bitmask = GenerateBitmask();
+        var zeroBitmask = new Bitmask(RandomBitmaskLength(), initializeWithZeros: true);
+        var oneBitmask = new Bitmask(RandomBitmaskLength(), initializeWithZeros: false);
+        
+        Assert.False(bitmask.HasCommonSetBitsWith(zeroBitmask));
+        Assert.True(bitmask.HasCommonSetBitsWith(oneBitmask));
+    }
+
+    [Fact]
     public void ToStringShouldReturnCorrectBitmaskRepresentation()
     {
         var bitmask = GenerateBitmask();

@@ -274,6 +274,34 @@ int setBitsCount3 = bitmask.CountSetBits(); // 2
 int unsetBitsCount3 = bitmask.CountUnsetBits(); // 6
 ```
 
+#### Check if two bitmasks share some common bits
+
+Of course, for this purpose we could use the bitwise-and operation like this: `(a & b).FindMostSignificantSetBit() != -1`, or `(a & b).FindLeastSignificantSetBit() != -1`, or `(a & b).CountSetBits() > 0`, etc.
+However, all of these solutions have on major downside - either we have to sacrifice one of the bitmasks (by using in-place bitwise operations), or we must allocate additional memory.
+
+Conveniently enough, the `HasCommonSetBitsWith` method solves these two problems.
+
+> This method is commutative, i.e. `a.HasCommonSetBitsWith(b)` will **always** be equivalent to `b.HasCommonSetBitsWith(a)`.
+
+```C#
+Bitmask bitmask1 = new Bitmask(8, initializeWithZeros: true);
+Bitmask bitmask2 = new Bitmask(8, initializeWithZeros: true);
+Bitmask bitmask3 = new Bitmask(8, initializeWithZeros: true);
+
+// Set the corresponding bits so the first bitmask looks like this: 10101010
+bitmask1.Set(0); bitmask1.Set(2); bitmask1.Set(4); bitmask1.Set(6);
+
+// Set the corresponding bits so the second bitmask looks like this: 00001111
+bitmask2.Set(4); bitmask2.Set(5); bitmask2.Set(6); bitmask2.Set(7);
+
+// Set the corresponding bits so the third bitmask looks like this: 11110000
+bitmask3.Set(0); bitmask3.Set(1); bitmask3.Set(2); bitmask3.Set(3);
+
+var result1 = bitmask1.HasCommonSetBitsWith(bitmask2); // True
+var result2 = bitmask1.HasCommonSetBitsWith(bitmask3); // True
+var result3 = bitmask2.HasCommonSetBitsWith(bitmask3); // False
+```
+
 ## Collection extensions
 
 ### `OrEmptyIfNull`

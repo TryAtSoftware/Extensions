@@ -313,6 +313,56 @@ public class BitmaskTests
     }
 
     [Fact]
+    public void CountSetBitsShouldWorkCorrectlyWithHomogenousBitmasks()
+    {
+        var zeroBitmask = InstantiateBitmask(initializeWithZeros: true);
+        Assert.Equal(0, zeroBitmask.CountSetBits());
+
+        var oneBitmask = InstantiateBitmask(initializeWithZeros: false);
+        Assert.Equal(oneBitmask.Length, oneBitmask.CountSetBits());
+    }
+
+    [Fact]
+    public void CountSetBitsShouldWorkCorrectlyWithRandomBitmask()
+    {
+        for (var i = 0; i < 100; i++)
+        {
+            var bitmask = GenerateBitmask();
+
+            var expected = 0;
+            for (var j = 0; j < bitmask.Length; j++)
+                if (bitmask.IsSet(j)) expected++;
+            
+            Assert.Equal(expected, bitmask.CountSetBits());
+        }
+    }
+
+    [Fact]
+    public void CountUnsetBitsShouldWorkCorrectlyWithHomogenousBitmasks()
+    {
+        var zeroBitmask = InstantiateBitmask(initializeWithZeros: true);
+        Assert.Equal(zeroBitmask.Length, zeroBitmask.CountUnsetBits());
+
+        var oneBitmask = InstantiateBitmask(initializeWithZeros: false);
+        Assert.Equal(0, oneBitmask.CountUnsetBits());
+    }
+
+    [Fact]
+    public void CountUnsetBitsShouldWorkCorrectlyWithRandomBitmask()
+    {
+        for (var i = 0; i < 100; i++)
+        {
+            var bitmask = GenerateBitmask();
+
+            var expected = 0;
+            for (var j = 0; j < bitmask.Length; j++)
+                if (!bitmask.IsSet(j)) expected++;
+            
+            Assert.Equal(expected, bitmask.CountUnsetBits());
+        }
+    }
+
+    [Fact]
     public void ToStringShouldReturnCorrectBitmaskRepresentation()
     {
         var bitmask = GenerateBitmask();

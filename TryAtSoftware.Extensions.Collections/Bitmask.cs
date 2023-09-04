@@ -140,6 +140,24 @@ public class Bitmask
     /// </summary>
     public int CountUnsetBits() => this.Length - this.CountSetBits();
 
+    /// <summary>
+    /// Computes bitwise-and inplace with another two <see cref="Bitmask"/> instance.
+    /// </summary>
+    /// <param name="other">The other bitmask.</param>
+    public void InplaceAnd(Bitmask other) => this.ExecuteInplaceBitwiseOperation(other, BitwiseAnd);
+
+    /// <summary>
+    /// Computes bitwise-or inplace with another two <see cref="Bitmask"/> instance.
+    /// </summary>
+    /// <param name="other">The other bitmask.</param>
+    public void InplaceOr(Bitmask other) => this.ExecuteInplaceBitwiseOperation(other, BitwiseOr);
+
+    /// <summary>
+    /// Computes exclusive-or inplace with another two <see cref="Bitmask"/> instance.
+    /// </summary>
+    /// <param name="other">The other bitmask.</param>
+    public void InplaceXor(Bitmask other) => this.ExecuteInplaceBitwiseOperation(other, BitwiseXor);
+
     /// <inheritdoc />
     public override string ToString()
     {
@@ -275,6 +293,20 @@ public class Bitmask
         }
 
         return result;
+    }
+
+    private void ExecuteInplaceBitwiseOperation(Bitmask other, Func<ulong, ulong, ulong> operation)
+    {
+        if (other is null) throw new ArgumentNullException(nameof(other));
+        if (this.Length != other.Length) throw new InvalidOperationException("Both bitmask instances must have the same length in order to execute an inplace bitwise operation.");
+        
+        for (var i = 0; i < this.SegmentsCount; i++)
+        {
+            var left = this.GetSegment(i);
+            var right = other.GetSegment(i);
+
+            this.SetSegment(i, operation(left, right));
+        }
     }
 
     private int FindLeastSignificantSetBit(bool inverse)

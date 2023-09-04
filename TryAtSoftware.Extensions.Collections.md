@@ -276,7 +276,7 @@ int unsetBitsCount3 = bitmask.CountUnsetBits(); // 6
 
 #### Check if two bitmasks share some common bits
 
-Of course, for this purpose we could use the bitwise-and operation like this: `(a & b).FindMostSignificantSetBit() != -1`, or `(a & b).FindLeastSignificantSetBit() != -1`, or `(a & b).CountSetBits() > 0`.
+Of course, for this purpose we could use the bitwise-and operation like this: `(a & b).FindMostSignificantSetBit() != -1`, or `(a & b).FindLeastSignificantSetBit() != -1`, or `(a & b).CountSetBits() > 0`, etc.
 However, all of these solutions have on major downside - either we have to sacrifice one of the bitmasks (by using in-place bitwise operations), or we must allocate additional memory.
 
 Conveniently enough, the `HasCommonSetBitsWith` method solves these two problems.

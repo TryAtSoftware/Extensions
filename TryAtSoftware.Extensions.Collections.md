@@ -118,6 +118,9 @@ Bitwise operations can be executed by using the corresponding operators.
 _They can come in handy whenever it is required to work over a group of bits collectively, rather than individually._
 The produced result will be a `Bitmask` instance as well.
 
+> The operations bitwise-and, bitwise-or and exclusive-or do not require both of the operands to have the same length.
+> You can visualize this by padding the shorter bitmask with enough **trailing** zeros.
+
 > For .NET 7 or above the `Bitmask` type implements the `IBitwiseOperators<Bitmask, Bitmask, Bitmask>` and `IShiftOperators<Bitmask, int, Bitmask>` interfaces.
 
 ```C#
@@ -140,6 +143,36 @@ Bitmask rightShiftResult = bitmask2 >> 2; // 00011001
 
 Bitmask notResult1 = ~bitmask1; // 00101011
 Bitmask notResult2 = ~bitmask2; // 10011010
+```
+
+#### Executing in-place bitwise operations
+
+We can use in-place bitwise operations in order to save up some memory whenever it is not required for the produced result of the operation to be a new `Bitmask` instance.
+For this purpose, the `InPlaceAnd`, `InPlaceOr` and `InPlaceXor` methods can be used.
+
+> In-place bitwise operations require both of the bitmasks to have the exact same length.
+
+```C#
+Bitmask bitmask1 = new Bitmask(8, initializeWithZeros: true);
+Bitmask bitmask2 = new Bitmask(8, initializeWithZeros: true);
+Bitmask bitmask3 = new Bitmask(8, initializeWithZeros: true);
+Bitmask bitmask4 = new Bitmask(8, initializeWithZeros: true);
+
+// Set the corresponding bits so the first bitmask looks like this: 11010100
+bitmask1.Set(0); bitmask1.Set(1); bitmask1.Set(3); bitmask1.Set(5);
+
+// Set the corresponding bits so the second bitmask looks like this: 01100101
+bitmask2.Set(1); bitmask2.Set(2); bitmask2.Set(5); bitmask2.Set(7);
+
+// Set the corresponding bits so the third bitmask looks like this: 01001011
+bitmask3.Set(1); bitmask3.Set(4); bitmask3.Set(6); bitmask3.Set(7);
+
+// Set the corresponding bits so the fourth bitmask looks like this: 11000010
+bitmask4.Set(0); bitmask4.Set(1); bitmask4.Set(6);
+
+bitmask1.InPlaceAnd(bitmask2); // bitmask1 changes to 01000100; bitmask2 remains unchanged
+bitmask2.InPlaceOr(bitmask3); // bitmask2 changes to 01101111; bitmask3 remains unchanged
+bitmask3.InPlaceXor(bitmask4); // bitmask3 changes to 10001001; bitmask4 remains unchanged
 ```
 
 #### Find the position of the most significant set bit

@@ -82,6 +82,12 @@ public class Bitmask
         return (this._segments[segmentIndex] & (1UL << bitIndex)) != 0;
     }
 
+    public void Clear()
+    {
+        for (var i = 0; i < this.SegmentsCount; i++)
+            this.SetSegment(i, ZeroSegment);
+    }
+    
     /// <summary>
     /// Use this method to find the position of the least significant (right-most) bit that is set.
     /// </summary>

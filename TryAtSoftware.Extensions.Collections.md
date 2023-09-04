@@ -118,7 +118,7 @@ Bitwise operations can be executed by using the corresponding operators.
 _They can come in handy whenever it is required to work over a group of bits collectively, rather than individually._
 The produced result will be a `Bitmask` instance as well.
 
-> The operations bitwise-and, bitwise-or and exclusive-or do not require both of the operands to have the same length.
+> The operations `bitwise-and`, `bitwise-or` and `exclusive-or` do not require both of the operands to have the same length.
 > You can visualize this by padding the shorter bitmask with enough **trailing** zeros.
 
 > For .NET 7 or above the `Bitmask` type implements the `IBitwiseOperators<Bitmask, Bitmask, Bitmask>` and `IShiftOperators<Bitmask, int, Bitmask>` interfaces.
@@ -147,7 +147,7 @@ Bitmask notResult2 = ~bitmask2; // 10011010
 
 #### Executing in-place bitwise operations
 
-We can use in-place bitwise operations in order to save up some memory whenever it is not required for the produced result of the operation to be a new `Bitmask` instance.
+We can use in-place bitwise operations in order to save up some memory whenever there is no need for the operation's result to be a new `Bitmask` instance.
 For this purpose, the `InPlaceAnd`, `InPlaceOr` and `InPlaceXor` methods can be used.
 
 > In-place bitwise operations require both of the bitmasks to have the exact same length.

@@ -90,37 +90,37 @@ public class BitmaskTests
     public void BitwiseAndShouldBeExecutedSuccessfully() => AssertCorrectBitwiseOperation((a, b) => a & b, (a, b) => a & b);
     
     [Fact]
-    public void BitwiseAndShouldBeExecutedSuccessfullyInPlace() => AssertCorrectInPlaceBitwiseOperation((a, b) => a.InPlaceAnd(b), (a, b) => a & b);
+    public void BitwiseAndShouldBeExecutedSuccessfullyInPlace() => AssertCorrectInPlaceBitwiseOperation((a, b, c) => a.InPlaceAnd(b, c), (a, b) => a & b);
 
     [Fact]
     public void BitwiseAndShouldBeExecutedSuccessfullyWhenLengthIsDifferent() => AssertCorrectBitwiseOperation((a, b) => a & b, (a, b) => a & b, lengthDifferenceInSegments: RandomBitmaskLength());
 
     [Fact]
-    public void BitwiseAndShouldValidateItsArguments() => AssertBitwiseOperandsAreValidatedSuccessfully((a, b) => a & b, (a, b) => a.InPlaceAnd(b));
+    public void BitwiseAndShouldValidateItsArguments() => AssertBitwiseOperandsAreValidatedSuccessfully((a, b) => a & b, (a, b, c) => a.InPlaceAnd(b, c));
 
     [Fact]
     public void BitwiseOrShouldBeExecutedSuccessfully() => AssertCorrectBitwiseOperation((a, b) => a | b, (a, b) => a | b);
     
     [Fact]
-    public void BitwiseOrShouldBeExecutedSuccessfullyInPlace() => AssertCorrectInPlaceBitwiseOperation((a, b) => a.InPlaceOr(b), (a, b) => a | b);
+    public void BitwiseOrShouldBeExecutedSuccessfullyInPlace() => AssertCorrectInPlaceBitwiseOperation((a, b, c) => a.InPlaceOr(b, c), (a, b) => a | b);
 
     [Fact]
     public void BitwiseOrShouldBeExecutedSuccessfullyWhenLengthIsDifferent() => AssertCorrectBitwiseOperation((a, b) => a | b, (a, b) => a | b, lengthDifferenceInSegments: RandomBitmaskLength());
 
     [Fact]
-    public void BitwiseOrShouldValidateItsArguments() => AssertBitwiseOperandsAreValidatedSuccessfully((a, b) => a | b, (a, b) => a.InPlaceOr(b));
+    public void BitwiseOrShouldValidateItsArguments() => AssertBitwiseOperandsAreValidatedSuccessfully((a, b) => a | b, (a, b, c) => a.InPlaceOr(b, c));
 
     [Fact]
     public void BitwiseXorShouldBeExecutedSuccessfully() => AssertCorrectBitwiseOperation((a, b) => a ^ b, (a, b) => a ^ b);
     
     [Fact]
-    public void BitwiseXorShouldBeExecutedSuccessfullyInPlace() => AssertCorrectInPlaceBitwiseOperation((a, b) => a.InPlaceXor(b), (a, b) => a ^ b);
+    public void BitwiseXorShouldBeExecutedSuccessfullyInPlace() => AssertCorrectInPlaceBitwiseOperation((a, b, c) => a.InPlaceXor(b, c), (a, b) => a ^ b);
 
     [Fact]
     public void BitwiseXorShouldBeExecutedSuccessfullyWhenLengthIsDifferent() => AssertCorrectBitwiseOperation((a, b) => a ^ b, (a, b) => a ^ b, lengthDifferenceInSegments: RandomBitmaskLength());
 
     [Fact]
-    public void BitwiseXorShouldValidateItsArguments() => AssertBitwiseOperandsAreValidatedSuccessfully((a, b) => a ^ b, (a, b) => a.InPlaceXor(b));
+    public void BitwiseXorShouldValidateItsArguments() => AssertBitwiseOperandsAreValidatedSuccessfully((a, b) => a ^ b, (a, b, c) => a.InPlaceXor(b, c));
 
     [Fact]
     public void BitwiseNotShouldBeExecutedSuccessfully()
@@ -447,17 +447,17 @@ public class BitmaskTests
         var baseBitmaskLength = RandomBitmaskLength();
         var totalBitmaskLength = baseBitmaskLength + lengthDifferenceInSegments;
 
-        var bitmask1 = GenerateBitmask(baseBitmaskLength);
-        var bitmask2 = GenerateBitmask(totalBitmaskLength);
+        var constituent1 = GenerateBitmask(baseBitmaskLength);
+        var constituent2 = GenerateBitmask(totalBitmaskLength);
 
         var expected = new Bitmask(totalBitmaskLength, initializeWithZeros: true);
         for (var i = 0; i < totalBitmaskLength; i++)
         {
-            var expectedBit = getExpectedBit(i < baseBitmaskLength && bitmask1.IsSet(i), bitmask2.IsSet(i));
+            var expectedBit = getExpectedBit(i < baseBitmaskLength && constituent1.IsSet(i), constituent2.IsSet(i));
             if (expectedBit) expected.Set(i);
         }
 
-        var results = new[] { compute(bitmask1, bitmask2), compute(bitmask2, bitmask1) };
+        var results = new[] { compute(constituent1, constituent2), compute(constituent2, constituent1) };
         foreach (var result in results)
         {
             Assert.NotNull(result);
@@ -468,42 +468,50 @@ public class BitmaskTests
         }
     }
 
-    private static void AssertCorrectInPlaceBitwiseOperation(Action<Bitmask, Bitmask> executeOperationInPlace, Func<bool, bool, bool> getExpectedBit)
+    private static void AssertCorrectInPlaceBitwiseOperation(Action<Bitmask, Bitmask, Bitmask> executeOperationInPlace, Func<bool, bool, bool> getExpectedBit)
     {
         var length = RandomBitmaskLength();
 
         var originalBitmask = GenerateBitmask(length);
-        var otherBitmask = GenerateBitmask(length);
+
+        var constituent1 = GenerateBitmask(length);
+        var constituent2 = GenerateBitmask(length);
 
         var expected = new Bitmask(length, initializeWithZeros: true);
-        var otherBitmaskCopy = new Bitmask(length, initializeWithZeros: true);
+        var copyConstituent1 = new Bitmask(length, initializeWithZeros: true);
+        var copyConstituent2 = new Bitmask(length, initializeWithZeros: true);
         for (var i = 0; i < length; i++)
         {
-            var expectedBit = getExpectedBit(originalBitmask.IsSet(i), otherBitmask.IsSet(i));
+            var expectedBit = getExpectedBit(originalBitmask.IsSet(i), constituent1.IsSet(i));
             if (expectedBit) expected.Set(i);
 
-            if (otherBitmask.IsSet(i)) otherBitmaskCopy.Set(i);
+            if (constituent1.IsSet(i)) copyConstituent1.Set(i);
+            if (constituent2.IsSet(i)) copyConstituent2.Set(i);
         }
 
-        executeOperationInPlace(originalBitmask, otherBitmask);
+        executeOperationInPlace(originalBitmask, constituent1, constituent2);
 
         for (var i = 0; i < length; i++)
         {
             Assert.Equal(expected.IsSet(i), originalBitmask.IsSet(i));
-            Assert.Equal(otherBitmaskCopy.IsSet(i), otherBitmask.IsSet(i)); // Assert the `other` bitmask instance remains unchanged.
+            Assert.Equal(copyConstituent1.IsSet(i), constituent1.IsSet(i)); // Assert the `constituent1` bitmask instance remains unchanged.
+            Assert.Equal(copyConstituent2.IsSet(i), constituent2.IsSet(i)); // Assert the `constituent2` bitmask instance remains unchanged.
         }
     }
 
-    private static void AssertBitwiseOperandsAreValidatedSuccessfully(Func<Bitmask, Bitmask, Bitmask> executeOperation, Action<Bitmask, Bitmask> executeOperationInPlace)
+    private static void AssertBitwiseOperandsAreValidatedSuccessfully(Func<Bitmask, Bitmask, Bitmask> executeOperation, Action<Bitmask, Bitmask, Bitmask> executeOperationInPlace)
     {
         var bitmask = GenerateBitmask();
         Assert.Throws<ArgumentNullException>(() => executeOperation(bitmask, null!));
         Assert.Throws<ArgumentNullException>(() => executeOperation(null!, bitmask));
 
-        Assert.Throws<ArgumentNullException>(() => executeOperationInPlace(bitmask, null!));
+        var validInPlaceConstituent = GenerateBitmask(length: bitmask.Length);
+        Assert.Throws<ArgumentNullException>(() => executeOperationInPlace(bitmask, validInPlaceConstituent, null!));
+        Assert.Throws<ArgumentNullException>(() => executeOperationInPlace(bitmask, null!, validInPlaceConstituent));
 
-        var bitmaskWithDifferentLength = new Bitmask(bitmask.Length + RandomizationHelper.RandomInteger(1, 10, upperBoundIsExclusive: false), initializeWithZeros: true);
-        Assert.Throws<InvalidOperationException>(() => executeOperationInPlace(bitmask, bitmaskWithDifferentLength));
+        var constituentWithDifferentLength = new Bitmask(bitmask.Length + RandomizationHelper.RandomInteger(1, 10, upperBoundIsExclusive: false), initializeWithZeros: true);
+        Assert.Throws<InvalidOperationException>(() => executeOperationInPlace(bitmask, validInPlaceConstituent, constituentWithDifferentLength));
+        Assert.Throws<InvalidOperationException>(() => executeOperationInPlace(bitmask, constituentWithDifferentLength, validInPlaceConstituent));
     }
 
     private static void AssertCorrectRightShift(Func<Bitmask, int, Bitmask> compute)

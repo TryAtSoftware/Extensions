@@ -158,22 +158,25 @@ public class Bitmask
     }
 
     /// <summary>
-    /// Computes bitwise-and in-place with another two <see cref="Bitmask"/> instance.
+    /// Assigns to the current instance the result of executing bitwise-and of two other bitmasks.
     /// </summary>
-    /// <param name="other">The other bitmask.</param>
-    public void InPlaceAnd(Bitmask other) => this.ExecuteInPlaceBitwiseOperation(other, BitwiseAnd);
+    /// <param name="left">The first bitmask.</param>
+    /// <param name="right">The second bitmask.</param>
+    public void InPlaceAnd(Bitmask left, Bitmask right) => this.ExecuteInPlaceBitwiseOperation(left, right, BitwiseAnd);
 
     /// <summary>
-    /// Computes bitwise-or in-place with another two <see cref="Bitmask"/> instance.
+    /// Assigns to the current instance the result of executing bitwise-or of two other bitmasks.
     /// </summary>
-    /// <param name="other">The other bitmask.</param>
-    public void InPlaceOr(Bitmask other) => this.ExecuteInPlaceBitwiseOperation(other, BitwiseOr);
+    /// <param name="left">The first bitmask.</param>
+    /// <param name="right">The second bitmask.</param>
+    public void InPlaceOr(Bitmask left, Bitmask right) => this.ExecuteInPlaceBitwiseOperation(left, right, BitwiseOr);
 
     /// <summary>
-    /// Computes exclusive-or in-place with another two <see cref="Bitmask"/> instance.
+    /// Assigns to the current instance the result of executing exclusive-or of two other bitmasks.
     /// </summary>
-    /// <param name="other">The other bitmask.</param>
-    public void InPlaceXor(Bitmask other) => this.ExecuteInPlaceBitwiseOperation(other, BitwiseXor);
+    /// <param name="left">The first bitmask.</param>
+    /// <param name="right">The second bitmask.</param>
+    public void InPlaceXor(Bitmask left, Bitmask right) => this.ExecuteInPlaceBitwiseOperation(left, right, BitwiseXor);
 
     /// <inheritdoc />
     public override string ToString()
@@ -312,15 +315,16 @@ public class Bitmask
         return result;
     }
 
-    private void ExecuteInPlaceBitwiseOperation(Bitmask other, Func<ulong, ulong, ulong> operation)
+    private void ExecuteInPlaceBitwiseOperation(Bitmask a, Bitmask b, Func<ulong, ulong, ulong> operation)
     {
-        if (other is null) throw new ArgumentNullException(nameof(other));
-        if (this.Length != other.Length) throw new InvalidOperationException("Both bitmask instances must have the same length in order to execute an in-place bitwise operation.");
+        if (a is null) throw new ArgumentNullException(nameof(a));
+        if (b is null) throw new ArgumentNullException(nameof(b));
+        if (this.Length != a.Length || this.Length != b.Length) throw new InvalidOperationException("Both bitmask instances must have the same length in order to execute an in-place bitwise operation.");
         
         for (var i = 0; i < this.SegmentsCount; i++)
         {
-            var left = this.GetSegment(i);
-            var right = other.GetSegment(i);
+            var left = a.GetSegment(i);
+            var right = b.GetSegment(i);
 
             this.SetSegment(i, operation(left, right));
         }

@@ -170,9 +170,10 @@ bitmask3.Set(1); bitmask3.Set(4); bitmask3.Set(6); bitmask3.Set(7);
 // Set the corresponding bits so the fourth bitmask looks like this: 11000010
 bitmask4.Set(0); bitmask4.Set(1); bitmask4.Set(6);
 
-bitmask1.InPlaceAnd(bitmask2); // bitmask1 changes to 01000100; bitmask2 remains unchanged
-bitmask2.InPlaceOr(bitmask3); // bitmask2 changes to 01101111; bitmask3 remains unchanged
-bitmask3.InPlaceXor(bitmask4); // bitmask3 changes to 10001001; bitmask4 remains unchanged
+Bitmask result = new Bitmask(8, initializeWithZeros: true);
+result.InPlaceAnd(bitmask1, bitmask2); // `result` changes to 01000100; `bitmask1` and `bitmask2` remains unchanged
+result.InPlaceOr(bitmask2, bitmask3); // `result` changes to 01101111; `bitmask2` and `bitmask3` remains unchanged
+result.InPlaceXor(bitmask3, bitmask4); // `result` changes to 10001001; `bitmask3` and `bitmask4` remains unchanged
 ```
 
 #### Find the position of the most significant set bit

@@ -482,7 +482,7 @@ public class BitmaskTests
         var copyConstituent2 = new Bitmask(length, initializeWithZeros: true);
         for (var i = 0; i < length; i++)
         {
-            var expectedBit = getExpectedBit(originalBitmask.IsSet(i), constituent1.IsSet(i));
+            var expectedBit = getExpectedBit(constituent1.IsSet(i), constituent2.IsSet(i));
             if (expectedBit) expected.Set(i);
 
             if (constituent1.IsSet(i)) copyConstituent1.Set(i);

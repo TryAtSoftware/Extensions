@@ -3,14 +3,13 @@ namespace TryAtSoftware.Extensions.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TryAtSoftware.Extensions.Reflection.Interfaces;
 
 /// <summary>
 /// A static class containing standard extension methods that are useful when working with reflection over generic types or methods.
 /// </summary>
 public static class GenericExtensions
 {
-    private static readonly Type _genericTypeParameterDecoratorType = typeof(IGenericParameterDecorator);
+    private const string CompilerGeneratedAttributesNamespace = "System.Runtime.CompilerServices";
     
     /// <summary>
     /// Use this method to extract the setup of generic parameters for a given type.
@@ -39,7 +38,7 @@ public static class GenericExtensions
 
         foreach (var genericArgument in type.GetGenericArguments())
         {
-            var attributes = genericArgument.CustomAttributes.Where(x => IsKnownDecorator(x.AttributeType)).ToArray();
+            var attributes = genericArgument.CustomAttributes.Where(x => !IsCompilerGenerated(x.AttributeType)).ToArray();
             if (attributes.Length > 1) throw new InvalidOperationException($"There are more than one attributes defined for the {genericArgument.Name} generic argument of {TypeNames.Get(type)} type.");
             if (attributes.Length == 0) throw new InvalidOperationException($"Generic parameter could not be resolved for the {genericArgument.Name} generic argument of {TypeNames.Get(type)} type.");
 
@@ -84,5 +83,5 @@ public static class GenericExtensions
         return genericDefinition.MakeGenericType(genericTypes.ToArray());
     }
 
-    private static bool IsKnownDecorator(Type type) => _genericTypeParameterDecoratorType.IsAssignableFrom(type);
+    private static bool IsCompilerGenerated(Type type) => string.Equals(type.Namespace, CompilerGeneratedAttributesNamespace, StringComparison.Ordinal);
 }

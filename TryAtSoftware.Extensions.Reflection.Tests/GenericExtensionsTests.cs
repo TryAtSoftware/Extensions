@@ -158,12 +158,12 @@ public class GenericExtensionsTests
     private static Dictionary<Type, Type> PrepareTypesMap() => new() { { typeof(GenericParameter1Attribute), typeof(int) }, { typeof(GenericParameter2Attribute), typeof(string) } };
 
     [AttributeUsage(AttributeTargets.GenericParameter)]
-    private sealed class GenericParameter1Attribute : Attribute, IGenericParameterDecorator
+    private sealed class GenericParameter1Attribute : Attribute
     {
     }
     
     [AttributeUsage(AttributeTargets.GenericParameter)]
-    private sealed class GenericParameter2Attribute : Attribute, IGenericParameterDecorator
+    private sealed class GenericParameter2Attribute : Attribute
     {
     }
     

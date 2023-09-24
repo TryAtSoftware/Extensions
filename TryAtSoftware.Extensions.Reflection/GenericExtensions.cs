@@ -2,15 +2,13 @@ namespace TryAtSoftware.Extensions.Reflection;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Reflection;
 
 /// <summary>
 /// A static class containing standard extension methods that are useful when working with reflection over generic types or methods.
 /// </summary>
 public static class GenericExtensions
 {
-    private const string CompilerGeneratedAttributesNamespace = "System.Runtime.CompilerServices";
-    
     /// <summary>
     /// Use this method to extract the setup of generic parameters for a given type.
     /// </summary>
@@ -36,19 +34,7 @@ public static class GenericExtensions
         var dict = new Dictionary<string, Type>();
         if (!type.ContainsGenericParameters) return dict;
 
-        foreach (var genericArgument in type.GetGenericArguments())
-        {
-            var attributes = genericArgument.CustomAttributes.Where(x => !IsCompilerGenerated(x.AttributeType)).ToArray();
-            if (attributes.Length > 1) throw new InvalidOperationException($"There are more than one attributes defined for the {genericArgument.Name} generic argument of {TypeNames.Get(type)} type.");
-            if (attributes.Length == 0) throw new InvalidOperationException($"Generic parameter could not be resolved for the {genericArgument.Name} generic argument of {TypeNames.Get(type)} type.");
-
-            var attributeType = attributes[0].AttributeType;
-            if (!typesMap.TryGetValue(attributeType, out var resolvedGenericType) || resolvedGenericType is null)
-                throw new InvalidOperationException($"There was no provided type for the {TypeNames.Get(attributeType)}.");
-
-            dict[genericArgument.Name] = resolvedGenericType;
-        }
-
+        foreach (var genericArgument in type.GetGenericArguments()) dict[genericArgument.Name] = ExtractTypeForGenericArgument(type, genericArgument, typesMap);
         return dict;
     }
 
@@ -83,5 +69,18 @@ public static class GenericExtensions
         return genericDefinition.MakeGenericType(genericTypes.ToArray());
     }
 
-    private static bool IsCompilerGenerated(Type type) => string.Equals(type.Namespace, CompilerGeneratedAttributesNamespace, StringComparison.Ordinal);
+    private static Type ExtractTypeForGenericArgument(Type type, MemberInfo genericArgument, IDictionary<Type, Type> typesMap)
+    {
+        Type? result = null;
+        foreach (var attribute in genericArgument.CustomAttributes)
+        {
+            if (!typesMap.TryGetValue(attribute.AttributeType, out var resolvedType)) continue;
+            
+            if (result is not null) throw new InvalidOperationException($"There are more than one attributes defined for the {genericArgument.Name} generic argument of {TypeNames.Get(type)} type.");
+            result = resolvedType;
+        }
+        
+        if (result is null) throw new InvalidOperationException($"Generic parameter could not be resolved for the {genericArgument.Name} generic argument of {TypeNames.Get(type)} type.");
+        return result;
+    }
 }

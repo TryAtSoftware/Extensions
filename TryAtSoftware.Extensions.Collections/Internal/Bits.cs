@@ -4,8 +4,15 @@ internal static class Bits
 {
 #if NET7_0_OR_GREATER
     public static int TrailingZeroCount(ulong segment) => System.Numerics.BitOperations.TrailingZeroCount(segment);
+
+    public static int LeadingZeroCount(ulong segment) => System.Numerics.BitOperations.LeadingZeroCount(segment);
+
+    public static int CountSetBits(ulong segment) => System.Numerics.BitOperations.PopCount(segment);
 #else
     private const uint TrailingZeroCountDeBruijnConstant = 0x077CB531U;
+    private const uint Log2DeBruijnConstant = 0x07C4ACDDU;
+
+    private static readonly ulong[] _countSetBitsConstants = { 0x_55555555_55555555UL, 0x_33333333_33333333UL, 0x_0F0F0F0F_0F0F0F0FUL, 0x_01010101_01010101UL }; 
 
     private static readonly int[] _trailingZeroCountDeBruijnTable =
     {
@@ -15,24 +22,94 @@ internal static class Bits
         10, 9
     };
 
+
+    private static readonly int[] _log2DeBruijnTable =
+    {
+        0, 9, 1, 10, 13, 21, 2, 29, 11, 14,
+        16, 18, 22, 25, 3, 30, 8, 12, 20, 28,
+        15, 17, 24, 07, 19, 27, 23, 6, 26, 5,
+        4, 31
+    };
+
     public static int TrailingZeroCount(ulong value)
     {
-        var lo = (uint)value;
-
-        var additive = 0;
-        if (lo == 0)
-        {
-            additive += 32;
-            lo = (uint)(value >> 32);
-        }
-
-        return additive + TrailingZeroCount(lo);
+        var (lo, offset) = SplitValueLow(value);
+        return offset + TrailingZeroCount(lo);
     }
-    
+
     public static int TrailingZeroCount(uint value)
     {
         var deBruijnIndex = ((value & ~(value - 1)) * TrailingZeroCountDeBruijnConstant) >> 27;
         return _trailingZeroCountDeBruijnTable[deBruijnIndex];
+    }
+
+    public static int LeadingZeroCount(ulong value)
+    {
+        var (hi, offset) = SplitValueHigh(value);
+        return offset + LeadingZeroCount(hi);
+    }
+
+    public static int LeadingZeroCount(uint value)
+    {
+        var log = Log2(value);
+
+        // This is equivalent to 31 - Log2(value) since the log value is always in range [0, 31]
+        return 31 ^ log;
+    }
+
+    public static int Log2(ulong value)
+    {
+        var (hi, offset) = SplitValueHigh(value);
+        return offset + Log2(hi);
+    }
+    
+    public static int Log2(uint value)
+    {
+        value |= value >> 01;
+        value |= value >> 02;
+        value |= value >> 04;
+        value |= value >> 08;
+        value |= value >> 16;
+        
+        var deBruijnIndex = (value * Log2DeBruijnConstant) >> 27;
+        return _log2DeBruijnTable[deBruijnIndex];
+    }
+
+    public static int CountSetBits(ulong value)
+    {
+        value -= (value >> 1) & _countSetBitsConstants[0];
+        value = (value & _countSetBitsConstants[1]) + ((value >> 2) & _countSetBitsConstants[1]);
+        value = (((value + (value >> 4)) & _countSetBitsConstants[2]) * _countSetBitsConstants[3]) >> 56;
+
+        return (int)value;
+    }
+
+    private static (uint Value, int Offset) SplitValueHigh(ulong value)
+    {
+        var hi = (uint)(value >> 32);
+
+        var offset = 0;
+        if (hi == 0)
+        {
+            offset += 32;
+            hi = (uint)(value);
+        }
+
+        return (hi, offset);
+    }
+
+    private static (uint Value, int Offset) SplitValueLow(ulong value)
+    {
+        var lo = (uint)value;
+
+        var offset = 0;
+        if (lo == 0)
+        {
+            offset += 32;
+            lo = (uint)(value >> 32);
+        }
+
+        return (lo, offset);
     }
 #endif
 }

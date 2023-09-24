@@ -36,6 +36,18 @@ public class BitmaskTests
     }
 
     [Fact]
+    public void SetAllShouldWorkCorrectlyWithRandomBitmask()
+    {
+        for (var i = 0; i < 100; i++)
+        {
+            var bitmask = GenerateBitmask();
+            bitmask.SetAll();
+            
+            for (var j = 0; j < bitmask.Length; j++) Assert.True(bitmask.IsSet(j));
+        }
+    }
+
+    [Fact]
     public void MultiUnsetShouldWorkCorrectly()
     {
         var bitmask = InstantiateBitmask(initializeWithZeros: false);
@@ -45,6 +57,18 @@ public class BitmaskTests
         {
             bitmask.Unset(randomIndex);
             for (var j = 0; j < bitmask.Length; j++) Assert.Equal(j != randomIndex, bitmask.IsSet(j));
+        }
+    }
+
+    [Fact]
+    public void UnsetAllShouldWorkCorrectlyWithRandomBitmask()
+    {
+        for (var i = 0; i < 100; i++)
+        {
+            var bitmask = GenerateBitmask();
+            bitmask.UnsetAll();
+            
+            for (var j = 0; j < bitmask.Length; j++) Assert.False(bitmask.IsSet(j));
         }
     }
 
@@ -64,45 +88,39 @@ public class BitmaskTests
 
     [Fact]
     public void BitwiseAndShouldBeExecutedSuccessfully() => AssertCorrectBitwiseOperation((a, b) => a & b, (a, b) => a & b);
+    
+    [Fact]
+    public void BitwiseAndShouldBeExecutedSuccessfullyInPlace() => AssertCorrectInPlaceBitwiseOperation((a, b, c) => a.InPlaceAnd(b, c), (a, b) => a & b);
 
     [Fact]
     public void BitwiseAndShouldBeExecutedSuccessfullyWhenLengthIsDifferent() => AssertCorrectBitwiseOperation((a, b) => a & b, (a, b) => a & b, lengthDifferenceInSegments: RandomBitmaskLength());
 
     [Fact]
-    public void BitwiseAndShouldValidateItsArguments()
-    {
-        var bitmask = GenerateBitmask();
-        Assert.Throws<ArgumentNullException>(() => bitmask & null!);
-        Assert.Throws<ArgumentNullException>(() => null! & bitmask);
-    }
+    public void BitwiseAndShouldValidateItsArguments() => AssertBitwiseOperandsAreValidatedSuccessfully((a, b) => a & b, (a, b, c) => a.InPlaceAnd(b, c));
 
     [Fact]
     public void BitwiseOrShouldBeExecutedSuccessfully() => AssertCorrectBitwiseOperation((a, b) => a | b, (a, b) => a | b);
+    
+    [Fact]
+    public void BitwiseOrShouldBeExecutedSuccessfullyInPlace() => AssertCorrectInPlaceBitwiseOperation((a, b, c) => a.InPlaceOr(b, c), (a, b) => a | b);
 
     [Fact]
     public void BitwiseOrShouldBeExecutedSuccessfullyWhenLengthIsDifferent() => AssertCorrectBitwiseOperation((a, b) => a | b, (a, b) => a | b, lengthDifferenceInSegments: RandomBitmaskLength());
 
     [Fact]
-    public void BitwiseOrShouldValidateItsArguments()
-    {
-        var bitmask = GenerateBitmask();
-        Assert.Throws<ArgumentNullException>(() => bitmask | null!);
-        Assert.Throws<ArgumentNullException>(() => null! | bitmask);
-    }
+    public void BitwiseOrShouldValidateItsArguments() => AssertBitwiseOperandsAreValidatedSuccessfully((a, b) => a | b, (a, b, c) => a.InPlaceOr(b, c));
 
     [Fact]
     public void BitwiseXorShouldBeExecutedSuccessfully() => AssertCorrectBitwiseOperation((a, b) => a ^ b, (a, b) => a ^ b);
+    
+    [Fact]
+    public void BitwiseXorShouldBeExecutedSuccessfullyInPlace() => AssertCorrectInPlaceBitwiseOperation((a, b, c) => a.InPlaceXor(b, c), (a, b) => a ^ b);
 
     [Fact]
     public void BitwiseXorShouldBeExecutedSuccessfullyWhenLengthIsDifferent() => AssertCorrectBitwiseOperation((a, b) => a ^ b, (a, b) => a ^ b, lengthDifferenceInSegments: RandomBitmaskLength());
 
     [Fact]
-    public void BitwiseXorShouldValidateItsArguments()
-    {
-        var bitmask = GenerateBitmask();
-        Assert.Throws<ArgumentNullException>(() => bitmask ^ null!);
-        Assert.Throws<ArgumentNullException>(() => null! ^ bitmask);
-    }
+    public void BitwiseXorShouldValidateItsArguments() => AssertBitwiseOperandsAreValidatedSuccessfully((a, b) => a ^ b, (a, b, c) => a.InPlaceXor(b, c));
 
     [Fact]
     public void BitwiseNotShouldBeExecutedSuccessfully()
@@ -245,6 +263,154 @@ public class BitmaskTests
     }
 
     [Fact]
+    public void FindMostSignificantSetBitShouldWorkCorrectlyWithBitmaskOfZeros()
+    {
+        var bitmask = InstantiateBitmask();
+        Assert.Equal(-1, bitmask.FindMostSignificantSetBit());
+    }
+
+    [Fact]
+    public void FindMostSignificantSetBitShouldWorkCorrectlyInGeneral()
+    {
+        var bitmask = InstantiateBitmask(initializeWithZeros: false);
+        for (var i = 0; i < bitmask.Length; i++)
+        {
+            var result = bitmask.FindMostSignificantSetBit();
+            Assert.Equal(i, result);
+
+            bitmask.Unset(i);
+        }
+    }
+
+    [Fact]
+    public void FindMostSignificantSetBitShouldWorkCorrectlyWithRandomBitmask()
+    {
+        for (var i = 0; i < 100; i++)
+        {
+            var bitmask = GenerateBitmask();
+
+            var result = bitmask.FindMostSignificantSetBit();
+            Assert.True(bitmask.IsSet(result));
+
+            for (var j = 0; j < result; j++) Assert.False(bitmask.IsSet(j));
+        }
+    }
+
+    [Fact]
+    public void FindMostSignificantUnsetBitShouldWorkCorrectlyWithBitmaskOfOnes()
+    {
+        var bitmask = InstantiateBitmask(initializeWithZeros: false);
+        Assert.Equal(-1, bitmask.FindMostSignificantUnsetBit());
+    }
+
+    [Fact]
+    public void FindMostSignificantUnsetBitShouldWorkCorrectlyInGeneral()
+    {
+        var bitmask = InstantiateBitmask(initializeWithZeros: true);
+        for (var i = 0; i < bitmask.Length; i++)
+        {
+            var result = bitmask.FindMostSignificantUnsetBit();
+            Assert.Equal(i, result);
+
+            bitmask.Set(i);
+        }
+    }
+
+    [Fact]
+    public void FindMostSignificantUnsetBitShouldWorkCorrectlyWithRandomBitmask()
+    {
+        for (var i = 0; i < 100; i++)
+        {
+            var bitmask = GenerateBitmask();
+
+            var result = bitmask.FindMostSignificantUnsetBit();
+            Assert.False(bitmask.IsSet(result));
+
+            for (var j = 0; j < result; j++) Assert.True(bitmask.IsSet(j));
+        }
+    }
+
+    [Fact]
+    public void CountSetBitsShouldWorkCorrectlyWithHomogenousBitmasks()
+    {
+        var zeroBitmask = InstantiateBitmask(initializeWithZeros: true);
+        Assert.Equal(0, zeroBitmask.CountSetBits());
+
+        var oneBitmask = InstantiateBitmask(initializeWithZeros: false);
+        Assert.Equal(oneBitmask.Length, oneBitmask.CountSetBits());
+    }
+
+    [Fact]
+    public void CountSetBitsShouldWorkCorrectlyWithRandomBitmask()
+    {
+        for (var i = 0; i < 100; i++)
+        {
+            var bitmask = GenerateBitmask();
+
+            var expected = 0;
+            for (var j = 0; j < bitmask.Length; j++)
+                if (bitmask.IsSet(j)) expected++;
+            
+            Assert.Equal(expected, bitmask.CountSetBits());
+        }
+    }
+
+    [Fact]
+    public void CountUnsetBitsShouldWorkCorrectlyWithHomogenousBitmasks()
+    {
+        var zeroBitmask = InstantiateBitmask(initializeWithZeros: true);
+        Assert.Equal(zeroBitmask.Length, zeroBitmask.CountUnsetBits());
+
+        var oneBitmask = InstantiateBitmask(initializeWithZeros: false);
+        Assert.Equal(0, oneBitmask.CountUnsetBits());
+    }
+
+    [Fact]
+    public void CountUnsetBitsShouldWorkCorrectlyWithRandomBitmask()
+    {
+        for (var i = 0; i < 100; i++)
+        {
+            var bitmask = GenerateBitmask();
+
+            var expected = 0;
+            for (var j = 0; j < bitmask.Length; j++)
+                if (!bitmask.IsSet(j)) expected++;
+            
+            Assert.Equal(expected, bitmask.CountUnsetBits());
+        }
+    }
+
+    [Fact]
+    public void HasCommonBitsWithShouldValidateItsArguments()
+    {
+        var bitmask = GenerateBitmask();
+        Assert.Throws<ArgumentNullException>(() => bitmask.HasCommonSetBitsWith(null!));
+    }
+
+    [Fact]
+    public void HasCommonBitsWithShouldWorkCorrectlyBitmasksOfSameLength()
+    {
+        var bitmask = GenerateBitmask();
+        var zeroBitmask = new Bitmask(bitmask.Length, initializeWithZeros: true);
+        var oneBitmask = new Bitmask(bitmask.Length, initializeWithZeros: false);
+        
+        Assert.False(bitmask.HasCommonSetBitsWith(~bitmask));
+        Assert.False(bitmask.HasCommonSetBitsWith(zeroBitmask));
+        Assert.True(bitmask.HasCommonSetBitsWith(oneBitmask));
+    }
+
+    [Fact]
+    public void HasCommonBitsWithShouldWorkCorrectlyBitmasksOfDifferentLength()
+    {
+        var bitmask = GenerateBitmask();
+        var zeroBitmask = new Bitmask(RandomBitmaskLength(), initializeWithZeros: true);
+        var oneBitmask = new Bitmask(RandomBitmaskLength(), initializeWithZeros: false);
+        
+        Assert.False(bitmask.HasCommonSetBitsWith(zeroBitmask));
+        Assert.True(bitmask.HasCommonSetBitsWith(oneBitmask));
+    }
+
+    [Fact]
     public void ToStringShouldReturnCorrectBitmaskRepresentation()
     {
         var bitmask = GenerateBitmask();
@@ -281,17 +447,17 @@ public class BitmaskTests
         var baseBitmaskLength = RandomBitmaskLength();
         var totalBitmaskLength = baseBitmaskLength + lengthDifferenceInSegments;
 
-        var bitmask1 = GenerateBitmask(baseBitmaskLength);
-        var bitmask2 = GenerateBitmask(totalBitmaskLength);
+        var constituent1 = GenerateBitmask(baseBitmaskLength);
+        var constituent2 = GenerateBitmask(totalBitmaskLength);
 
         var expected = new Bitmask(totalBitmaskLength, initializeWithZeros: true);
         for (var i = 0; i < totalBitmaskLength; i++)
         {
-            var expectedBit = getExpectedBit(i < baseBitmaskLength && bitmask1.IsSet(i), bitmask2.IsSet(i));
+            var expectedBit = getExpectedBit(i < baseBitmaskLength && constituent1.IsSet(i), constituent2.IsSet(i));
             if (expectedBit) expected.Set(i);
         }
 
-        var results = new[] { compute(bitmask1, bitmask2), compute(bitmask2, bitmask1) };
+        var results = new[] { compute(constituent1, constituent2), compute(constituent2, constituent1) };
         foreach (var result in results)
         {
             Assert.NotNull(result);
@@ -300,6 +466,52 @@ public class BitmaskTests
             for (var i = 0; i < totalBitmaskLength; i++)
                 Assert.Equal(expected.IsSet(i), result.IsSet(i));
         }
+    }
+
+    private static void AssertCorrectInPlaceBitwiseOperation(Action<Bitmask, Bitmask, Bitmask> executeOperationInPlace, Func<bool, bool, bool> getExpectedBit)
+    {
+        var length = RandomBitmaskLength();
+
+        var originalBitmask = GenerateBitmask(length);
+
+        var constituent1 = GenerateBitmask(length);
+        var constituent2 = GenerateBitmask(length);
+
+        var expected = new Bitmask(length, initializeWithZeros: true);
+        var copyConstituent1 = new Bitmask(length, initializeWithZeros: true);
+        var copyConstituent2 = new Bitmask(length, initializeWithZeros: true);
+        for (var i = 0; i < length; i++)
+        {
+            var expectedBit = getExpectedBit(constituent1.IsSet(i), constituent2.IsSet(i));
+            if (expectedBit) expected.Set(i);
+
+            if (constituent1.IsSet(i)) copyConstituent1.Set(i);
+            if (constituent2.IsSet(i)) copyConstituent2.Set(i);
+        }
+
+        executeOperationInPlace(originalBitmask, constituent1, constituent2);
+
+        for (var i = 0; i < length; i++)
+        {
+            Assert.Equal(expected.IsSet(i), originalBitmask.IsSet(i));
+            Assert.Equal(copyConstituent1.IsSet(i), constituent1.IsSet(i)); // Assert the `constituent1` bitmask instance remains unchanged.
+            Assert.Equal(copyConstituent2.IsSet(i), constituent2.IsSet(i)); // Assert the `constituent2` bitmask instance remains unchanged.
+        }
+    }
+
+    private static void AssertBitwiseOperandsAreValidatedSuccessfully(Func<Bitmask, Bitmask, Bitmask> executeOperation, Action<Bitmask, Bitmask, Bitmask> executeOperationInPlace)
+    {
+        var bitmask = GenerateBitmask();
+        Assert.Throws<ArgumentNullException>(() => executeOperation(bitmask, null!));
+        Assert.Throws<ArgumentNullException>(() => executeOperation(null!, bitmask));
+
+        var validInPlaceConstituent = GenerateBitmask(length: bitmask.Length);
+        Assert.Throws<ArgumentNullException>(() => executeOperationInPlace(bitmask, validInPlaceConstituent, null!));
+        Assert.Throws<ArgumentNullException>(() => executeOperationInPlace(bitmask, null!, validInPlaceConstituent));
+
+        var constituentWithDifferentLength = new Bitmask(bitmask.Length + RandomizationHelper.RandomInteger(1, 10, upperBoundIsExclusive: false), initializeWithZeros: true);
+        Assert.Throws<InvalidOperationException>(() => executeOperationInPlace(bitmask, validInPlaceConstituent, constituentWithDifferentLength));
+        Assert.Throws<InvalidOperationException>(() => executeOperationInPlace(bitmask, constituentWithDifferentLength, validInPlaceConstituent));
     }
 
     private static void AssertCorrectRightShift(Func<Bitmask, int, Bitmask> compute)

@@ -62,6 +62,15 @@ public class Bitmask
     }
 
     /// <summary>
+    /// Use this method to set all bits.
+    /// </summary>
+    public void SetAll()
+    {
+        for (var i = 0; i < this.SegmentsCount; i++)
+            this.SetSegment(i, OneSegment);
+    }
+
+    /// <summary>
     /// Use this method to unset the bit at the requested position.
     /// </summary>
     /// <param name="position">The position of the bit that should be unset.</param>
@@ -69,6 +78,15 @@ public class Bitmask
     {
         var (segmentIndex, bitIndex) = this.Locate(position);
         this._segments[segmentIndex] &= ~(1UL << bitIndex);
+    }
+
+    /// <summary>
+    /// Use this method to unset all bits.
+    /// </summary>
+    public void UnsetAll()
+    {
+        for (var i = 0; i < this.SegmentsCount; i++)
+            this.SetSegment(i, ZeroSegment);
     }
 
     /// <summary>
@@ -81,7 +99,7 @@ public class Bitmask
         var (segmentIndex, bitIndex) = this.Locate(position);
         return (this._segments[segmentIndex] & (1UL << bitIndex)) != 0;
     }
-
+    
     /// <summary>
     /// Use this method to find the position of the least significant (right-most) bit that is set.
     /// </summary>
@@ -91,8 +109,74 @@ public class Bitmask
     /// <summary>
     /// Use this method to find the position of the least significant (right-most) bit that is unset.
     /// </summary>
-    /// <returns>Returns the position of the least significant unset bit. Returns -1 if there are no set bits.</returns>
+    /// <returns>Returns the position of the least significant unset bit. Returns -1 if there are no unset bits.</returns>
     public int FindLeastSignificantUnsetBit() => this.FindLeastSignificantSetBit(inverse: true);
+
+    /// <summary>
+    /// Use this method to find the position of the most significant (left-most) bit that is set.
+    /// </summary>
+    /// <returns>Returns the position of the most significant set bit. Returns -1 if there are no set bits.</returns>
+    public int FindMostSignificantSetBit() => this.FindMostSignificantSetBit(inverse: false);
+
+    /// <summary>
+    /// Use this method to find the position of the most significant (left-most) bit that is unset.
+    /// </summary>
+    /// <returns>Returns the position of the most significant unset bit. Returns -1 if there are no unset bits.</returns>
+    public int FindMostSignificantUnsetBit() => this.FindMostSignificantSetBit(inverse: true);
+
+    /// <summary>
+    /// Use this method to count the number of set bits.
+    /// </summary>
+    public int CountSetBits()
+    {
+        var ans = 0;
+        for (var i = 0; i < this.SegmentsCount; i++) ans += Bits.CountSetBits(this.GetSegment(i));
+
+        return ans;
+    }
+
+    /// <summary>
+    /// Use this method to count the number of unset bits.
+    /// </summary>
+    public int CountUnsetBits() => this.Length - this.CountSetBits();
+
+    /// <summary>
+    /// Use this method to determine if there exists at least one position for which both bits from the current bitmask instance and from the provided <paramref name="other"/> instance are set. 
+    /// </summary>
+    /// <param name="other">The other <see cref="Bitmask"/> instance.</param>
+    /// <returns>Returns <c>true</c> if there is a position at which the bits from both bitmasks are set. Else, returns <c>false</c>.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if the provided <paramref name="other"/> is <c>null</c>.</exception>
+    public bool HasCommonSetBitsWith(Bitmask other)
+    {
+        if (other is null) throw new ArgumentNullException(nameof(other));
+
+        var minSegmentsCount = Math.Min(this.SegmentsCount, other.SegmentsCount);
+        for (var i = 0; i < minSegmentsCount; i++)
+            if ((this.GetSegment(i) & other.GetSegment(i)) != ZeroSegment) return true;
+
+        return false;
+    }
+
+    /// <summary>
+    /// Assigns to the current instance the result of executing bitwise-and of two other bitmasks.
+    /// </summary>
+    /// <param name="left">The first bitmask.</param>
+    /// <param name="right">The second bitmask.</param>
+    public void InPlaceAnd(Bitmask left, Bitmask right) => this.ExecuteInPlaceBitwiseOperation(left, right, BitwiseAnd);
+
+    /// <summary>
+    /// Assigns to the current instance the result of executing bitwise-or of two other bitmasks.
+    /// </summary>
+    /// <param name="left">The first bitmask.</param>
+    /// <param name="right">The second bitmask.</param>
+    public void InPlaceOr(Bitmask left, Bitmask right) => this.ExecuteInPlaceBitwiseOperation(left, right, BitwiseOr);
+
+    /// <summary>
+    /// Assigns to the current instance the result of executing exclusive-or of two other bitmasks.
+    /// </summary>
+    /// <param name="left">The first bitmask.</param>
+    /// <param name="right">The second bitmask.</param>
+    public void InPlaceXor(Bitmask left, Bitmask right) => this.ExecuteInPlaceBitwiseOperation(left, right, BitwiseXor);
 
     /// <inheritdoc />
     public override string ToString()
@@ -231,6 +315,21 @@ public class Bitmask
         return result;
     }
 
+    private void ExecuteInPlaceBitwiseOperation(Bitmask a, Bitmask b, Func<ulong, ulong, ulong> operation)
+    {
+        if (a is null) throw new ArgumentNullException(nameof(a));
+        if (b is null) throw new ArgumentNullException(nameof(b));
+        if (this.Length != a.Length || this.Length != b.Length) throw new InvalidOperationException("Both bitmask instances must have the same length in order to execute an in-place bitwise operation.");
+        
+        for (var i = 0; i < this.SegmentsCount; i++)
+        {
+            var left = a.GetSegment(i);
+            var right = b.GetSegment(i);
+
+            this.SetSegment(i, operation(left, right));
+        }
+    }
+
     private int FindLeastSignificantSetBit(bool inverse)
     {
         for (var i = this.SegmentsCount - 1; i >= 0; i--)
@@ -245,6 +344,25 @@ public class Bitmask
             if (currentSegment == ZeroSegment) continue;
 
             return (i * BitsPerSegment + BitsPerSegment - (Bits.TrailingZeroCount(currentSegment) + 1));
+        }
+
+        return -1;
+    }
+
+    private int FindMostSignificantSetBit(bool inverse)
+    {
+        for (var i = 0; i < this.SegmentsCount; i++)
+        {
+            var currentSegment = this._segments[i];
+            if (inverse)
+            {
+                currentSegment = ~currentSegment;
+                if (i == this.SegmentsCount - 1) currentSegment = this.ApplyLastSegmentMask(currentSegment);
+            }
+
+            if (currentSegment == ZeroSegment) continue;
+
+            return (i * BitsPerSegment + Bits.LeadingZeroCount(currentSegment));
         }
 
         return -1;

@@ -51,6 +51,8 @@ Bitmask bitmaskWithOnes = new Bitmask(8, initializeWithZeros: false); // 1111111
 The `Set` method can be used to set the bit at a given position.
 It accepts a single parameter - the **zero-based** position of the bit that should be set.
 
+The `SetAll` method can be used to set all bits.
+
 ```C#
 Bitmask bitmask = new Bitmask(8, initializeWithZeros: true); // 00000000
         
@@ -58,6 +60,8 @@ bitmask.Set(0); // 10000000
 bitmask.Set(3); // 10010000
 
 bitmask.Set(0); // The bit is already set - nothing will be changed.
+
+bitmask.SetAll(); // 11111111
 
 // Invalid cases - position is out of range
 bitmask.Set(-1); // Exception will be thrown!
@@ -70,6 +74,8 @@ bitmask.Set(100); // Exception will be thrown!
 The `Unset` method can be used to unset the bit at a given position.
 It accepts a single parameter - the **zero-based** position of the bit that should be unset.
 
+The `UnsetAll` method can be used to unset all bits.
+
 ```C#
 Bitmask bitmask = new Bitmask(8, initializeWithZeros: false); // 11111111
         
@@ -77,6 +83,8 @@ bitmask.Unset(1); // 10111111
 bitmask.Unset(2); // 10011111
 
 bitmask.Unset(2); // The bit is not set - nothing will be changed.
+
+bitmask.UnsetAll(); // 00000000
 
 // Invalid cases - position is out of range
 bitmask.Unset(-1); // Exception will be thrown!
@@ -110,6 +118,9 @@ Bitwise operations can be executed by using the corresponding operators.
 _They can come in handy whenever it is required to work over a group of bits collectively, rather than individually._
 The produced result will be a `Bitmask` instance as well.
 
+> The operations `bitwise-and`, `bitwise-or` and `exclusive-or` do not require both of the operands to have the same length.
+> You can visualize this by padding the shorter bitmask with enough **trailing** zeros.
+
 > For .NET 7 or above the `Bitmask` type implements the `IBitwiseOperators<Bitmask, Bitmask, Bitmask>` and `IShiftOperators<Bitmask, int, Bitmask>` interfaces.
 
 ```C#
@@ -134,9 +145,80 @@ Bitmask notResult1 = ~bitmask1; // 00101011
 Bitmask notResult2 = ~bitmask2; // 10011010
 ```
 
+#### Executing in-place bitwise operations
+
+We can use in-place bitwise operations in order to save up some memory whenever there is no need for the operation's result to be a new `Bitmask` instance.
+For this purpose, the `InPlaceAnd`, `InPlaceOr` and `InPlaceXor` methods can be used.
+
+> In-place bitwise operations require both of the bitmasks to have the exact same length.
+
+```C#
+Bitmask bitmask1 = new Bitmask(8, initializeWithZeros: true);
+Bitmask bitmask2 = new Bitmask(8, initializeWithZeros: true);
+Bitmask bitmask3 = new Bitmask(8, initializeWithZeros: true);
+Bitmask bitmask4 = new Bitmask(8, initializeWithZeros: true);
+
+// Set the corresponding bits so the first bitmask looks like this: 11010100
+bitmask1.Set(0); bitmask1.Set(1); bitmask1.Set(3); bitmask1.Set(5);
+
+// Set the corresponding bits so the second bitmask looks like this: 01100101
+bitmask2.Set(1); bitmask2.Set(2); bitmask2.Set(5); bitmask2.Set(7);
+
+// Set the corresponding bits so the third bitmask looks like this: 01001011
+bitmask3.Set(1); bitmask3.Set(4); bitmask3.Set(6); bitmask3.Set(7);
+
+// Set the corresponding bits so the fourth bitmask looks like this: 11000010
+bitmask4.Set(0); bitmask4.Set(1); bitmask4.Set(6);
+
+Bitmask result = new Bitmask(8, initializeWithZeros: true);
+result.InPlaceAnd(bitmask1, bitmask2); // `result` changes to 01000100; `bitmask1` and `bitmask2` remains unchanged
+result.InPlaceOr(bitmask2, bitmask3); // `result` changes to 01101111; `bitmask2` and `bitmask3` remains unchanged
+result.InPlaceXor(bitmask3, bitmask4); // `result` changes to 10001001; `bitmask3` and `bitmask4` remains unchanged
+```
+
+#### Find the position of the most significant set bit
+
+The `FindMostSignificantSetBit` method can be used to find the position of the most significant _(left-most)_ **set** bit.
+If there are no set bits, the returned value will be `-1`.
+
+```C#
+Bitmask bitmask = new Bitmask(8, initializeWithZeros: true);
+        
+// Set the corresponding bits so the second bitmask looks like this: 01001000
+bitmask.Set(1); bitmask.Set(4);
+
+var position1 = bitmask.FindMostSignificantSetBit(); // 1
+
+bitmask.Unset(1); // 00001000
+var position2 = bitmask.FindMostSignificantSetBit(); // 4
+
+bitmask.Unset(4); // 00000000
+var position3 = bitmask.FindMostSignificantSetBit(); // -1
+```
+
+#### Find the position of the most significant unset bit
+
+The `FindMostSignificantUnsetBit` method can be used to find the position of the most significant _(left-most)_ **unset** bit.
+If there are no unset bits, the returned value will be `-1`.
+
+```C#
+Bitmask bitmask = new Bitmask(8, initializeWithZeros: false);
+
+// Unset the corresponding bits so the second bitmask looks like this: 11101101
+bitmask.Unset(3); bitmask.Unset(6);
+
+var position1 = bitmask.FindMostSignificantUnsetBit(); // 3
+
+bitmask.Set(3); // 11111101
+var position2 = bitmask.FindMostSignificantUnsetBit(); // 6
+
+bitmask.Set(6); // 11111111
+var position3 = bitmask.FindMostSignificantUnsetBit(); // -1
+```
+
 #### Find the position of the least significant set bit
 
-The `FindLeastSignificantSetBit` method can be used to find the position of the least significant **set** bit.
+The `FindLeastSignificantSetBit` method can be used to find the position of the least significant _(right-most)_ **set** bit.
 If there are no set bits, the returned value will be `-1`.
 
 ```C#
@@ -156,7 +238,7 @@ var position3 = bitmask.FindLeastSignificantSetBit(); // -1
 
 #### Find the position of the least significant unset bit
 
-The `FindLeastSignificantUnsetBit` method can be used to find the position of the least significant **unset** bit.
+The `FindLeastSignificantUnsetBit` method can be used to find the position of the least significant _(right-most)_ **unset** bit.
 If there are no unset bits, the returned value will be `-1`.
 
 ```C#
@@ -172,6 +254,53 @@ var position2 = bitmask.FindLeastSignificantUnsetBit(); // 3
 
 bitmask.Set(3); // 11111111
 var position3 = bitmask.FindLeastSignificantUnsetBit(); // -1
+```
+
+#### Count the number of set or unset bits
+
+The `CountSetBits` and `CountUnsetBits` methods can be used to count the number of set or unset bits, respectively.
+
+```C#
+Bitmask bitmask = new Bitmask(8, initializeWithZeros: true);
+
+int setBitsCount1 = bitmask.CountSetBits(); // 0
+int unsetBitsCount1 = bitmask.CountUnsetBits(); // 8
+
+bitmask.Set(2); // 00100000
+int setBitsCount2 = bitmask.CountSetBits(); // 1
+int unsetBitsCount2 = bitmask.CountUnsetBits(); // 7
+
+bitmask.Set(3); // 00110000
+int setBitsCount3 = bitmask.CountSetBits(); // 2
+int unsetBitsCount3 = bitmask.CountUnsetBits(); // 6
+```
+
+#### Check if two bitmasks share some common bits
+
+Of course, for this purpose we could use the bitwise-and operation like this: `(a & b).FindMostSignificantSetBit() != -1`, or `(a & b).FindLeastSignificantSetBit() != -1`, or `(a & b).CountSetBits() > 0`, etc.
+However, all of these solutions have on major downside - either we have to sacrifice one of the bitmasks (by using in-place bitwise operations), or we must allocate additional memory.
+
+Conveniently enough, the `HasCommonSetBitsWith` method solves these two problems.
+
+> This method is commutative, i.e. `a.HasCommonSetBitsWith(b)` will **always** be equivalent to `b.HasCommonSetBitsWith(a)`.
+
+```C#
+Bitmask bitmask1 = new Bitmask(8, initializeWithZeros: true);
+Bitmask bitmask2 = new Bitmask(8, initializeWithZeros: true);
+Bitmask bitmask3 = new Bitmask(8, initializeWithZeros: true);
+
+// Set the corresponding bits so the first bitmask looks like this: 10101010
+bitmask1.Set(0); bitmask1.Set(2); bitmask1.Set(4); bitmask1.Set(6);
+
+// Set the corresponding bits so the second bitmask looks like this: 00001111
+bitmask2.Set(4); bitmask2.Set(5); bitmask2.Set(6); bitmask2.Set(7);
+
+// Set the corresponding bits so the third bitmask looks like this: 11110000
+bitmask3.Set(0); bitmask3.Set(1); bitmask3.Set(2); bitmask3.Set(3);
+
+var result1 = bitmask1.HasCommonSetBitsWith(bitmask2); // True
+var result2 = bitmask1.HasCommonSetBitsWith(bitmask3); // True
+var result3 = bitmask2.HasCommonSetBitsWith(bitmask3); // False
 ```
 
 ## Collection extensions

@@ -13,7 +13,7 @@ public static class GenericExtensions
     private static readonly Type _genericTypeParameterDecoratorType = typeof(IGenericParameterDecorator);
     
     /// <summary>
-    /// Use this method to extract in a dictionary the setup of generic parameters for a given type.
+    /// Use this method to extract the setup of generic parameters for a given type.
     /// </summary>
     /// <param name="type">The type used to extract the generic types setup from.</param>
     /// <param name="typesMap">A one-to-one mapping of "attribute type" and "generic parameter type".</param>

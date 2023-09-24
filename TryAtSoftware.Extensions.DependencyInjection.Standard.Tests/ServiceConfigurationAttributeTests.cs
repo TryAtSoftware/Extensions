@@ -2,6 +2,7 @@ namespace TryAtSoftware.Extensions.DependencyInjection.Standard.Tests;
 
 using Microsoft.Extensions.DependencyInjection;
 using TryAtSoftware.Extensions.DependencyInjection.Standard.Attributes;
+using TryAtSoftware.Randomizer.Core.Helpers;
 using Xunit;
 
 public class ServiceConfigurationAttributeTests
@@ -11,7 +12,40 @@ public class ServiceConfigurationAttributeTests
     {
         var attribute = new ServiceConfigurationAttribute { Lifetime = lifetime };
         Assert.Equal(lifetime, attribute.Lifetime);
+        Assert.True(attribute.LifetimeIsSet);
     }
+
+    [Fact]
+    public void LifetimeIsSetShouldReturnFalseWhenLifetimeIsNotSet()
+    {
+        var attribute = new ServiceConfigurationAttribute();
+        Assert.False(attribute.LifetimeIsSet);
+    }
+
+#if NET8_0_OR_GREATER
+    [Fact]
+    public void ServiceKeyShouldHaveCorrectDefaultValue()
+    {
+        var attribute = new ServiceConfigurationAttribute();
+        Assert.Null(attribute.Key);
+    }
+    
+    [Fact]
+    public void ServiceKeyShouldBeSetCorrectly()
+    {
+        var key = RandomizationHelper.GetRandomString();
+        var attribute = new ServiceConfigurationAttribute { Key = key };
+
+        Assert.Equal(key, attribute.Key);
+    }
+
+    [Fact]
+    public void ServiceKeyShouldBeSetToNullCorrectly()
+    {
+        var attribute = new ServiceConfigurationAttribute { Key = null };
+        Assert.Null(attribute.Key);
+    }
+#endif
 
     public static IEnumerable<object[]> GetServiceLifetimeData() => Enum.GetValues<ServiceLifetime>().Select(x => new object[] { x });
 }

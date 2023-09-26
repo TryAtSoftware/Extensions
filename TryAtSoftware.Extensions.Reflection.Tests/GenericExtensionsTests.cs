@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using TryAtSoftware.Extensions.Reflection.Interfaces;
 using TryAtSoftware.Extensions.Reflection.Tests.Models;
 using Xunit;
 
@@ -154,7 +155,7 @@ public class GenericExtensionsTests
         Assert.Equal(expectedGenericPredecessorType, builtGenericPredecessorType);
     }
 
-    private static IDictionary<Type, Type> PrepareTypesMap() => new Dictionary<Type, Type> { { typeof(GenericParameter1Attribute), typeof(int) }, { typeof(GenericParameter2Attribute), typeof(string) } };
+    private static Dictionary<Type, Type> PrepareTypesMap() => new() { { typeof(GenericParameter1Attribute), typeof(int) }, { typeof(GenericParameter2Attribute), typeof(string) } };
 
     [AttributeUsage(AttributeTargets.GenericParameter)]
     private sealed class GenericParameter1Attribute : Attribute

@@ -207,12 +207,14 @@ static string PrepareConstructorKey(ConstructorInfo constructorInfo)
 
 ### `ExtractGenericParametersSetup`
 
-This method will produce a dictionary where against the name of a generic parameter is stored the actual type associated with that parameter according to some external configuration.
-This method should be used whenever each generic parameter is uniquely identified with a certain attribute.
-All entries within the external configuration map should have as a key the attribute type and as a value the type that should be substituted for a generic parameter decorated with the corresponding attribute.
+Use this method to extract the setup of generic parameters for a given type.
 
-If there are none or multiple attributes for a generic parameter, this method will throw an exception.
-If the external configuration is missing some attribute type, an exception will be thrown as well.
+This method will produce a dictionary where against the name of each generic parameter will be mapped the `actual type` that should substitute it.
+In order to use it, each generic parameter must be uniquely identified with an attribute.
+
+It is required to provide a one-to-one mapping between the `attribute type` and the `actual type` that should substitute the decorated generic parameter(s).
+
+> If **none** or **multiple** attributes, for which there exists an entry within the provided mapping, decorate a generic parameter, an exception will be thrown.
 
 Example:
 
@@ -221,7 +223,7 @@ public class MyType<[KeyType] TKey, [ValueType] TValue> {}
 
 IDictionary<Type, Type> typesMap = new Dictionary<Type, Type> { { typeof(KeyTypeAttribute), typeof(int) }, { typeof(ValueTypeAttribute), typeof(string) } };
 
-/// should return { "TKey": typeof(int), "TValue": typeof(string) }
+// should return { "TKey": typeof(int), "TValue": typeof(string) }
 IDictionary<string, Type> genericParametersSetup = ExtractGenericParametersSetup(typeof(MyType<,>), typesMap);
 ```
 

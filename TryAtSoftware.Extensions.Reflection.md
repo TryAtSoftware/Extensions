@@ -211,9 +211,10 @@ Use this method to extract the setup of generic parameters for a given type.
 
 This method will produce a dictionary where against the name of each generic parameter will be mapped the `actual type` that should substitute it.
 In order to use it, each generic parameter must be uniquely identified with an attribute.
-The external configuration is a one-to-one mapping between the `attribute type` and the `actual type` that should substitute the decorated generic parameter(s).
 
-> If **none** or **multiple** attributes, for which there exists an entry within the external configuration, decorate a generic parameter, an exception will be thrown.
+It is required to provide a one-to-one mapping between the `attribute type` and the `actual type` that should substitute the decorated generic parameter(s).
+
+> If **none** or **multiple** attributes, for which there exists an entry within the provided mapping, decorate a generic parameter, an exception will be thrown.
 
 Example:
 

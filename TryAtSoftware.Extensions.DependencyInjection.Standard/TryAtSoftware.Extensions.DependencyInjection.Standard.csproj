@@ -18,23 +18,23 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="SonarAnalyzer.CSharp" Version="9.8.0.76515">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="TryAtSoftware.Extensions.DependencyInjection" Version="1.1.2-alpha.1" />
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="9.11.0.78383">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="TryAtSoftware.Extensions.DependencyInjection" Version="1.1.2-alpha.1"/>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.1.1" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.1.1"/>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0-preview.7.23375.6" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0-8.0.0-rc.1.23419.4"/>
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\TryAtSoftware.Extensions.DependencyInjection.Standard.md" Pack="true" PackagePath="\" />
+        <None Include="..\TryAtSoftware.Extensions.DependencyInjection.Standard.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
 </Project>

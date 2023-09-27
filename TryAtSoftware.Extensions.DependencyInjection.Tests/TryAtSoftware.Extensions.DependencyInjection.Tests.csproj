@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
@@ -11,17 +11,17 @@
 
     <ItemGroup>
         <PackageReference Include="coverlet.msbuild" Version="6.0.0">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.3" />
-        <PackageReference Include="Moq" Version="4.18.4" />
-        <PackageReference Include="SonarAnalyzer.CSharp" Version="9.8.0.76515">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.3"/>
+        <PackageReference Include="Moq" Version="4.18.4"/>
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="9.11.0.78383">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="TryAtSoftware.Randomizer" Version="2.0.2-alpha.1" />
-        <PackageReference Include="xunit" Version="2.5.0" />
+        <PackageReference Include="TryAtSoftware.Randomizer" Version="2.0.2-alpha.1"/>
+        <PackageReference Include="xunit" Version="2.5.0"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
@@ -33,7 +33,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\TryAtSoftware.Extensions.DependencyInjection\TryAtSoftware.Extensions.DependencyInjection.csproj" />
+        <ProjectReference Include="..\TryAtSoftware.Extensions.DependencyInjection\TryAtSoftware.Extensions.DependencyInjection.csproj"/>
     </ItemGroup>
 
 </Project>

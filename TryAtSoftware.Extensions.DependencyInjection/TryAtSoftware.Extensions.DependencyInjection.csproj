@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
 
         <PackageId>TryAtSoftware.Extensions.DependencyInjection</PackageId>
-        <Version>1.1.2-alpha.1</Version>
+        <Version>1.1.2-alpha.2</Version>
         <Authors>Tony Troeff</Authors>
         <RepositoryUrl>https://github.com/TryAtSoftware/Extensions</RepositoryUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -18,16 +18,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="SonarAnalyzer.CSharp" Version="9.8.0.76515">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="TryAtSoftware.Extensions.Collections" Version="1.0.0" />
-      <PackageReference Include="TryAtSoftware.Extensions.Reflection" Version="1.1.1" />
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="9.11.0.78383">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="TryAtSoftware.Extensions.Collections" Version="1.0.0"/>
+        <PackageReference Include="TryAtSoftware.Extensions.Reflection" Version="1.1.2-alpha.2"/>
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\TryAtSoftware.Extensions.DependencyInjection.md" Pack="true" PackagePath="\" />
+        <None Include="..\TryAtSoftware.Extensions.DependencyInjection.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
 </Project>

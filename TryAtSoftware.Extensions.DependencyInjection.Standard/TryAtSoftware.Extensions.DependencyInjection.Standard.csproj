@@ -22,7 +22,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="TryAtSoftware.Extensions.DependencyInjection" Version="1.1.2-alpha.1"/>
+        <PackageReference Include="TryAtSoftware.Extensions.DependencyInjection" Version="1.1.2-alpha.2" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">

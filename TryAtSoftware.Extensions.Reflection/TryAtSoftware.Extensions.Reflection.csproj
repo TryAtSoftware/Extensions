@@ -18,7 +18,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="SonarAnalyzer.CSharp" Version="9.5.0.73987" PrivateAssets="all" />
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="9.11.0.78383" PrivateAssets="all" />
         <PackageReference Include="TryAtSoftware.Extensions.Collections" Version="1.0.0" />
     </ItemGroup>
 

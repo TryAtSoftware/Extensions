@@ -1,7 +1,7 @@
-﻿namespace TryAtSoftware.Extensions.DependencyInjection.Standard.Tests;
+namespace TryAtSoftware.Extensions.DependencyInjection.Standard.Tests;
 
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
+using NSubstitute;
 using TryAtSoftware.Extensions.DependencyInjection.Interfaces;
 using TryAtSoftware.Extensions.DependencyInjection.Options;
 using TryAtSoftware.Extensions.DependencyInjection.Standard.Attributes;
@@ -14,15 +14,15 @@ public class ServiceRegistrarTests
     [Fact]
     public void ServiceRegistrarShouldNotBeInstantiatedSuccessfullyIfNullServiceCollectionIsProvided()
     {
-        var hierarchyScannerMock = new Mock<IHierarchyScanner>();
-        Assert.Throws<ArgumentNullException>(() => new ServiceRegistrar(null!, hierarchyScannerMock.Object));
+        var hierarchyScanner = Substitute.For<IHierarchyScanner>();
+        Assert.Throws<ArgumentNullException>(() => new ServiceRegistrar(null!, hierarchyScanner));
     }
     
     [Fact]
     public void ServiceRegistrarShouldNotBeInstantiatedSuccessfullyIfNullHierarchyScannerIsProvided()
     {
-        var serviceCollectionMock = new Mock<IServiceCollection>();
-        Assert.Throws<ArgumentNullException>(() => new ServiceRegistrar(serviceCollectionMock.Object, null!));
+        var serviceCollection = Substitute.For<IServiceCollection>();
+        Assert.Throws<ArgumentNullException>(() => new ServiceRegistrar(serviceCollection, null!));
     }
 
     [Fact]

@@ -2,7 +2,9 @@ namespace TryAtSoftware.Extensions.DependencyInjection.Standard.Tests;
 
 using Microsoft.Extensions.DependencyInjection;
 using TryAtSoftware.Extensions.DependencyInjection.Standard.Attributes;
+#if NET8_0_OR_GREATER
 using TryAtSoftware.Randomizer.Core.Helpers;
+#endif
 using Xunit;
 
 public class ServiceConfigurationAttributeTests

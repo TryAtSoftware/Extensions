@@ -1,7 +1,8 @@
 namespace TryAtSoftware.Extensions.DependencyInjection.Tests;
 
 using System.Reflection;
-using Moq;
+using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 using TryAtSoftware.Extensions.DependencyInjection.Attributes;
 using TryAtSoftware.Extensions.DependencyInjection.Interfaces;
 using TryAtSoftware.Extensions.DependencyInjection.Options;
@@ -16,6 +17,7 @@ public class DependencyInjectionTests
         var assemblies = new Assembly[RandomizationHelper.RandomInteger(2, 10)];
         var services = new Type[assemblies.Length][];
 
+        var total = 0;
         for (var i = 0; i < assemblies.Length; i++)
         {
             var servicesCount = RandomizationHelper.RandomInteger(0, 100); 
@@ -29,24 +31,19 @@ public class DependencyInjectionTests
             for (var j = 0; j < otherClassesCount; j++) exportedTypes[servicesCount + j] = MockType(isAutomaticallyRegistered: false);
 
             assemblies[i] = MockAssembly(exportedTypes);
+            total += servicesCount;
         }
 
-        var registrarMock = new Mock<IServiceRegistrar>();
-        registrarMock.Setup(x => x.Register(It.IsAny<Type>(), It.IsAny<RegisterServiceOptions>()));
-
-        var registrarInstance = registrarMock.Object;
-        assemblies.AutoRegisterServices(registrarInstance, options);
+        var registrar = Substitute.For<IServiceRegistrar>();
+        assemblies.AutoRegisterServices(registrar, options);
 
         for (var i = 0; i < services.Length; i++)
         {
             for (var j = 0; j < services[i].Length; j++)
-            {
-                var serviceType = services[i][j];
-                registrarMock.Verify(x => x.Register(serviceType, options), Times.Once);
-            }
+                registrar.Received(1).Register(Arg.Is<Type>(x => ReferenceEquals(x, services[i][j])), options);
         }
-        
-        registrarMock.VerifyNoOtherCalls();
+
+        Assert.Equal(total, registrar.ReceivedCalls().Count());
     }
 
     [Fact]
@@ -64,15 +61,16 @@ public class DependencyInjectionTests
 
     private static Assembly MockAssembly(Type[] exportedTypes)
     {
-        var assemblyMock = new Mock<Assembly>();
-        assemblyMock.Setup(x => x.GetExportedTypes()).Returns(exportedTypes);
-        return assemblyMock.Object;
+        var assemblyMock = Substitute.For<Assembly>();
+        assemblyMock.GetExportedTypes().Returns(exportedTypes);
+        return assemblyMock;
     }
     
     private static Type MockType(bool isAutomaticallyRegistered)
     {
-        var typeMock = new Mock<Type>();
-        typeMock.Setup(x => x.IsDefined(typeof(AutomaticallyRegisteredServiceAttribute), It.IsAny<bool>())).Returns(isAutomaticallyRegistered);
-        return typeMock.Object;
+        var typeMock = Substitute.For<Type>();
+        typeMock.IsDefined(typeof(AutomaticallyRegisteredServiceAttribute), Arg.Any<bool>()).Returns(isAutomaticallyRegistered);
+        
+        return typeMock;
     }
 }

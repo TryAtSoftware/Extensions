@@ -43,13 +43,13 @@ One of the most important characteristics for services registered in the built-i
 So it looks like this parameter should be easily configurable when the corresponding services are automatically registered.
 
 In the context of `TryAtSoftware.Extensions.DependencyInjection.Standard`, this can be achieved by decorating the service with the `ServiceConfiguration` attribute.
-It accepts a single required parameter - the `ServiceLifetime`.
+- The `Lifetime` property can be used to control the `ServiceLifetime` used when registering the services - it is optional and its default is `ServiceLifetime.Scoped`.
 
 > As noted before, this package does not alter the configuration mechanisms introduced by `TryAtSoftware.Extensions.DependencyInjection` - it extends them.
 > Because of this, it is required to decorate your services with both the `AutomaticallyRegisteredService` and `ServiceConfiguration` attributes if additional configurations are required.
 
 ```C#
-[AutomaticallyRegisteredService, ServiceConfiguration(ServiceLifetime.Transient)]
+[AutomaticallyRegisteredService, ServiceConfiguration(Lifetime = ServiceLifetime.Transient)]
 public class EmailSender : IEmailSender
 {
     // Here goes the implementation of the email sender... 

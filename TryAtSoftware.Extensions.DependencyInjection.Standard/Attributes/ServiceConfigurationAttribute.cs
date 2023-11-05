@@ -9,17 +9,27 @@ using Microsoft.Extensions.DependencyInjection;
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
 public class ServiceConfigurationAttribute : Attribute
 {
+    private ServiceLifetime _lifetime;
+    
     /// <summary>
-    /// Gets the lifetime of the decorated service.
+    /// Gets a value indicating whether or not a value is set to the <see cref="Lifetime"/> property.
     /// </summary>
-    public ServiceLifetime Lifetime { get; }
+    public bool LifetimeIsSet { get; private set; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ServiceConfigurationAttribute"/> class.
+    /// Gets or sets the lifetime of the decorated service.
     /// </summary>
-    /// <param name="lifetime">The value that should be set to the <see cref="Lifetime"/> property.</param>
-    public ServiceConfigurationAttribute(ServiceLifetime lifetime)
+    public ServiceLifetime Lifetime
     {
-        this.Lifetime = lifetime;
+        get => this._lifetime;
+        set
+        {
+            this.LifetimeIsSet = true;
+            this._lifetime = value;
+        }
     }
+
+#if NET8_0_OR_GREATER
+    public string? Key { get; set; }
+#endif
 }

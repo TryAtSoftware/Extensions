@@ -11,29 +11,29 @@
 
     <ItemGroup>
         <PackageReference Include="coverlet.msbuild" Version="6.0.0">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.3" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.3"/>
         <PackageReference Include="SonarAnalyzer.CSharp" Version="9.11.0.78383">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="TryAtSoftware.Randomizer" Version="2.0.2-alpha.1" />
-        <PackageReference Include="xunit" Version="2.5.0" />
-        <PackageReference Include="coverlet.collector" Version="6.0.0" PrivateAssets="all" />
+        <PackageReference Include="TryAtSoftware.Randomizer" Version="2.0.2-alpha.1"/>
+        <PackageReference Include="xunit" Version="2.5.0"/>
+        <PackageReference Include="coverlet.collector" Version="6.0.0" PrivateAssets="all"/>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" PrivateAssets="all" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" PrivateAssets="all"/>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0" PrivateAssets="all" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0" PrivateAssets="all"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\TryAtSoftware.Extensions.Collections\TryAtSoftware.Extensions.Collections.csproj" />
+        <ProjectReference Include="..\TryAtSoftware.Extensions.Collections\TryAtSoftware.Extensions.Collections.csproj"/>
     </ItemGroup>
 
 </Project>

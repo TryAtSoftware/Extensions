@@ -18,12 +18,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="SonarAnalyzer.CSharp" Version="9.11.0.78383" PrivateAssets="all" />
-        <PackageReference Include="TryAtSoftware.Extensions.Collections" Version="1.0.0" />
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="9.11.0.78383" PrivateAssets="all"/>
+        <PackageReference Include="TryAtSoftware.Extensions.Collections" Version="1.0.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\TryAtSoftware.Extensions.Reflection.md" Pack="true" PackagePath="\" />
+        <None Include="..\TryAtSoftware.Extensions.Reflection.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
 </Project>

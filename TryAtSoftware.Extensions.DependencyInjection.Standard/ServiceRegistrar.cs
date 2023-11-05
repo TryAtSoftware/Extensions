@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using TryAtSoftware.Extensions.DependencyInjection.Interfaces;
 using TryAtSoftware.Extensions.DependencyInjection.Options;
@@ -42,10 +41,10 @@ public class ServiceRegistrar : IServiceRegistrar
         var implementationType = ResolveGenericParameters(type, genericParametersSetup);
         var implementedInterfaces = implementationType.GetInterfaces().Select(x => ResolveGenericParameters(x, genericParametersSetup));
 
-        var lifetime = this.ExtractLifetime(type);
-        
-        this.RegisterService(implementationType, implementationType, lifetime);
-        foreach (var interfaceType in implementedInterfaces) this.RegisterService(interfaceType, implementationType, lifetime);
+        var configurationAttributes = this._hierarchyScanner.ScanForAttribute<ServiceConfigurationAttribute>(type).ToArray();
+
+        this.RegisterService(implementationType, implementationType, configurationAttributes);
+        foreach (var interfaceType in implementedInterfaces) this.RegisterService(interfaceType, implementationType, configurationAttributes);
     }
 
     private static IDictionary<string, Type>? ExtractGenericParametersSetup(Type serviceType, RegisterServiceOptions? options)
@@ -60,15 +59,41 @@ public class ServiceRegistrar : IServiceRegistrar
         return type.MakeGenericType(genericParametersSetup);
     }
 
-    private void RegisterService(Type interfaceType, Type implementationType, ServiceLifetime lifetime)
+    private void RegisterService(Type interfaceType, Type implementationType, ServiceConfigurationAttribute[] configurationAttributes)
     {
-        var serviceDescriptor = new ServiceDescriptor(interfaceType, implementationType, lifetime);
+        var lifetime = ExtractLifetime(configurationAttributes);
+
+        ServiceDescriptor? serviceDescriptor = null;
+#if NET8_0_OR_GREATER
+        var key = ExtractKey(configurationAttributes);
+        if (!string.IsNullOrWhiteSpace(key)) serviceDescriptor = new ServiceDescriptor(interfaceType, key, implementationType, lifetime);
+#endif
+
+        serviceDescriptor ??= new ServiceDescriptor(interfaceType, implementationType, lifetime);
         this._services.Add(serviceDescriptor);
     }
 
-    private ServiceLifetime ExtractLifetime(MemberInfo type)
+    private static ServiceLifetime ExtractLifetime(ServiceConfigurationAttribute[] configurationAttributes)
     {
-        var lifetimeAttributes = this._hierarchyScanner.ScanForAttribute<ServiceConfigurationAttribute>(type);
-        return lifetimeAttributes.LastOrDefault()?.Lifetime ?? ServiceLifetime.Scoped;
+        for (var i = configurationAttributes.Length - 1; i >= 0; i--)
+        {
+            if (configurationAttributes[i].LifetimeIsSet)
+                return configurationAttributes[i].Lifetime;
+        }
+
+        return ServiceLifetime.Scoped;
     }
+
+#if NET8_0_OR_GREATER
+    private static string? ExtractKey(ServiceConfigurationAttribute[] configurationAttributes)
+    {
+        for (var i = configurationAttributes.Length - 1; i >= 0; i--)
+        {
+            if (!string.IsNullOrWhiteSpace(configurationAttributes[i].Key))
+                return configurationAttributes[i].Key;
+        }
+
+        return null;
+    }
+#endif
 }

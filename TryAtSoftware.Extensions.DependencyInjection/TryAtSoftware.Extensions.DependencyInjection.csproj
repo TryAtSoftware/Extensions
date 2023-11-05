@@ -18,16 +18,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="SonarAnalyzer.CSharp" Version="9.11.0.78383">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="TryAtSoftware.Extensions.Collections" Version="1.0.0" />
-      <PackageReference Include="TryAtSoftware.Extensions.Reflection" Version="1.1.2-alpha.2" />
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="9.11.0.78383">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="TryAtSoftware.Extensions.Collections" Version="1.0.0"/>
+        <PackageReference Include="TryAtSoftware.Extensions.Reflection" Version="1.1.2-alpha.2"/>
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\TryAtSoftware.Extensions.DependencyInjection.md" Pack="true" PackagePath="\" />
+        <None Include="..\TryAtSoftware.Extensions.DependencyInjection.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
 </Project>

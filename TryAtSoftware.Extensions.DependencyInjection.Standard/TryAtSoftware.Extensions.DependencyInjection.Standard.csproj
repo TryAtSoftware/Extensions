@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
 
         <PackageId>TryAtSoftware.Extensions.DependencyInjection.Standard</PackageId>
-        <Version>1.1.2-alpha.1</Version>
+        <Version>1.1.2</Version>
         <Authors>Tony Troeff</Authors>
         <RepositoryUrl>https://github.com/TryAtSoftware/Extensions</RepositoryUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -22,19 +22,19 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="TryAtSoftware.Extensions.DependencyInjection" Version="1.1.2-alpha.2" />
+        <PackageReference Include="TryAtSoftware.Extensions.DependencyInjection" Version="1.1.2" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.1.1"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.1.1" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0-rc.1.23419.4"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\TryAtSoftware.Extensions.DependencyInjection.Standard.md" Pack="true" PackagePath="\"/>
+        <None Include="..\TryAtSoftware.Extensions.DependencyInjection.Standard.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>

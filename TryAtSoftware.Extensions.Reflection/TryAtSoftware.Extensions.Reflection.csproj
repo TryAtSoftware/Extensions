@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
 
         <PackageId>TryAtSoftware.Extensions.Reflection</PackageId>
-        <Version>1.1.2-alpha.2</Version>
+        <Version>1.1.2</Version>
         <Authors>Tony Troeff</Authors>
         <RepositoryUrl>https://github.com/TryAtSoftware/Extensions</RepositoryUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>

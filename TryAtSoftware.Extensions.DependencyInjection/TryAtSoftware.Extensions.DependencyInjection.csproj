@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
 
         <PackageId>TryAtSoftware.Extensions.DependencyInjection</PackageId>
-        <Version>1.1.2-alpha.2</Version>
+        <Version>1.1.2</Version>
         <Authors>Tony Troeff</Authors>
         <RepositoryUrl>https://github.com/TryAtSoftware/Extensions</RepositoryUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -23,7 +23,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="TryAtSoftware.Extensions.Collections" Version="1.0.0"/>
-        <PackageReference Include="TryAtSoftware.Extensions.Reflection" Version="1.1.2-alpha.2"/>
+        <PackageReference Include="TryAtSoftware.Extensions.Reflection" Version="1.1.2" />
     </ItemGroup>
 
     <ItemGroup>

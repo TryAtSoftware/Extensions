@@ -9,7 +9,7 @@
 
 # About the project
 
-`TryAtSoftware.Extensions` is a library containing extension methods and utility components that should simplify (and optimize) some common operations with reflection.
+`TryAtSoftware.Extensions.Reflection` is a library containing extension methods and utility components that should simplify (and optimize) some common operations with reflection.
 
 # About us
 

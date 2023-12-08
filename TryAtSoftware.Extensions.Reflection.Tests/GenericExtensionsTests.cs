@@ -1,8 +1,7 @@
-﻿namespace TryAtSoftware.Extensions.Reflection.Tests;
+namespace TryAtSoftware.Extensions.Reflection.Tests;
 
 using System;
 using System.Collections.Generic;
-using TryAtSoftware.Extensions.Reflection.Interfaces;
 using TryAtSoftware.Extensions.Reflection.Tests.Models;
 using Xunit;
 

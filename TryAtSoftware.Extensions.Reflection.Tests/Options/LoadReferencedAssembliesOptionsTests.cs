@@ -1,8 +1,8 @@
-﻿namespace TryAtSoftware.Extensions.Reflection.Tests.Options;
+namespace TryAtSoftware.Extensions.Reflection.Tests.Options;
 
 using System;
 using System.Reflection;
-using Moq;
+using NSubstitute;
 using TryAtSoftware.Extensions.Reflection.Interfaces;
 using TryAtSoftware.Extensions.Reflection.Options;
 using Xunit;
@@ -33,11 +33,9 @@ public class LoadReferencedAssembliesOptionsTests
     [Fact]
     public void LoaderShouldBeSuccessfullySet()
     {
-        var loaderMock = new Mock<IAssemblyLoader>();
-        var loader = loaderMock.Object;
-
-        var options = new LoadReferencedAssembliesOptions { Loader = loader };
-        Assert.Same(loader, options.Loader);
+        var loaderMock = Substitute.For<IAssemblyLoader>();
+        var options = new LoadReferencedAssembliesOptions { Loader = loaderMock };
+        Assert.Same(loaderMock, options.Loader);
     }
 
     [Fact]

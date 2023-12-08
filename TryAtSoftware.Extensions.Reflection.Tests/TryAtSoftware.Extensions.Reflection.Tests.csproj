@@ -9,18 +9,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="coverlet.msbuild" Version="6.0.0" PrivateAssets="all"/>
+        <PackageReference Include="coverlet.msbuild" Version="6.0.0" PrivateAssets="all" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-        <PackageReference Include="Moq" Version="4.18.4"/>
-        <PackageReference Include="SonarAnalyzer.CSharp" Version="9.12.0.78982" PrivateAssets="all" />
-        <PackageReference Include="TryAtSoftware.Randomizer" Version="2.0.2-alpha.1"/>
-        <PackageReference Include="xunit" Version="2.6.1" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" PrivateAssets="all" />
-        <PackageReference Include="coverlet.collector" Version="6.0.0" PrivateAssets="all"/>
+        <PackageReference Include="NSubstitute" Version="5.1.0" />
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="9.15.0.81779" PrivateAssets="all" />
+        <PackageReference Include="TryAtSoftware.Randomizer" Version="2.0.2-alpha.1" />
+        <PackageReference Include="xunit" Version="2.6.2" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.4" PrivateAssets="all" />
+        <PackageReference Include="coverlet.collector" Version="6.0.0" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\TryAtSoftware.Extensions.Reflection\TryAtSoftware.Extensions.Reflection.csproj"/>
+        <ProjectReference Include="..\TryAtSoftware.Extensions.Reflection\TryAtSoftware.Extensions.Reflection.csproj" />
     </ItemGroup>
 
 </Project>

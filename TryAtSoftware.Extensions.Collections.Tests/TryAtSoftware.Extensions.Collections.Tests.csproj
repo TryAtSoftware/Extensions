@@ -15,13 +15,13 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-        <PackageReference Include="SonarAnalyzer.CSharp" Version="9.12.0.78982">
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="9.15.0.81779">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="TryAtSoftware.Randomizer" Version="2.0.2-alpha.1"/>
-        <PackageReference Include="xunit" Version="2.6.1" />
-        <PackageReference Include="coverlet.collector" Version="6.0.0" PrivateAssets="all"/>
+        <PackageReference Include="TryAtSoftware.Randomizer" Version="2.0.2-alpha.1" />
+        <PackageReference Include="xunit" Version="2.6.2" />
+        <PackageReference Include="coverlet.collector" Version="6.0.0" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
@@ -29,11 +29,11 @@
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net7.0' or '$(TargetFramework)' == 'net8.0'">
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" PrivateAssets="all" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.4" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\TryAtSoftware.Extensions.Collections\TryAtSoftware.Extensions.Collections.csproj"/>
+        <ProjectReference Include="..\TryAtSoftware.Extensions.Collections\TryAtSoftware.Extensions.Collections.csproj" />
     </ItemGroup>
 
 </Project>

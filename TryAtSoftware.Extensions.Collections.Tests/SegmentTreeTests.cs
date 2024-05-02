@@ -4,8 +4,6 @@ using TryAtSoftware.Extensions.Collections.Interfaces;
 using TryAtSoftware.Randomizer.Core.Helpers;
 using Xunit;
 
-#if NET7_0_OR_GREATER
-
 public static class SegmentTreeTests
 {
     [Fact]
@@ -45,5 +43,3 @@ public class StandardSegmentTreeSumEngine : ISegmentTreeEngine<int, int, int>
 
     public int ProduceResult(int value) => value;
 }
-
-#endif

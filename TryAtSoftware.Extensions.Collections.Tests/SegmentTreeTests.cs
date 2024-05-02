@@ -1,5 +1,6 @@
 ﻿namespace TryAtSoftware.Extensions.Collections.Tests;
 
+using TryAtSoftware.Extensions.Collections.Interfaces;
 using TryAtSoftware.Randomizer.Core.Helpers;
 using Xunit;
 
@@ -12,7 +13,7 @@ public static class SegmentTreeTests
     {
         var n = RandomizationHelper.RandomInteger(0, 100);
         
-        var engine = new StandardSegmentTreeSumEngine<int>();
+        var engine = new StandardSegmentTreeSumEngine();
         var segmentTree = new RecursiveSegmentTree<int, int, int>(engine, n);
 
         var numbers = new int[n];
@@ -30,6 +31,19 @@ public static class SegmentTreeTests
         for (var i = 0; i < n; i++)
             for (var j = i; j < n; j++) Assert.Equal(prefixSum[j + 1] - prefixSum[i], segmentTree.Query(i, j));
     }
+}
+
+public class StandardSegmentTreeSumEngine : ISegmentTreeEngine<int, int, int>
+{
+    public int CreateDefaultValue() => default;
+
+    public int Combine(int pendingChange, int newChange) => newChange;
+
+    public int ApplyChange(int currentValue, int change) => change;
+
+    public int Merge(int left, int right) => left + right;
+
+    public int ProduceResult(int value) => value;
 }
 
 #endif

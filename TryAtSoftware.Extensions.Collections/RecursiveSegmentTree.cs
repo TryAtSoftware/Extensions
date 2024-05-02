@@ -30,7 +30,14 @@ public class RecursiveSegmentTree<TValue, TOutput, TChange> : ISegmentTree<TOutp
 
     public void Update(int index, TChange change) => this.Update(index, index, change);
 
-    public void Update(int start, int end, TChange change) => throw new System.NotImplementedException();
+    public void Update(int start, int end, TChange change)
+    {
+        if (start < 0) throw new ArgumentException("The query start index must not be negative.", nameof(start));
+        if (end >= this._n) throw new ArgumentException("The query end index must not exceed the original bounds.", nameof(end));
+        if (start > end) throw new InvalidOperationException("The query start index must be less than or equal to the query end index");
+
+        this._root.Update(start, end, change);
+    }
 
     public void LazyUpdate(int index, TChange change) => this.LazyUpdate(index, index, change);
 
@@ -75,7 +82,7 @@ internal class RecursiveSegmentTreeNode<TValue, TOutput, TChange>
         if (this._isLeaf) this._value = engine.CreateDefaultValue();
     }
 
-    // It is guaranteed that `this._start <= queryStart <= queryEnd <= this._end`. 
+    // For all the methods below is guaranteed that `this._start <= queryStart <= queryEnd <= this._end`. 
     public TOutput Query(int queryStart, int queryEnd)
     {
         if (this._isLeaf) return this._engine.ProduceResult(this.Value);
@@ -84,5 +91,15 @@ internal class RecursiveSegmentTreeNode<TValue, TOutput, TChange>
         if (queryStart >= this._m2) return this.Right.Query(queryStart, queryEnd);
 
         return this._engine.Merge(this.Left.Query(queryStart, this._m1), this.Right.Query(this._m2, queryEnd));
+    }
+
+    public void Update(int queryStart, int queryEnd, TChange change)
+    {
+        if (this._isLeaf) this._value = this._engine.ApplyChange(this.Value, change);
+        else
+        {
+            if (queryStart <= this._m1) this.Left.Update(queryStart, Math.Min(this._m1, queryEnd), change);
+            if (queryEnd >= this._m2) this.Right.Update(Math.Max(this._m2, queryStart), queryEnd, change);
+        }
     }
 }

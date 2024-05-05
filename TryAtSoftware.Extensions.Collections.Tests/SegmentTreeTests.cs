@@ -11,34 +11,39 @@ public static class SegmentTreeTests
     {
         var n = RandomizationHelper.RandomInteger(0, 100);
         
-        var engine = new StandardSegmentTreeSumEngine();
-        var segmentTree = new RecursiveSegmentTree<int, int, int>(engine, n);
+        var initializationEngine = new StandardSegmentTreeInitializationEngine<int>(0);
+        var segmentTree = new RecursiveSegmentTree<int>(n, initializationEngine);
 
         var numbers = new int[n];
         for (var i = 0; i < n; i++)
         {
             numbers[i] = RandomizationHelper.RandomInteger(0, 100);
-            segmentTree.Update(i, numbers[i]);
+            segmentTree.Update(i, new StandardSegmentTreeChangeOperator<int>(numbers[i]));
         }
 
-        for (var i = 0; i < n; i++) Assert.Equal(numbers[i], segmentTree.Query(i));
+        var queryEngine = new SumSegmentTreeQueryOperator();
+        for (var i = 0; i < n; i++) Assert.Equal(numbers[i], segmentTree.Query(i, queryEngine));
 
         var prefixSum = new int[n + 1];
         for (var i = 0; i < n; i++) prefixSum[i + 1] = prefixSum[i] + numbers[i];
 
         for (var i = 0; i < n; i++)
-            for (var j = i; j < n; j++) Assert.Equal(prefixSum[j + 1] - prefixSum[i], segmentTree.Query(i, j));
+            for (var j = i; j < n; j++) Assert.Equal(prefixSum[j + 1] - prefixSum[i], segmentTree.Query(i, j, queryEngine));
     }
 }
 
-public class StandardSegmentTreeSumEngine : ISegmentTreeEngine<int, int, int>
+public class StandardSegmentTreeInitializationEngine<TValue>(TValue defaultValue) : ISegmentTreeInitializationEngine<TValue>
 {
-    public int CreateDefaultValue() => default;
+    public TValue CreateInitialValue(int index) => defaultValue;
+}
 
-    public int Combine(int pendingChange, int newChange) => newChange;
+public class StandardSegmentTreeChangeOperator<TValue>(TValue newValue) : ISegmentTreeChangeOperator<TValue>
+{
+    public TValue ApplyChange(TValue currentValue) => newValue;
+}
 
-    public int ApplyChange(int currentValue, int change) => change;
-
+public class SumSegmentTreeQueryOperator : ISegmentTreeQueryOperator<int, int>
+{
     public int Merge(int left, int right) => left + right;
 
     public int ProduceResult(int value) => value;

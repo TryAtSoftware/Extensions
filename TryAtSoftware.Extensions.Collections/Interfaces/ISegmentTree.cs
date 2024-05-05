@@ -1,13 +1,13 @@
 ﻿namespace TryAtSoftware.Extensions.Collections.Interfaces;
 
-public interface ISegmentTree<out TOutput, in TChange>
+public interface ISegmentTree<TValue>
 {
-    TOutput Query(int index);
-    TOutput Query(int start, int end);
+    TOutput Query<TOutput>(int index, ISegmentTreeQueryOperator<TValue, TOutput> queryOperator);
+    TOutput Query<TOutput>(int start, int end, ISegmentTreeQueryOperator<TValue, TOutput> queryOperator);
 
-    void Update(int index, TChange change);
-    void Update(int start, int end, TChange change);
+    void Update(int index, ISegmentTreeChangeOperator<TValue> changeOperator);
+    void Update(int start, int end, ISegmentTreeChangeOperator<TValue> changeOperator);
 
-    void LazyUpdate(int index, TChange change);
-    void LazyUpdate(int start, int end, TChange change);
+    void LazyUpdate(int index, ISegmentTreeChangeOperator<TValue> changeOperator);
+    void LazyUpdate(int start, int end, ISegmentTreeChangeOperator<TValue> changeOperator);
 }

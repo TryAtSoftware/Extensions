@@ -21,14 +21,37 @@ public static class SegmentTreeTests
             segmentTree.Update(i, new StandardSegmentTreeChangeOperator<int>(numbers[i]));
         }
 
-        var queryEngine = new SumSegmentTreeQueryOperator();
-        for (var i = 0; i < n; i++) Assert.Equal(numbers[i], segmentTree.Query(i, queryEngine));
+        ValidateQueries(numbers, segmentTree);
+    }
+    
+    [Fact]
+    public static void SegmentTreeShouldBeLazyUpdatedSuccessfully()
+    {
+        var n = RandomizationHelper.RandomInteger(0, 100);
+        
+        var initializationEngine = new StandardSegmentTreeInitializationEngine<int>(0);
+        var segmentTree = new RecursiveSegmentTree<int>(n, initializationEngine);
 
-        var prefixSum = new int[n + 1];
-        for (var i = 0; i < n; i++) prefixSum[i + 1] = prefixSum[i] + numbers[i];
-
+        var numbers = new int[n];
         for (var i = 0; i < n; i++)
-            for (var j = i; j < n; j++) Assert.Equal(prefixSum[j + 1] - prefixSum[i], segmentTree.Query(i, j, queryEngine));
+        {
+            numbers[i] = RandomizationHelper.RandomInteger(0, 100);
+            segmentTree.LazyUpdate(i, new StandardSegmentTreeChangeOperator<int>(numbers[i]));
+        }
+
+        ValidateQueries(numbers, segmentTree);
+    }
+
+    private static void ValidateQueries(int[] numbers, RecursiveSegmentTree<int> segmentTree)
+    {
+        var queryEngine = new SumSegmentTreeQueryOperator();
+        for (var i = 0; i < numbers.Length; i++) Assert.Equal(numbers[i], segmentTree.Query(i, queryEngine));
+
+        var prefixSum = new int[numbers.Length + 1];
+        for (var i = 0; i < numbers.Length; i++) prefixSum[i + 1] = prefixSum[i] + numbers[i];
+
+        for (var i = 0; i < numbers.Length; i++)
+            for (var j = i; j < numbers.Length; j++) Assert.Equal(prefixSum[j + 1] - prefixSum[i], segmentTree.Query(i, j, queryEngine));
     }
 }
 

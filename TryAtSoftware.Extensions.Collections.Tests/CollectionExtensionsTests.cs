@@ -10,18 +10,25 @@ public class CollectionExtensionsTests
     [Fact]
     public void OrEmptyIfNullShouldReturnTheSameCollectionIfItIsNotNull()
     {
-        var collection = TestsHelper.GetStandardCollection();
-        var result = collection.OrEmptyIfNull();
-        Assert.NotNull(result);
-        Assert.Same(collection, result);
+        var collection = TestsHelper.GetStandardCollection().ToArray();
+        var result1 = ((IEnumerable<int>) collection).OrEmptyIfNull();
+        var result2 = ((IList<int>) collection).OrEmptyIfNull();
+
+        Assert.Same(collection, result1);
+        Assert.Same(collection, result2);
     }
 
     [Fact]
     public void OrEmptyIfNullShouldReturnEmptyCollectionIfNullIsPassed()
     {
-        var result = ((IEnumerable<object>?)null).OrEmptyIfNull();
-        Assert.NotNull(result);
-        Assert.Empty(result);
+        var result1 = ((IEnumerable<object>?)null).OrEmptyIfNull();
+        var result2 = ((IList<object>?)null).OrEmptyIfNull();
+        
+        Assert.NotNull(result1);
+        Assert.Empty(result1);
+        
+        Assert.NotNull(result2);
+        Assert.Empty(result2);
     }
 
     [Fact]
@@ -123,7 +130,7 @@ public class CollectionExtensionsTests
     }
 
     [Fact]
-    public void SetUnionShouldHandleNull()
+    public void UnionShouldHandleNull()
     {
         var result = ((IEnumerable<HashSet<object>>?)null).Union();
         Assert.NotNull(result);
@@ -131,7 +138,7 @@ public class CollectionExtensionsTests
     }
 
     [Fact]
-    public void SetUnionShouldWorkCorrectly()
+    public void UnionShouldWorkCorrectly()
     {
         var standardCollection = TestsHelper.GetStandardCollection().ToArray();
         
@@ -146,18 +153,25 @@ public class CollectionExtensionsTests
     [Fact]
     public void AsReadOnlyCollectionShouldHandleNull()
     {
-        var result = ((IEnumerable<object>?)null).AsReadOnlyCollection();
-        Assert.NotNull(result);
-        Assert.Empty(result);
+        var result1 = ((IEnumerable<object>?)null).AsReadOnlyCollection();
+        var result2 = ((IList<object>?)null).AsReadOnlyCollection();
+
+        Assert.NotNull(result1);
+        Assert.Empty(result1);
+        
+        Assert.NotNull(result2);
+        Assert.Empty(result2);
     }
 
     [Fact]
     public void AsReadOnlyCollectionShouldWorkCorrectly()
     {
         var standardCollection = TestsHelper.GetStandardCollection().ToArray();
-        var readonlyCollection = standardCollection.AsReadOnlyCollection();
 
-        Assert.Equal(standardCollection, readonlyCollection);
+        var readonlyCollection1 = ((IEnumerable<int>) standardCollection).AsReadOnlyCollection();
+        var readonlyCollection2 = ((IList<int>) standardCollection).AsReadOnlyCollection();
+        Assert.Equal(standardCollection, readonlyCollection1);
+        Assert.Equal(standardCollection, readonlyCollection2);
     }
 
     public static IEnumerable<object?[]> GetConcatenateWithTestData()

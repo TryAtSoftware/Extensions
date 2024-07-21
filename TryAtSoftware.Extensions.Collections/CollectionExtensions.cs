@@ -2,6 +2,7 @@ namespace TryAtSoftware.Extensions.Collections;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 /// <summary>
@@ -31,7 +32,15 @@ public static class CollectionExtensions
     /// <typeparam name="T">The type of elements in the collection.</typeparam>
     /// <param name="collection">The extended <see cref="IEnumerable{T}"/> instance.</param>
     /// <returns>Returns the same collection if it was not null. Else, returns an empty enumerable.</returns>
-    public static IEnumerable<T> OrEmptyIfNull<T>(this IEnumerable<T>? collection) => collection ?? Enumerable.Empty<T>();
+    public static IEnumerable<T> OrEmptyIfNull<T>(this IEnumerable<T>? collection) => collection ?? [];
+
+    /// <summary>
+    /// This method will give you an empty enumerable instance if the extended <paramref name="collection"/> is null.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the collection.</typeparam>
+    /// <param name="collection">The extended <see cref="IList{T}"/> instance.</param>
+    /// <returns>Returns the same collection if it was not null. Else, returns an empty enumerable.</returns>
+    public static IList<T> OrEmptyIfNull<T>(this IList<T>? collection) => collection ?? new List<T>(capacity: 0);
 
     /// <summary>
     /// Use this method to filter out all null values from the extended <paramref name="collection"/>.
@@ -111,5 +120,13 @@ public static class CollectionExtensions
     /// <typeparam name="T">The type of elements in the collection.</typeparam>
     /// <param name="collection">The extended <see cref="IEnumerable{T}"/> instance.</param>
     /// <returns>Returns an <see cref="IReadOnlyCollection{T}"/> containing all elements from the extended <paramref name="collection"/> in the same order.</returns>
-    public static IReadOnlyCollection<T> AsReadOnlyCollection<T>(this IEnumerable<T>? collection) => collection.OrEmptyIfNull().ToList().AsReadOnly();
+    public static IReadOnlyCollection<T> AsReadOnlyCollection<T>(this IEnumerable<T>? collection) => collection.OrEmptyIfNull().ToList().AsReadOnlyCollection();
+
+    /// <summary>
+    /// Use this method to construct an <see cref="IReadOnlyCollection{T}"/> instance from the extended <paramref name="list"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the collection.</typeparam>
+    /// <param name="list">The extended <see cref="IList{T}"/> instance.</param>
+    /// <returns>Returns an <see cref="IReadOnlyCollection{T}"/> containing all elements from the extended <paramref name="list"/> in the same order.</returns>
+    public static IReadOnlyCollection<T> AsReadOnlyCollection<T>(this IList<T>? list) => new ReadOnlyCollection<T>(list.OrEmptyIfNull());
 }

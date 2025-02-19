@@ -64,7 +64,7 @@ jobs:
         run: dotnet build --no-restore --configuration "${{ env.CONFIGURATION }}"
 
       - name: Test the solution
-        run: dotnet test --no-build --configuration "${{ env.CONFIGURATION }}" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+        run: dotnet test --no-build --configuration "${{ env.CONFIGURATION }}" --collect "XPlat Code Coverage;Format=opencover"
 
       - name: Finalize analyzation with SonarCloud
         run: ./.sonar/scanner/dotnet-sonarscanner end ${{ env.SONAR_ARGS }}

@@ -63,14 +63,11 @@ public class ServiceRegistrar : IServiceRegistrar
     {
         var lifetime = ExtractLifetime(configurationAttributes);
 
-        ServiceDescriptor? serviceDescriptor = null;
 #if NET8_0_OR_GREATER
-        var key = ExtractKey(configurationAttributes);
-        if (!string.IsNullOrWhiteSpace(key)) serviceDescriptor = new ServiceDescriptor(interfaceType, key, implementationType, lifetime);
+        if (this.RegisterKeyedServiceDescriptors(interfaceType, implementationType, lifetime, configurationAttributes)) return;
 #endif
 
-        serviceDescriptor ??= new ServiceDescriptor(interfaceType, implementationType, lifetime);
-        this._services.Add(serviceDescriptor);
+        this.RegisterServiceDescriptor(interfaceType, implementationType, lifetime);
     }
 
     private static ServiceLifetime ExtractLifetime(ServiceConfigurationAttribute[] configurationAttributes)
@@ -85,15 +82,35 @@ public class ServiceRegistrar : IServiceRegistrar
     }
 
 #if NET8_0_OR_GREATER
-    private static string? ExtractKey(ServiceConfigurationAttribute[] configurationAttributes)
+    private static string[] ExtractServiceKeys(ServiceConfigurationAttribute[] configurationAttributes)
     {
         for (var i = configurationAttributes.Length - 1; i >= 0; i--)
         {
-            if (!string.IsNullOrWhiteSpace(configurationAttributes[i].Key))
-                return configurationAttributes[i].Key;
+            if (configurationAttributes[i].Keys.Length > 0)
+                return configurationAttributes[i].Keys;
         }
 
-        return null;
+        return [];
+    }
+    
+    private bool RegisterKeyedServiceDescriptors(Type interfaceType, Type implementationType, ServiceLifetime lifetime, ServiceConfigurationAttribute[] configurationAttributes)
+    {
+        var serviceKeys = ExtractServiceKeys(configurationAttributes);
+        if (serviceKeys.Length == 0) return false;
+
+        foreach (var key in serviceKeys)
+        {
+            var serviceDescriptor = new ServiceDescriptor(interfaceType, key, implementationType, lifetime);
+            this._services.Add(serviceDescriptor);
+        }
+
+        return true;
     }
 #endif
+
+    private void RegisterServiceDescriptor(Type interfaceType, Type implementationType, ServiceLifetime lifetime)
+    {
+        var serviceDescriptor = new ServiceDescriptor(interfaceType, implementationType, lifetime);
+        this._services.Add(serviceDescriptor);
+    }
 }

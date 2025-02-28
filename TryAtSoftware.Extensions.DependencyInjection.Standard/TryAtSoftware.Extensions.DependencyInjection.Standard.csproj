@@ -18,6 +18,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <InternalsVisibleTo Include="TryAtSoftware.Extensions.DependencyInjection.Standard.Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="SonarAnalyzer.CSharp" Version="10.6.0.109712">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

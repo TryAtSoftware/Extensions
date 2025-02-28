@@ -12,9 +12,9 @@ public class ServiceConfigurationAttribute : Attribute
     private ServiceLifetime _lifetime;
     
     /// <summary>
-    /// Gets a value indicating whether or not a value is set to the <see cref="Lifetime"/> property.
+    /// Gets a value indicating whether a value is set to the <see cref="Lifetime"/> property.
     /// </summary>
-    public bool LifetimeIsSet { get; private set; }
+    internal bool LifetimeIsSet { get; private set; }
 
     /// <summary>
     /// Gets or sets the lifetime of the decorated service.

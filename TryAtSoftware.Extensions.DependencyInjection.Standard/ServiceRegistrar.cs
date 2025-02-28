@@ -37,14 +37,27 @@ public class ServiceRegistrar : IServiceRegistrar
         if (type is null) throw new ArgumentNullException(nameof(type));
         if (!type.IsClass || type.IsAbstract) throw new InvalidOperationException("Only non-abstract classes can be registered into a dependency injection container.");
 
-        var genericParametersSetup = ExtractGenericParametersSetup(type, options);
-        var implementationType = ResolveGenericParameters(type, genericParametersSetup);
-        var implementedInterfaces = implementationType.GetInterfaces().Select(x => ResolveGenericParameters(x, genericParametersSetup));
-
         var configurationAttributes = this._hierarchyScanner.ScanForAttribute<ServiceConfigurationAttribute>(type).ToArray();
+
+        var (implementationType, implementedInterfaces) = BuildServiceTypes(type, configurationAttributes, options);
 
         this.RegisterService(implementationType, implementationType, configurationAttributes);
         foreach (var interfaceType in implementedInterfaces) this.RegisterService(interfaceType, implementationType, configurationAttributes);
+    }
+
+    private static (Type ImplementationType, IEnumerable<Type> ImplementedInterfaces) BuildServiceTypes(Type type, ServiceConfigurationAttribute[] configurationAttributes, RegisterServiceOptions? options)
+    {
+        var implementedInterfaces = type.GetInterfaces();
+        if (!type.IsGenericType) return (type, implementedInterfaces);
+
+        if (ShouldBeRegisteredAsOpenGeneric(configurationAttributes))
+        {
+            var genericArguments = type.GetGenericArguments();
+            return (type, implementedInterfaces.Where(x => genericArguments.SequenceEqual(x.GenericTypeArguments)));
+        }
+
+        var genericParametersSetup = ExtractGenericParametersSetup(type, options);
+        return (ResolveGenericParameters(type, genericParametersSetup), implementedInterfaces.Select(x => ResolveGenericParameters(x, genericParametersSetup)));
     }
 
     private static IDictionary<string, Type>? ExtractGenericParametersSetup(Type serviceType, RegisterServiceOptions? options)
@@ -82,6 +95,17 @@ public class ServiceRegistrar : IServiceRegistrar
         }
 
         return ServiceLifetime.Scoped;
+    }
+
+    private static bool ShouldBeRegisteredAsOpenGeneric(ServiceConfigurationAttribute[] configurationAttributes)
+    {
+        for (var i = configurationAttributes.Length - 1; i >= 0; i--)
+        {
+            var openGeneric = configurationAttributes[i].OpenGeneric;
+            if (openGeneric.HasValue) return openGeneric.Value;
+        }
+
+        return false;
     }
 
 #if NET8_0_OR_GREATER

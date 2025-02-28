@@ -29,6 +29,11 @@ public class ServiceConfigurationAttribute : Attribute
         }
     }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether the decorated class should be registered as an open generic type within the standard dependency injection container.
+    /// </summary>
+    public bool? OpenGeneric { get; set; }
+
 #if NET8_0_OR_GREATER
     public string? Key { get; set; }
 #endif

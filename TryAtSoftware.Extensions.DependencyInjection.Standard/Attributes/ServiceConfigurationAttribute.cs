@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 public class ServiceConfigurationAttribute : Attribute
 {
     private ServiceLifetime _lifetime;
-    
+
     /// <summary>
     /// Gets a value indicating whether or not a value is set to the <see cref="Lifetime"/> property.
     /// </summary>
@@ -30,6 +30,26 @@ public class ServiceConfigurationAttribute : Attribute
     }
 
 #if NET8_0_OR_GREATER
-    public string? Key { get; set; }
+    private string[] _keys = [];
+
+    public string? Key
+    {
+        get
+        {
+            if (this.Keys.Length != 1) return null;
+            return this.Keys[0];
+        }
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value)) this.Keys = [];
+            else this.Keys = [value];
+        }
+    }
+
+    public string[] Keys
+    {
+        get => this._keys;
+        set => this._keys = value ?? throw new ArgumentNullException(nameof(value));
+    }
 #endif
 }

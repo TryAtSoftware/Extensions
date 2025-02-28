@@ -101,8 +101,8 @@ public class ServiceRegistrar : IServiceRegistrar
     {
         for (var i = configurationAttributes.Length - 1; i >= 0; i--)
         {
-            var openGeneric = configurationAttributes[i].OpenGeneric;
-            if (openGeneric.HasValue) return openGeneric.Value;
+            if (configurationAttributes[i].OpenGenericIsSet)
+                return configurationAttributes[i].OpenGeneric;
         }
 
         return false;

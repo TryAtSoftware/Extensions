@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 public class ServiceConfigurationAttribute : Attribute
 {
     private ServiceLifetime _lifetime;
+    private bool _openGeneric;
     
     /// <summary>
     /// Gets a value indicating whether a value is set to the <see cref="Lifetime"/> property.
@@ -28,11 +29,24 @@ public class ServiceConfigurationAttribute : Attribute
             this._lifetime = value;
         }
     }
+    
+    /// <summary>
+    /// Gets a value indicating whether a value is set to the <see cref="OpenGeneric"/> property.
+    /// </summary>
+    internal bool OpenGenericIsSet { get; private set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the decorated class should be registered as an open generic type within the standard dependency injection container.
     /// </summary>
-    public bool? OpenGeneric { get; set; }
+    public bool OpenGeneric
+    {
+        get => this._openGeneric;
+        set
+        {
+            this.OpenGenericIsSet = true;
+            this._openGeneric = value;
+        }
+    }
 
 #if NET8_0_OR_GREATER
     public string? Key { get; set; }

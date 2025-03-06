@@ -78,10 +78,12 @@ public class ServiceRegistrarTests
     }
 
     /// <remarks>
-    /// For the <paramref name="genericTypesMap"/> parameter, attribute types are followed by the actual generic parameter type.
+    /// For the <paramref name="genericTypesSetup"/> parameter,
+    /// attribute types are followed by the actual generic parameter type.
     /// </remarks>
     [Theory]
     [InlineData(typeof(GenericService<>), new[] { typeof(IGenericInterface<>) }, new[] { typeof(KeyTypeAttribute), typeof(int) })]
+    [InlineData(typeof(GenericService<,>), new[] { typeof(IGenericInterface<,>) }, new[] { typeof(KeyTypeAttribute), typeof(int), typeof(ValueTypeAttribute), typeof(string) })]
     public void GenericServicesShouldBeSuccessfullyRegistered(Type implementationType, Type[] serviceTypes, Type[] genericTypesSetup)
     {
         var genericTypesMatrix = genericTypesSetup.Chunk(2).ToArray();
@@ -170,27 +172,28 @@ public class ServiceRegistrarTests
         return registeredServiceTypes;
     }
 
-    private interface IBaseInterface { }
-    private interface IGenericInterface<T> { }
-    private interface IGenericInterface<T1, T2> { }
-    private interface IImplementedInterface1 : IBaseInterface { }
-    private interface IImplementedInterface2 : IBaseInterface { }
-    private abstract class BaseService : IImplementedInterface1, IImplementedInterface2 { }
+    private interface IBaseInterface;
+    private interface IGenericInterface<T>;
+    private interface IGenericInterface<T1, T2>;
+    private interface IImplementedInterface1 : IBaseInterface;
+    private interface IImplementedInterface2 : IBaseInterface;
+    private abstract class BaseService : IImplementedInterface1, IImplementedInterface2;
 
-    private class Service : BaseService { }
-    [ServiceConfiguration(Lifetime = ServiceLifetime.Transient)] private class TransientService : BaseService { }
-    [ServiceConfiguration(Lifetime = ServiceLifetime.Scoped)] private class ExplicitlyScopedService : BaseService { }
-    [ServiceConfiguration] private class ImplicitlyScopedService : BaseService { }
-    [ServiceConfiguration(Lifetime = ServiceLifetime.Singleton)] private class SingletonService : BaseService { }
+    private class Service : BaseService;
+    [ServiceConfiguration(Lifetime = ServiceLifetime.Transient)] private class TransientService : BaseService;
+    [ServiceConfiguration(Lifetime = ServiceLifetime.Scoped)] private class ExplicitlyScopedService : BaseService;
+    [ServiceConfiguration] private class ImplicitlyScopedService : BaseService;
+    [ServiceConfiguration(Lifetime = ServiceLifetime.Singleton)] private class SingletonService : BaseService;
 
-    [AttributeUsage(AttributeTargets.GenericParameter)] private class KeyTypeAttribute : Attribute { }
-    private class GenericService<[KeyType] TKey> : IGenericInterface<TKey> { }
+    [AttributeUsage(AttributeTargets.GenericParameter)] private class KeyTypeAttribute : Attribute;
+    [AttributeUsage(AttributeTargets.GenericParameter)] private class ValueTypeAttribute : Attribute;
+    [ServiceConfiguration] private class GenericService<[KeyType] TKey> : IGenericInterface<TKey>;
+    [ServiceConfiguration] private class GenericService<[KeyType] TKey, [ValueType] TValue> : IGenericInterface<TKey, TValue>;
 
-    [ServiceConfiguration(OpenGeneric = true)] private class OpenGenericService<T> : IGenericInterface<T>, IGenericInterface<(T First, T Second)> { }
-    [ServiceConfiguration(OpenGeneric = true)] private class OpenGenericService<T1, T2> : IGenericInterface<T1, T2>, IGenericInterface<(T1 First, T2 Second)> { }
+    [ServiceConfiguration(OpenGeneric = true)] private class OpenGenericService<T> : IGenericInterface<T>, IGenericInterface<(T First, T Second)>;
+    [ServiceConfiguration(OpenGeneric = true)] private class OpenGenericService<T1, T2> : IGenericInterface<T1, T2>, IGenericInterface<(T1 First, T2 Second)>;
 
 #if NET8_0_OR_GREATER
-    [ServiceConfiguration(Key = "service_1")]
-    private class KeyedService : BaseService {}
+    [ServiceConfiguration(Key = "service_1")] private class KeyedService : BaseService;
 #endif
 }

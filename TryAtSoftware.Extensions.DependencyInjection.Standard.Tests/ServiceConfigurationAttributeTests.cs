@@ -31,7 +31,7 @@ public class ServiceConfigurationAttributeTests
         var attribute = new ServiceConfigurationAttribute();
         Assert.Null(attribute.Key);
     }
-    
+
     [Fact]
     public void ServiceKeyShouldBeSetCorrectly()
     {
@@ -49,5 +49,9 @@ public class ServiceConfigurationAttributeTests
     }
 #endif
 
-    public static IEnumerable<object[]> GetServiceLifetimeData() => Enum.GetValues<ServiceLifetime>().Select(x => new object[] { x });
+    public static TheoryData<ServiceLifetime> GetServiceLifetimeData()
+    {
+        var serviceLifetimeValues = Enum.GetValues<ServiceLifetime>();
+        return new TheoryData<ServiceLifetime>(serviceLifetimeValues);
+    }
 }

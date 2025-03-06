@@ -53,7 +53,7 @@ public class ServiceRegistrar : IServiceRegistrar
         if (ShouldBeRegisteredAsOpenGeneric(configurationAttributes))
         {
             var genericArguments = type.GetGenericArguments();
-            return (type, implementedInterfaces.Where(x => genericArguments.SequenceEqual(x.GenericTypeArguments)));
+            return (type, implementedInterfaces.Where(x => genericArguments.SequenceEqual(x.GenericTypeArguments)).Select(x => x.GetGenericTypeDefinition()));
         }
 
         var genericParametersSetup = ExtractGenericParametersSetup(type, options);

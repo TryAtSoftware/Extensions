@@ -77,26 +77,50 @@ public class ServiceRegistrarTests
         foreach (var i in interfaces) Assert.Contains(i, registeredServiceTypes);
     }
 
-    [Fact]
-    public void GenericServicesShouldBeSuccessfullyRegistered()
+    /// <remarks>
+    /// For the <paramref name="genericTypesSetup"/>,
+    /// every attribute type is immediately followed by the corresponding generic type argument.
+    /// </remarks>
+    [Theory]
+    [InlineData(typeof(GenericService<>), new[] { typeof(IGenericInterface<>) }, new[] { typeof(KeyTypeAttribute), typeof(int) })]
+    [InlineData(typeof(GenericService<,>), new[] { typeof(IGenericInterface<,>) }, new[] { typeof(KeyTypeAttribute), typeof(int), typeof(ValueTypeAttribute), typeof(string) })]
+    public void GenericServicesShouldBeSuccessfullyRegistered(Type implementationType, Type[] serviceTypes, Type[] genericTypesSetup)
     {
-        var implementationType = typeof(GenericService<>);
-
-        var keyType = typeof(int);
-        var registrationOptions = new RegisterServiceOptions { GenericTypesMap = new Dictionary<Type, Type> { [typeof(KeyTypeAttribute)] = keyType } };
+        var genericTypesMatrix = genericTypesSetup.Chunk(2).ToArray();
+        var registrationOptions = new RegisterServiceOptions { GenericTypesMap = genericTypesMatrix.ToDictionary(x => x[0], x => x[1]) };
         var (serviceCollection, _, registrar) = InstantiateRegistrar();
 
         registrar.Register(implementationType, registrationOptions);
 
-        var interfaces = implementationType.GetInterfaces();
-        Assert.Equal(interfaces.Length + 1, serviceCollection.Count);
+        Assert.Equal(serviceTypes.Length + 1, serviceCollection.Count);
 
-        var genericImplementationType = implementationType.MakeGenericType(keyType);
-        var genericInterfaceType = typeof(IGenericInterface<>).MakeGenericType(keyType);
+        var genericTypeArguments = genericTypesMatrix.Select(x => x[1]).ToArray();
+        var genericImplementationType = implementationType.MakeGenericType(genericTypeArguments);
         var registeredServiceTypes = AssertSuccessfulRegistration(serviceCollection, genericImplementationType, ServiceLifetime.Scoped);
 
         Assert.Contains(genericImplementationType, registeredServiceTypes);
-        Assert.Contains(genericInterfaceType, registeredServiceTypes);
+
+        foreach (var serviceType in serviceTypes)
+        {
+            var genericServiceType = serviceType.MakeGenericType(genericTypeArguments);
+            Assert.Contains(genericServiceType, registeredServiceTypes);
+        }
+    }
+
+    [Theory]
+    [InlineData(typeof(OpenGenericService<>), new[] { typeof(IGenericInterface<>) })]
+    [InlineData(typeof(OpenGenericService<,>), new[] { typeof(IGenericInterface<,>) })]
+    public void OpenGenericServicesShouldBeSuccessfullyRegistered(Type implementationType, Type[] serviceTypes)
+    {
+        var (serviceCollection, _, registrar) = InstantiateRegistrar();
+        registrar.Register(implementationType);
+
+        Assert.Equal(serviceTypes.Length + 1, serviceCollection.Count);
+
+        var registeredServiceTypes = AssertSuccessfulRegistration(serviceCollection, implementationType, ServiceLifetime.Scoped);
+
+        Assert.Contains(implementationType, registeredServiceTypes);
+        foreach (var interfaceType in serviceTypes) Assert.Contains(interfaceType, registeredServiceTypes);
     }
 
     private static (IServiceCollection Services, IHierarchyScanner HierarchyScanner, IServiceRegistrar Registrar) InstantiateRegistrar()
@@ -148,23 +172,28 @@ public class ServiceRegistrarTests
         return registeredServiceTypes;
     }
 
-    private interface IBaseInterface { }
-    private interface IGenericInterface<TKey> { }
-    private interface IImplementedInterface1 : IBaseInterface { }
-    private interface IImplementedInterface2 : IBaseInterface { }
-    private abstract class BaseService : IImplementedInterface1, IImplementedInterface2 { }
+    private interface IBaseInterface;
+    private interface IGenericInterface<T>;
+    private interface IGenericInterface<T1, T2>;
+    private interface IImplementedInterface1 : IBaseInterface;
+    private interface IImplementedInterface2 : IBaseInterface;
+    private abstract class BaseService : IImplementedInterface1, IImplementedInterface2;
 
-    private class Service : BaseService { }
-    [ServiceConfiguration(Lifetime = ServiceLifetime.Transient)] private class TransientService : BaseService { }
-    [ServiceConfiguration(Lifetime = ServiceLifetime.Scoped)] private class ExplicitlyScopedService : BaseService { }
-    [ServiceConfiguration] private class ImplicitlyScopedService : BaseService { }
-    [ServiceConfiguration(Lifetime = ServiceLifetime.Singleton)] private class SingletonService : BaseService { }
+    private class Service : BaseService;
+    [ServiceConfiguration(Lifetime = ServiceLifetime.Transient)] private class TransientService : BaseService;
+    [ServiceConfiguration(Lifetime = ServiceLifetime.Scoped)] private class ExplicitlyScopedService : BaseService;
+    [ServiceConfiguration] private class ImplicitlyScopedService : BaseService;
+    [ServiceConfiguration(Lifetime = ServiceLifetime.Singleton)] private class SingletonService : BaseService;
 
-    [AttributeUsage(AttributeTargets.GenericParameter)] private class KeyTypeAttribute : Attribute { }
-    private class GenericService<[KeyType] TKey> : IGenericInterface<TKey> { }
+    [AttributeUsage(AttributeTargets.GenericParameter)] private class KeyTypeAttribute : Attribute;
+    [AttributeUsage(AttributeTargets.GenericParameter)] private class ValueTypeAttribute : Attribute;
+    [ServiceConfiguration] private class GenericService<[KeyType] TKey> : IGenericInterface<TKey>;
+    [ServiceConfiguration] private class GenericService<[KeyType] TKey, [ValueType] TValue> : IGenericInterface<TKey, TValue>;
+
+    [ServiceConfiguration(OpenGeneric = true)] private class OpenGenericService<T> : IGenericInterface<T>, IGenericInterface<(T First, T Second)>;
+    [ServiceConfiguration(OpenGeneric = true)] private class OpenGenericService<T1, T2> : IGenericInterface<T1, T2>, IGenericInterface<(T1 First, T2 Second)>;
 
 #if NET8_0_OR_GREATER
-    [ServiceConfiguration(Key = "service_1")]
-    private class KeyedService : BaseService {}
+    [ServiceConfiguration(Key = "service_1")] private class KeyedService : BaseService;
 #endif
 }

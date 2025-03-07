@@ -78,8 +78,8 @@ public class ServiceRegistrarTests
     }
 
     /// <remarks>
-    /// For the <paramref name="genericTypesSetup"/> parameter,
-    /// attribute types are followed by the actual generic parameter type.
+    /// For the <paramref name="genericTypesSetup"/>,
+    /// every attribute type is immediately followed by the corresponding generic type argument.
     /// </remarks>
     [Theory]
     [InlineData(typeof(GenericService<>), new[] { typeof(IGenericInterface<>) }, new[] { typeof(KeyTypeAttribute), typeof(int) })]
